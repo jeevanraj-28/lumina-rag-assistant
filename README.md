@@ -48,36 +48,107 @@ flowchart:
 ## 🚀 Quick Start
 
 ### Prerequisites
-- [Python 3.11+](https://python.org)
-- [Ollama](https://ollama.com/) installed and in `PATH`
-- `git` (to clone this repo)
 
-### 1 — Clone & launch with one command
+| Requirement | Version | Install |
+|---|---|---|
+| Python | 3.11+ | [python.org](https://python.org) |
+| Ollama | Latest | [ollama.com](https://ollama.com/) |
+| Git | Any | [git-scm.com](https://git-scm.com/) |
+| curl | Any | Pre-installed on Linux/macOS/WSL |
+
+---
+
+### Step 1 — Clone the repository
 
 ```bash
 git clone https://github.com/jeevanraj-28/lumina-rag-assistant.git
 cd lumina-rag-assistant
+```
+
+---
+
+### Step 2 — Install Ollama
+
+Download and install Ollama for your OS from **[ollama.com](https://ollama.com/)**.
+
+- **Linux / macOS:** Ollama installs as a system service — it will be on your `PATH` automatically.
+- **Windows:** Ollama installs as a Windows app. You can run `start.sh` from **WSL** (recommended) or use the [PowerShell method](#windows-powershell) below.
+
+---
+
+### Step 3 — Run the startup script
+
+Pick the method that matches your environment:
+
+#### 🐧 Linux / macOS
+
+```bash
 bash start.sh
 ```
 
-The startup script will automatically:
-- Copy `.env.example` → `.env` on first run
-- Create and activate a Python virtual environment
-- Install all Python dependencies
-- Start the Ollama server (if not already running)
-- Pull `qwen2.5:3b` (≈1.9 GB) and `all-minilm` (46 MB) on first run
-- Launch the FastAPI server at **http://localhost:8000**
-- Open your browser automatically
+#### 🪟 Windows — WSL (recommended)
+
+Open a WSL terminal (Ubuntu, Debian, etc.) inside the project folder:
+
+```bash
+# If Ollama is already running on Windows, the script will detect it automatically.
+# If not, start Ollama from Windows first, then run:
+bash start.sh
+```
+
+> **WSL tip:** The script automatically finds `ollama.exe` in your Windows `AppData` folder and uses your Windows-created `.venv` via WSL2 interop — no extra setup needed.
+
+#### 🪟 Windows — PowerShell <a name="windows-powershell"></a>
+
+If you prefer to run without WSL:
+
+```powershell
+# 1. Create and activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Start Ollama (in a separate terminal or as a Windows service)
+ollama serve
+
+# 4. Pull models (first time only)
+ollama pull qwen2.5:3b
+ollama pull all-minilm
+
+# 5. Launch the app
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+---
+
+### What `start.sh` does automatically
+
+| Step | Action |
+|---|---|
+| 1 | Detects `ollama` / `ollama.exe` on Linux, macOS, or WSL |
+| 2 | Creates `data/inbox/`, `data/library/`, `data/index/` if missing |
+| 3 | Creates `.venv` (if absent) or uses the existing one |
+| 4 | Installs all Python dependencies from `requirements.txt` |
+| 5 | Starts Ollama server (skips if already running) |
+| 6 | Pulls `qwen2.5:3b` and `all-minilm` on first run only |
+| 7 | Launches FastAPI at **http://localhost:8000** |
+| 8 | Opens your browser automatically |
+| 9 | Gracefully stops all services on `Ctrl+C` |
 
 ### Startup flags
 
 ```bash
-bash start.sh --rebuild       # Force a full FAISS index rebuild on startup
-bash start.sh --no-browser    # Skip auto-opening the browser
+bash start.sh                    # Normal start
+bash start.sh --rebuild          # Force full FAISS index rebuild
+bash start.sh --no-browser       # Don't auto-open the browser
 bash start.sh --rebuild --no-browser
 ```
 
 ---
+
+
 
 ## 🐳 Docker (alternative)
 
