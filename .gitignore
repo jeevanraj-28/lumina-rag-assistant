@@ -1,0 +1,66 @@
+# =============================================================================
+# Lumina RAG — .gitignore
+# =============================================================================
+
+# ── Python ────────────────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.so
+*.whl
+pip-wheel-metadata/
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Data directories (user content — never commit) ───────────────────────────
+data/inbox/*
+data/library/*
+data/index/*
+data/ollama-models/*
+# Keep the directory structure in git via placeholder files
+!data/inbox/.gitkeep
+!data/library/.gitkeep
+!data/index/.gitkeep
+!data/ollama-models/.gitkeep
+
+# ── OS files ──────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Editors & IDEs ────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ── Docker build artifacts ────────────────────────────────────────────────────
+*.tar
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Test / coverage ───────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+

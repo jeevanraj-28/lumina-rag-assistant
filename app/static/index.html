@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Lumina RAG Dashboard — Local Intelligence</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                  "error-container": "#93000a",
+                  "on-primary-fixed": "#001944",
+                  "background": "#0e1419",
+                  "tertiary-container": "#b9c8dc",
+                  "tertiary": "#d5e4f9",
+                  "status-ready": "#22c55e",
+                  "outline-variant": "#44464f",
+                  "on-surface": "#dde3ea",
+                  "surface-variant": "#2f353b",
+                  "surface-container-low": "#171c22",
+                  "surface-container-highest": "#30353b",
+                  "surface-dim": "#0e1419",
+                  "inverse-surface": "#dde3ea",
+                  "surface-container-lowest": "#090f14",
+                  "secondary-container": "#314879",
+                  "outline": "#8e909a",
+                  "tertiary-fixed": "#d5e4f8",
+                  "on-secondary-container": "#a1b8f0",
+                  "on-primary-fixed-variant": "#2f4576",
+                  "surface-container-high": "#252b30",
+                  "on-tertiary-fixed": "#0e1d2b",
+                  "on-error-container": "#ffdad6",
+                  "secondary": "#afc6ff",
+                  "primary-fixed-dim": "#b0c6ff",
+                  "on-tertiary-container": "#455465",
+                  "error": "#ffb4ab",
+                  "secondary-fixed-dim": "#afc6ff",
+                  "inverse-primary": "#475d90",
+                  "secondary-fixed": "#d9e2ff",
+                  "surface-tint": "#b0c6ff",
+                  "surface-bright": "#343a40",
+                  "on-tertiary-fixed-variant": "#3a4858",
+                  "data-accent": "#c084fc",
+                  "primary": "#d9e2ff",
+                  "on-secondary-fixed": "#001943",
+                  "surface": "#0e1419",
+                  "primary-fixed": "#d9e2ff",
+                  "on-background": "#dde3ea",
+                  "txt-accent": "#2dd4bf",
+                  "on-primary": "#162f5e",
+                  "surface-container": "#1a2026",
+                  "inverse-on-surface": "#2b3137",
+                  "on-surface-variant": "#c5c6d0",
+                  "on-primary-container": "#3b5183",
+                  "on-tertiary": "#233241",
+                  "pdf-accent": "#fb923c",
+                  "on-secondary": "#152f5e",
+                  "tertiary-fixed-dim": "#b9c8dc",
+                  "primary-container": "#b0c6ff",
+                  "on-secondary-fixed-variant": "#2e4676",
+                  "on-error": "#690005"
+              },
+              borderRadius: {
+                  DEFAULT: "0.25rem",
+                  lg: "0.5rem",
+                  xl: "0.75rem",
+                  full: "9999px"
+              },
+              spacing: {
+                  gutter: "24px",
+                  "container-max": "800px",
+                  "stack-lg": "32px",
+                  "stack-sm": "8px",
+                  "stack-md": "16px",
+                  "sidebar-width": "280px"
+              },
+              fontFamily: {
+                  "label-mono": ["JetBrains Mono", "monospace"],
+                  "display-lg": ["Inter", "sans-serif"],
+                  "body-md": ["Inter", "sans-serif"],
+                  "label-caps": ["Inter", "sans-serif"],
+                  "headline-sm": ["Inter", "sans-serif"],
+                  "headline-md": ["Inter", "sans-serif"],
+                  "body-lg": ["Inter", "sans-serif"]
+              }
+            }
+          }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0e1419;
+            color: #dde3ea;
+            overflow: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #171c22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f353b;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #44464f;
+        }
+
+        /* Intro Animation Overlay */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: #0e1419;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+        }
+        #intro-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(23, 28, 34, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid #44464f;
+        }
+
+        @keyframes iridescence {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .iridescent-border {
+            position: relative;
+        }
+        .iridescent-border::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: linear-gradient(45deg, #4f46e5, #9333ea, #06b6d4, #ec4899, #4f46e5);
+            background-size: 400% 400%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .iridescent-border.processing::before {
+            opacity: 1;
+            animation: iridescence 3s ease infinite;
+        }
+
+        .wave-container {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 16px;
+        }
+        .wave-bar {
+            width: 3px;
+            background-color: #d9e2ff;
+            border-radius: 99px;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+        .wave-bar:nth-child(1) { animation-delay: -1.2s; }
+        .wave-bar:nth-child(2) { animation-delay: -1.1s; }
+        .wave-bar:nth-child(3) { animation-delay: -1.0s; }
+        .wave-bar:nth-child(4) { animation-delay: -0.9s; }
+        .wave-bar:nth-child(5) { animation-delay: -0.8s; }
+
+        .citation-drawer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+            opacity: 0;
+        }
+        .citation-drawer.expanded {
+            max-height: 800px;
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="antialiased relative h-screen w-screen flex">
+    <!-- Intro Animation Overlay -->
+    <div id="intro-overlay">
+        <div class="w-64 h-64 relative">
+            <div class="w-full h-full" style="display:block;">
+                <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+                <div id="threejs-container" style="width:100%;height:100%"></div>
+                <script>
+                (function() {
+                  const container = document.getElementById('threejs-container');
+                  if (!container) return;
+                  const canvas = document.createElement('canvas');
+                  canvas.className = 'w-full h-full';
+                  container.appendChild(canvas);
+                  const ctx = canvas.getContext('2d');
+
+                  let width, height;
+                  function resize() {
+                    width = canvas.width = container.clientWidth || 256;
+                    height = canvas.height = container.clientHeight || 256;
+                  }
+                  window.addEventListener('resize', resize);
+                  resize();
+
+                  const colors = ['#6366f1', '#a855f7', '#ec4899', '#3b82f6'];
+                  const threads = [];
+                  const threadCount = 12;
+
+                  for (let i = 0; i < threadCount; i++) {
+                    threads.push({
+                      x: Math.random() * width,
+                      y: Math.random() * height,
+                      length: 0,
+                      maxLength: 150 + Math.random() * 200,
+                      angle: Math.random() * Math.PI * 2,
+                      speed: 2 + Math.random() * 2,
+                      color: colors[i % colors.length],
+                      points: []
+                    });
+                  }
+
+                  let startTime = Date.now();
+                  let phase = 'weaving';
+
+                  function animate() {
+                    const elapsed = Date.now() - startTime;
+                    ctx.clearRect(0, 0, width, height);
+
+                    if (phase === 'weaving') {
+                      threads.forEach(t => {
+                        if (t.length < t.maxLength) {
+                          t.length += t.speed;
+                          const px = t.x + Math.cos(t.angle) * t.length;
+                          const py = t.y + Math.sin(t.angle) * t.length;
+                          t.points.push({x: px, y: py});
+                          t.angle += (Math.random() - 0.5) * 0.1;
+                        }
+                        ctx.beginPath();
+                        ctx.strokeStyle = t.color;
+                        ctx.lineWidth = 2;
+                        ctx.lineCap = 'round';
+                        if (t.points.length > 0) {
+                          ctx.moveTo(t.points[0].x, t.points[0].y);
+                          for (let i = 1; i < t.points.length; i++) ctx.lineTo(t.points[i].x, t.points[i].y);
+                        }
+                        ctx.stroke();
+                      });
+                      if (elapsed > 2000) phase = 'glowing';
+                    } else if (phase === 'glowing') {
+                      const glowIntensity = Math.sin(elapsed * 0.005) * 0.5 + 0.5;
+                      threads.forEach(t => {
+                        ctx.shadowBlur = 15 * glowIntensity;
+                        ctx.shadowColor = t.color;
+                        ctx.strokeStyle = t.color;
+                        ctx.lineWidth = 2 + glowIntensity;
+                        ctx.beginPath();
+                        if (t.points.length > 0) {
+                          ctx.moveTo(t.points[0].x, t.points[0].y);
+                          for (let i = 1; i < t.points.length; i++) ctx.lineTo(t.points[i].x, t.points[i].y);
+                        }
+                        ctx.stroke();
+                      });
+                      if (elapsed > 2700) phase = 'dissolve';
+                    }
+                    requestAnimationFrame(animate);
+                  }
+                  animate();
+                })();
+                </script>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center font-bold text-3xl text-primary tracking-tight" style="opacity: 0; animation: fadeIn 1.5s forwards 0.5s;">Lumina RAG</div>
+        </div>
+    </div>
+
+    <!-- Persistent Background Shader -->
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <canvas id="shader-canvas" class="absolute inset-0 w-full h-full opacity-30"></canvas>
+        <script>
+        (function() {
+          const canvas = document.getElementById('shader-canvas');
+          function syncSize() {
+            const w = canvas.clientWidth || window.innerWidth;
+            const h = canvas.clientHeight || window.innerHeight;
+            if (canvas.width !== w || canvas.height !== h) {
+              canvas.width = w;
+              canvas.height = h;
+            }
+          }
+          window.addEventListener('resize', syncSize);
+          syncSize();
+
+          const gl = canvas.getContext('webgl');
+          if (!gl) return;
+          const vs = `attribute vec2 a_position; varying vec2 v_texCoord; void main() { v_texCoord = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }`;
+          const fs = `precision highp float;
+          varying vec2 v_texCoord;
+          uniform float u_time;
+          uniform vec2 u_resolution;
+          uniform vec2 u_mouse;
+          void main() {
+              vec2 uv = v_texCoord;
+              vec2 mouse = u_mouse / u_resolution;
+              vec3 color1 = vec3(0.05, 0.07, 0.09);
+              vec3 color2 = vec3(0.07, 0.09, 0.12);
+              float t = u_time * 0.1;
+              float wave = sin(uv.x * 10.0 + t) * 0.02 + cos(uv.y * 8.0 - t * 1.5) * 0.02;
+              float dist = distance(uv, mouse);
+              float ripple = smoothstep(0.3, 0.0, dist) * 0.05 * sin(dist * 20.0 - u_time * 5.0);
+              vec2 distortedUV = uv + wave + ripple;
+              float grid = smoothstep(0.95, 1.0, sin(distortedUV.x * 40.0) * sin(distortedUV.y * 40.0));
+              vec3 finalColor = mix(color1, color2, sin(distortedUV.x * 2.0 + t) * 0.5 + 0.5) + grid * 0.03;
+              float v = distance(uv, vec2(0.5));
+              gl_FragColor = vec4(finalColor * (1.2 - v * 0.8), 1.0);
+          }`;
+          function cs(type, src) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            return s;
+          }
+          const prog = gl.createProgram();
+          gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+          gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+          gl.linkProgram(prog);
+          gl.useProgram(prog);
+          const buf = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+          const pos = gl.getAttribLocation(prog, 'a_position');
+          gl.enableVertexAttribArray(pos);
+          gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+          const uTime = gl.getUniformLocation(prog, 'u_time');
+          const uRes = gl.getUniformLocation(prog, 'u_resolution');
+          const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+          let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+          window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = canvas.height - e.clientY;
+          });
+
+          function render(t) {
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            if (uTime) gl.uniform1f(uTime, t * 0.001);
+            if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+            if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+          }
+          render(0);
+        })();
+        </script>
+    </div>
+
+    <!-- UI Content -->
+    <div class="relative z-10 flex w-full h-full">
+        <!-- SideNavBar -->
+        <nav class="hidden md:flex flex-col fixed left-0 top-0 h-full w-72 bg-surface-container/80 backdrop-blur-xl border-r border-outline-variant shadow-xl py-6 px-6 z-20">
+            <!-- Header -->
+            <div class="flex items-center gap-4 mb-8">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container">
+                        <span class="material-symbols-outlined">hub</span>
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-status-ready rounded-full border-2 border-surface-container animate-pulse" id="status-pulse"></div>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary tracking-tight leading-none">Lumina RAG</h1>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mt-1" id="model-subtitle">Qwen 2.5 3B</p>
+                </div>
+            </div>
+
+            <!-- Ingest & Index Action Card -->
+            <div class="bg-surface-container-highest rounded-xl p-4 mb-6 border border-outline-variant shadow-lg relative overflow-hidden group cursor-pointer hover:border-primary transition-colors" id="ingest-card">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-on-surface font-semibold">Knowledge Base</span>
+                    <span class="material-symbols-outlined text-on-surface-variant text-sm">upload_file</span>
+                </div>
+                <div class="text-xs text-on-surface-variant mb-3" id="ingest-status-text">Click to ingest data/inbox documents.</div>
+                
+                <!-- Loading State -->
+                <div class="hidden absolute inset-0 bg-surface-container-highest/90 backdrop-blur-sm flex flex-col items-center justify-center" id="ingest-loading">
+                    <span class="material-symbols-outlined animate-spin text-primary mb-2">autorenew</span>
+                    <span class="text-xs text-primary font-medium">Weaving Knowledge...</span>
+                </div>
+            </div>
+
+            <!-- Navigation / Info -->
+            <div class="flex flex-col gap-1 mb-6 flex-grow overflow-y-auto">
+                <div class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider px-2 mb-2">Indexed Library Files</div>
+                <div id="library-files-list" class="flex flex-col gap-1 text-sm">
+                    <div class="px-3 py-2 text-on-surface-variant text-xs">Loading library...</div>
+                </div>
+            </div>
+
+            <!-- File Library Summary Badge -->
+            <div class="mb-6">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-3 px-2">Index Stats</h3>
+                <div class="flex flex-wrap gap-2 px-2" id="index-stats-badges">
+                    <span class="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant flex items-center gap-1.5 text-xs">
+                        <span class="w-2 h-2 rounded-full bg-status-ready"></span>
+                        <span id="chunks-badge">Chunks: 0</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-1">
+                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant opacity-80 hover:bg-surface-container-highest hover:text-on-surface transition-all" href="/docs" target="_blank">
+                    <span class="material-symbols-outlined">api</span>
+                    <span class="text-sm font-medium">API Docs</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col h-full ml-0 md:ml-72 relative">
+            <!-- TopAppBar -->
+            <header class="h-16 flex items-center justify-between px-6 glass-panel border-x-0 border-t-0 z-20">
+                <div class="flex items-center gap-4">
+                    <div class="font-semibold text-primary">Chat Assistant</div>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-on-surface-variant">
+                    <span class="flex items-center gap-1.5 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant">
+                        <span class="w-2 h-2 rounded-full bg-status-ready"></span>
+                        Local RAG Server Active (Port 8000)
+                    </span>
+                </div>
+            </header>
+
+            <!-- Chat Feed Area -->
+            <div class="flex-1 overflow-y-auto px-6 py-8 scroll-smooth" id="chat-container">
+                <div class="max-w-[800px] mx-auto flex flex-col gap-6 pb-36" id="chat-messages">
+                    <!-- Initial Welcome Message -->
+                    <div class="flex justify-start gap-4">
+                        <div class="w-8 h-8 rounded-lg bg-primary-container flex-shrink-0 flex items-center justify-center text-on-primary-container mt-1 border border-primary/30 shadow-[0_0_15px_rgba(176,198,255,0.15)]">
+                            <span class="material-symbols-outlined text-sm">memory</span>
+                        </div>
+                        <div class="max-w-[85%] flex flex-col gap-3">
+                            <div class="glass-panel rounded-2xl rounded-tl-sm p-5 shadow-xl">
+                                <p class="text-on-surface leading-relaxed">
+                                    Welcome to <strong>Lumina RAG</strong>. I am your local AI assistant powered by <strong>Ollama (Qwen 2.5 3B + all-minilm)</strong> and <strong>FAISS</strong> vector retrieval. Ask me any question about your indexed documents!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Input Area -->
+            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#0e1419] via-[#0e1419]/90 to-transparent z-30">
+                <div class="max-w-[800px] mx-auto">
+                    <!-- Loading Indicator -->
+                    <div class="hidden items-center justify-center gap-3 mb-3" id="synthesizing-indicator">
+                        <div class="wave-container">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+                        <span class="text-sm font-medium text-primary">Synthesizing Local Context...</span>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="glass-panel rounded-3xl shadow-2xl iridescent-border transition-all duration-300" id="input-wrapper">
+                        <div class="flex items-end gap-2 p-2 bg-surface-container-highest/50 rounded-3xl z-10 relative">
+                            <textarea id="question-input"
+                                class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface text-base resize-none max-h-32 min-h-[44px] py-3 px-4 placeholder-on-surface-variant/50 focus:outline-none"
+                                placeholder="Ask about your documents..."
+                                rows="1"></textarea>
+                            <button id="send-btn"
+                                class="p-3 bg-primary-container text-on-primary-container rounded-full hover:bg-primary transition-colors shadow-lg shadow-primary-container/20 flex-shrink-0 flex items-center justify-center h-11 w-11">
+                                <span class="material-symbols-outlined">send</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Fade out intro overlay after 2.5s
+        setTimeout(() => {
+            const overlay = document.getElementById('intro-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }, 2500);
+
+        let citationCounter = 0;
+
+        function toggleCitation(id, btn) {
+            const drawer = document.getElementById(id);
+            const icon = btn.querySelector('.expand-icon');
+            if (!drawer) return;
+            if (drawer.classList.contains('expanded')) {
+                drawer.classList.remove('expanded');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                drawer.classList.add('expanded');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Fetch health & file list on load
+        async function loadStatus() {
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    document.getElementById('chunks-badge').innerText = `Chunks: ${data.indexed_chunks}`;
+                    document.getElementById('model-subtitle').innerText = `${data.model} + ${data.embedding_model}`;
+                }
+            } catch (err) {
+                console.error('Health check failed', err);
+            }
+
+            try {
+                const res = await fetch('/files');
+                const files = await res.json();
+                const listEl = document.getElementById('library-files-list');
+                if (files.length === 0) {
+                    listEl.innerHTML = '<div class="px-3 py-2 text-on-surface-variant text-xs">No files indexed yet.</div>';
+                } else {
+                    listEl.innerHTML = files.map(f => {
+                        const name = f.path.split('/').pop();
+                        return `
+                        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-highest/60 text-on-surface">
+                            <span class="material-symbols-outlined text-sm text-primary">description</span>
+                            <span class="truncate text-xs font-mono">${name}</span>
+                        </div>`;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error('Files check failed', err);
+            }
+        }
+
+        // Ingest card click handler
+        document.getElementById('ingest-card').addEventListener('click', async () => {
+            const loading = document.getElementById('ingest-loading');
+            const statusText = document.getElementById('ingest-status-text');
+            loading.classList.remove('hidden');
+            try {
+                const res = await fetch('/ingest', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({rebuild: true})
+                });
+                const data = await res.json();
+                statusText.innerText = `Indexed ${data.chunks_indexed} chunks successfully!`;
+                await loadStatus();
+            } catch (err) {
+                statusText.innerText = 'Error ingesting files.';
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+
+        // Chat functionality
+        const questionInput = document.getElementById('question-input');
+        const sendBtn = document.getElementById('send-btn');
+        const messagesContainer = document.getElementById('chat-messages');
+        const inputWrapper = document.getElementById('input-wrapper');
+        const loadingIndicator = document.getElementById('synthesizing-indicator');
+
+        function appendUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'flex justify-end';
+            div.innerHTML = `
+                <div class="max-w-[80%] bg-surface-container-highest rounded-2xl rounded-tr-sm p-4 shadow-xl border border-outline-variant">
+                    <p class="text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+                </div>
+            `;
+            messagesContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function appendAssistantMessage(answer, sources) {
+            citationCounter++;
+            const citId = `citation-drawer-${citationCounter}`;
+            const div = document.createElement('div');
+            div.className = 'flex justify-start gap-4';
+
+            let sourcesHTML = '';
+            let toggleBtnHTML = '';
+
+            if (sources && sources.length > 0) {
+                toggleBtnHTML = `
+                    <button class="flex items-center gap-2 text-sm text-primary hover:text-primary-fixed-dim transition-colors mt-3" onclick="toggleCitation('${citId}', this)">
+                        <span class="material-symbols-outlined text-sm">library_books</span>
+                        <span>${sources.length} Source${sources.length > 1 ? 's' : ''} Referenced</span>
+                        <span class="material-symbols-outlined text-sm transition-transform duration-200 expand-icon">expand_more</span>
+                    </button>
+                `;
+
+                const sourcesList = sources.map(s => {
+                    const fname = s.file ? s.file.split('/').pop() : 'Document';
+                    const matchPercent = Math.round((s.score || 0.5) * 100);
+                    return `
+                        <div class="bg-surface-container-lowest rounded-lg p-3 border border-outline-variant">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-txt-accent"></span>
+                                    <span class="font-mono text-xs text-on-surface-variant font-medium">${escapeHtml(fname)}</span>
+                                </div>
+                                <span class="text-xs font-medium text-txt-accent bg-txt-accent/10 px-2 py-0.5 rounded border border-txt-accent/20">Similarity Score: ${s.score.toFixed(3)}</span>
+                            </div>
+                            <p class="font-mono text-xs text-on-surface-variant opacity-80 leading-relaxed">"${escapeHtml(s.excerpt || '')}"</p>
+                        </div>
+                    `;
+                }).join('');
+
+                sourcesHTML = `
+                    <div class="citation-drawer pl-4 border-l-2 border-surface-variant mt-2" id="${citId}">
+                        <div class="flex flex-col gap-2 mt-2">
+                            ${sourcesList}
+                        </div>
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-primary-container flex-shrink-0 flex items-center justify-center text-on-primary-container mt-1 border border-primary/30 shadow-[0_0_15px_rgba(176,198,255,0.15)]">
+                    <span class="material-symbols-outlined text-sm">memory</span>
+                </div>
+                <div class="max-w-[85%] flex flex-col gap-2">
+                    <div class="glass-panel rounded-2xl rounded-tl-sm p-5 shadow-xl">
+                        <p class="text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
+                        ${toggleBtnHTML}
+                    </div>
+                    ${sourcesHTML}
+                </div>
+            `;
+            messagesContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function escapeHtml(text) {
+            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const q = questionInput.value.trim();
+            if (!q) return;
+            questionInput.value = '';
+            questionInput.style.height = '';
+
+            appendUserMessage(q);
+
+            inputWrapper.classList.add('processing');
+            loadingIndicator.classList.remove('hidden');
+            loadingIndicator.classList.add('flex');
+
+            try {
+                const res = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({question: q, top_k: 3})
+                });
+                const data = await res.json();
+                appendAssistantMessage(data.answer, data.sources);
+            } catch (err) {
+                appendAssistantMessage('Sorry, there was an error processing your request across local RAG.', []);
+            } finally {
+                inputWrapper.classList.remove('processing');
+                loadingIndicator.classList.add('hidden');
+                loadingIndicator.classList.remove('flex');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        questionInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        questionInput.addEventListener('input', function() {
+            this.style.height = '';
+            this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+        });
+
+        loadStatus();
+    </script>
+</body>
+</html>
