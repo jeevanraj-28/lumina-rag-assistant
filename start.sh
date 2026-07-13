@@ -178,28 +178,37 @@ else
   info "Dependencies already installed."
 fi
 
-# ── Step 5: Start Ollama server ───────────────────────────────────────────────
-info "Starting Ollama server..."
+# ── Step 5: Start / connect to Ollama server ──────────────────────────────────
+# In WSL2, Windows processes bind to the Windows loopback. `localhost` is
+# forwarded via WSL2 mirrored networking; the raw 127.0.0.1 IP is not.
+OLLAMA_HEALTH_URL="${OLLAMA_BASE_URL/127.0.0.1/localhost}"
 
-if curl -sf "$OLLAMA_BASE_URL/api/tags" &>/dev/null; then
-  warn "Ollama is already running on $OLLAMA_BASE_URL — skipping start."
+info "Checking Ollama at $OLLAMA_HEALTH_URL ..."
+
+if curl -sf --max-time 3 "$OLLAMA_HEALTH_URL/api/tags" &>/dev/null; then
+  success "Ollama is already running — skipping start."
 else
-  "$OLLAMA_CMD" serve &
+  info "Starting Ollama server..."
+  "$OLLAMA_CMD" serve &>/dev/null &
   OLLAMA_PID=$!
-  info "Ollama server started (PID: $OLLAMA_PID)"
+  info "Ollama server started (PID: $OLLAMA_PID) — waiting for it to be ready..."
 
-  info "Waiting for Ollama to be ready..."
   WAIT=0
-  until curl -sf "$OLLAMA_BASE_URL/api/tags" &>/dev/null; do
+  until curl -sf --max-time 2 "$OLLAMA_HEALTH_URL/api/tags" &>/dev/null; do
     sleep 1
     WAIT=$((WAIT + 1))
-    if [[ $WAIT -gt 30 ]]; then
-      error "Ollama did not become ready after 30 seconds."
+    if [[ $WAIT -eq 10 ]]; then
+      info "Still waiting for Ollama... (if running on Windows, ensure it is started)"
+    fi
+    if [[ $WAIT -gt 60 ]]; then
+      error "Ollama did not become ready after 60 seconds."
+      error "If running from WSL, start Ollama on Windows first, then re-run this script."
       exit 1
     fi
   done
   success "Ollama is ready."
 fi
+
 
 # ── Step 6: Pull required models ──────────────────────────────────────────────
 pull_model_if_missing() {
