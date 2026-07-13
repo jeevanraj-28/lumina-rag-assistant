@@ -78,6 +78,23 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# ── WSL / Windows PATH fix ────────────────────────────────────────────────────
+# WSL (and Git Bash) don't inherit the Windows PATH where ollama.exe lives.
+# Scan common Windows drive mount points to find and inject it.
+if ! command -v ollama &>/dev/null; then
+  for p in \
+    /mnt/c/Users/*/AppData/Local/Programs/Ollama \
+    /mnt/c/Program\ Files/Ollama \
+    /c/Users/*/AppData/Local/Programs/Ollama; do
+    if [[ -f "$p/ollama.exe" ]]; then
+      export PATH="$p:$PATH"
+      info "Added Ollama to PATH: $p"
+      break
+    fi
+  done
+fi
+
+
 # ── Step 1: Check system dependencies ─────────────────────────────────────────
 info "Checking system dependencies..."
 
@@ -90,12 +107,20 @@ PYTHON=$(command -v python3 2>/dev/null || command -v python)
 PYTHON_VERSION=$("$PYTHON" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 info "Python $PYTHON_VERSION found at $PYTHON"
 
-if ! command -v ollama &>/dev/null; then
+# Detect ollama or ollama.exe (WSL)
+OLLAMA_CMD=""
+if command -v ollama &>/dev/null; then
+  OLLAMA_CMD="ollama"
+elif command -v ollama.exe &>/dev/null; then
+  OLLAMA_CMD="ollama.exe"
+fi
+
+if [[ -z "$OLLAMA_CMD" ]]; then
   error "Ollama is not installed or not in PATH."
   error "Install from: https://ollama.com/"
   exit 1
 fi
-success "Ollama found: $(ollama --version 2>/dev/null || echo 'installed')"
+success "Ollama found: $OLLAMA_CMD"
 
 # ── Step 2: Create data directories ───────────────────────────────────────────
 info "Ensuring data directories exist..."
@@ -106,33 +131,51 @@ mkdir -p \
 success "Data directories ready."
 
 # ── Step 3: Python virtual environment ────────────────────────────────────────
-if [[ ! -d "$VENV_DIR" ]]; then
-  info "Creating Python virtual environment at .venv ..."
-  "$PYTHON" -m venv "$VENV_DIR"
-  success "Virtual environment created."
-else
-  info "Virtual environment already exists."
+# Detect whether venv uses Windows-style Scripts/ (WSL / Git Bash running on
+# a Windows-created .venv) or Unix-style bin/ (native Linux .venv).
+VENV_PYTHON=""
+VENV_PIP=""
+if [[ -f "$VENV_DIR/Scripts/python.exe" ]]; then
+  # Windows .venv accessed from WSL — use .exe directly (WSL2 interop)
+  VENV_PYTHON="$VENV_DIR/Scripts/python.exe"
+  VENV_PIP="$VENV_DIR/Scripts/pip.exe"
+  export PATH="$VENV_DIR/Scripts:$PATH"
+elif [[ -f "$VENV_DIR/bin/python" ]]; then
+  # Native Linux .venv
+  VENV_PYTHON="$VENV_DIR/bin/python"
+  VENV_PIP="$VENV_DIR/bin/pip"
+  export PATH="$VENV_DIR/bin:$PATH"
 fi
 
-# Activate venv (cross-platform: Linux/macOS/Windows Git Bash)
-if [[ -f "$VENV_DIR/Scripts/activate" ]]; then
-  source "$VENV_DIR/Scripts/activate"
-elif [[ -f "$VENV_DIR/bin/activate" ]]; then
-  source "$VENV_DIR/bin/activate"
+if [[ -n "$VENV_PYTHON" ]]; then
+  PYTHON="$VENV_PYTHON"
+  PYTHON_VERSION=$("$PYTHON" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+  info "Using venv Python $PYTHON_VERSION at $PYTHON"
 else
-  error "Could not find venv activation script."
-  exit 1
+  info "No existing venv found — creating one at .venv ..."
+  "$PYTHON" -m venv "$VENV_DIR"
+  if [[ -f "$VENV_DIR/Scripts/python.exe" ]]; then
+    VENV_PYTHON="$VENV_DIR/Scripts/python.exe"
+    VENV_PIP="$VENV_DIR/Scripts/pip.exe"
+    export PATH="$VENV_DIR/Scripts:$PATH"
+  else
+    VENV_PYTHON="$VENV_DIR/bin/python"
+    VENV_PIP="$VENV_DIR/bin/pip"
+    export PATH="$VENV_DIR/bin:$PATH"
+  fi
+  PYTHON="$VENV_PYTHON"
+  success "Virtual environment created."
 fi
-success "Virtual environment activated."
+success "Virtual environment ready ($("$PYTHON" --version 2>&1))."
 
 # ── Step 4: Install / sync Python dependencies ────────────────────────────────
 info "Checking Python dependencies..."
-if ! pip show fastapi &>/dev/null 2>&1; then
+if ! "$VENV_PIP" show fastapi &>/dev/null 2>&1; then
   info "Installing dependencies from requirements.txt..."
-  pip install --quiet -r "$SCRIPT_DIR/requirements.txt"
+  "$VENV_PIP" install --quiet -r "$SCRIPT_DIR/requirements.txt"
   success "Dependencies installed."
 else
-  info "Dependencies already installed. (Run 'pip install -r requirements.txt' to update)"
+  info "Dependencies already installed."
 fi
 
 # ── Step 5: Start Ollama server ───────────────────────────────────────────────
@@ -141,7 +184,7 @@ info "Starting Ollama server..."
 if curl -sf "$OLLAMA_BASE_URL/api/tags" &>/dev/null; then
   warn "Ollama is already running on $OLLAMA_BASE_URL — skipping start."
 else
-  ollama serve &
+  "$OLLAMA_CMD" serve &
   OLLAMA_PID=$!
   info "Ollama server started (PID: $OLLAMA_PID)"
 
@@ -161,11 +204,11 @@ fi
 # ── Step 6: Pull required models ──────────────────────────────────────────────
 pull_model_if_missing() {
   local model="$1"
-  if ollama list 2>/dev/null | grep -q "^${model}"; then
+  if "$OLLAMA_CMD" list 2>/dev/null | grep -q "^${model}"; then
     success "Model '${model}' already available."
   else
     info "Pulling model '${model}' (this may take a while on first run)..."
-    ollama pull "$model"
+    "$OLLAMA_CMD" pull "$model"
     success "Model '${model}' ready."
   fi
 }
@@ -177,7 +220,7 @@ pull_model_if_missing "$OLLAMA_EMBEDDING_MODEL"
 info "Starting Lumina RAG server on http://${APP_HOST}:${APP_PORT} ..."
 cd "$SCRIPT_DIR"
 
-uvicorn app.main:app \
+"$PYTHON" -m uvicorn app.main:app \
   --host "$APP_HOST" \
   --port "$APP_PORT" \
   --reload \
