@@ -3,719 +3,825 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Lumina RAG Dashboard — Local Intelligence</title>
+    <title>Lumina RAG — Your Local AI Knowledge Assistant</title>
+    <meta name="description" content="Lumina RAG is a local AI-powered document assistant using Ollama and FAISS for private, intelligent document Q&A."/>
+    <link rel="icon" href="/static/logo-icon.png" type="image/png"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+    <script>
         tailwind.config = {
           darkMode: "class",
           theme: {
             extend: {
               colors: {
-                  "error-container": "#93000a",
-                  "on-primary-fixed": "#001944",
-                  "background": "#0e1419",
-                  "tertiary-container": "#b9c8dc",
-                  "tertiary": "#d5e4f9",
-                  "status-ready": "#22c55e",
-                  "outline-variant": "#44464f",
-                  "on-surface": "#dde3ea",
-                  "surface-variant": "#2f353b",
-                  "surface-container-low": "#171c22",
-                  "surface-container-highest": "#30353b",
-                  "surface-dim": "#0e1419",
-                  "inverse-surface": "#dde3ea",
-                  "surface-container-lowest": "#090f14",
-                  "secondary-container": "#314879",
-                  "outline": "#8e909a",
-                  "tertiary-fixed": "#d5e4f8",
-                  "on-secondary-container": "#a1b8f0",
-                  "on-primary-fixed-variant": "#2f4576",
-                  "surface-container-high": "#252b30",
-                  "on-tertiary-fixed": "#0e1d2b",
-                  "on-error-container": "#ffdad6",
-                  "secondary": "#afc6ff",
-                  "primary-fixed-dim": "#b0c6ff",
-                  "on-tertiary-container": "#455465",
-                  "error": "#ffb4ab",
-                  "secondary-fixed-dim": "#afc6ff",
-                  "inverse-primary": "#475d90",
-                  "secondary-fixed": "#d9e2ff",
-                  "surface-tint": "#b0c6ff",
-                  "surface-bright": "#343a40",
-                  "on-tertiary-fixed-variant": "#3a4858",
-                  "data-accent": "#c084fc",
-                  "primary": "#d9e2ff",
-                  "on-secondary-fixed": "#001943",
-                  "surface": "#0e1419",
-                  "primary-fixed": "#d9e2ff",
-                  "on-background": "#dde3ea",
-                  "txt-accent": "#2dd4bf",
-                  "on-primary": "#162f5e",
-                  "surface-container": "#1a2026",
-                  "inverse-on-surface": "#2b3137",
-                  "on-surface-variant": "#c5c6d0",
-                  "on-primary-container": "#3b5183",
-                  "on-tertiary": "#233241",
-                  "pdf-accent": "#fb923c",
-                  "on-secondary": "#152f5e",
-                  "tertiary-fixed-dim": "#b9c8dc",
-                  "primary-container": "#b0c6ff",
-                  "on-secondary-fixed-variant": "#2e4676",
-                  "on-error": "#690005"
+                "on-surface-variant": "var(--c-on-surface-variant)",
+                "primary-dark": "var(--c-primary-dark)",
+                "on-background": "var(--c-on-background)",
+                "error-container": "var(--c-error-container)",
+                "surface-container": "var(--c-surface-container)",
+                "on-secondary": "var(--c-on-secondary)",
+                "primary-fixed": "var(--c-primary-fixed)",
+                "surface-bright": "var(--c-surface-bright)",
+                "on-secondary-container": "var(--c-on-secondary-container)",
+                "surface-variant": "var(--c-surface-variant)",
+                "background": "var(--c-background)",
+                "surface-container-low": "var(--c-surface-container-low)",
+                "accent-red": "#FF4B4B",
+                "accent-orange": "#FF9600",
+                "accent-purple": "#CE82FF",
+                "on-surface": "var(--c-on-surface)",
+                "tertiary": "#9a397a",
+                "tertiary-container": "#ff8ed4",
+                "surface-tint": "var(--c-surface-tint)",
+                "secondary-container": "var(--c-secondary-container)",
+                "outline-variant": "var(--c-outline-variant)",
+                "secondary-dark": "var(--c-secondary-dark)",
+                "surface-raised": "var(--c-surface-raised)",
+                "surface-dim": "var(--c-surface-dim)",
+                "secondary": "var(--c-secondary)",
+                "surface": "var(--c-surface)",
+                "surface-container-lowest": "var(--c-surface-container-lowest)",
+                "surface-container-high": "var(--c-surface-container-high)",
+                "error": "var(--c-error)",
+                "surface-container-highest": "var(--c-surface-container-highest)",
+                "primary-container": "var(--c-primary-container)",
+                "on-primary-container": "var(--c-on-primary-container)",
+                "outline": "var(--c-outline)",
+                "primary": "var(--c-primary)",
+                "on-primary": "var(--c-on-primary)",
               },
-              borderRadius: {
-                  DEFAULT: "0.25rem",
-                  lg: "0.5rem",
-                  xl: "0.75rem",
-                  full: "9999px"
-              },
-              spacing: {
-                  gutter: "24px",
-                  "container-max": "800px",
-                  "stack-lg": "32px",
-                  "stack-sm": "8px",
-                  "stack-md": "16px",
-                  "sidebar-width": "280px"
-              },
-              fontFamily: {
-                  "label-mono": ["JetBrains Mono", "monospace"],
-                  "display-lg": ["Inter", "sans-serif"],
-                  "body-md": ["Inter", "sans-serif"],
-                  "label-caps": ["Inter", "sans-serif"],
-                  "headline-sm": ["Inter", "sans-serif"],
-                  "headline-md": ["Inter", "sans-serif"],
-                  "body-lg": ["Inter", "sans-serif"]
+              borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+              spacing: { "section-gap": "24px", "sidebar-width": "300px", "card-padding": "20px", "chat-max-width": "760px", "nav-height": "64px", "gutter": "16px" },
+              fontFamily: { "headline": ["Nunito", "sans-serif"], "body": ["Inter", "sans-serif"], "mono": ["JetBrains Mono", "monospace"] },
+              fontSize: {
+                "headline-md": ["18px", { lineHeight: "1.4", fontWeight: "700" }],
+                "body": ["15px", { lineHeight: "1.5", fontWeight: "400" }],
+                "mono": ["13px", { lineHeight: "1.5", fontWeight: "400" }],
+                "headline-xl": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                "caption": ["12px", { lineHeight: "1.4", fontWeight: "500" }],
+                "label": ["13px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }],
+                "headline-lg": ["24px", { lineHeight: "1.3", fontWeight: "700" }]
               }
             }
           }
         };
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0e1419;
-            color: #dde3ea;
-            overflow: hidden;
+        :root {
+            --c-on-surface-variant: #9BAFB8; --c-primary-dark: #38781A; --c-on-background: #E5E5E5;
+            --c-error-container: #442726; --c-surface-container: #1A2C35; --c-on-secondary: #ffffff;
+            --c-primary-fixed: #87fe45; --c-surface-bright: #22363F; --c-on-secondary-container: #E0F2FE;
+            --c-surface-variant: #2D4A56; --c-background: #131F24; --c-surface-container-low: #1A2C35;
+            --c-on-surface: #E5E5E5; --c-surface-tint: #58CC02; --c-secondary-container: #133547;
+            --c-outline-variant: #2D4A56; --c-secondary-dark: #116189; --c-surface-raised: #22363F;
+            --c-surface-dim: #131F24; --c-secondary: #1CB0F6; --c-surface: #131F24;
+            --c-surface-container-lowest: #0D181D; --c-surface-container-high: #22363F; --c-error: #ffb4ab;
+            --c-surface-container-highest: #2D4A56; --c-primary-container: #1B3327;
+            --c-on-primary-container: #F0FDF4; --c-outline: #2D4A56; --c-primary: #58CC02; --c-on-primary: #000000;
+            --glow-color: rgba(88, 204, 2, 0.15); --ripple-color: rgba(88, 204, 2, 0.35);
+            --shadow-chunky: 0 4px 0 0 #2D4A56; --shadow-primary: 0 4px 0 0 #0F231A;
+            --shadow-user: 0 4px 0 0 #0A1F2C; --shadow-btn: 0 4px 0 0 #1f5100;
+            --tail-ai: #1B3327; --tail-user: #133547;
         }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        html:not(.dark) {
+            --c-on-surface-variant: #3f4a36; --c-on-background: #171e12; --c-error-container: #ffdad6;
+            --c-surface-container: #e9f1dd; --c-surface-bright: #f4fce8; --c-surface-variant: #dde5d2;
+            --c-background: #f4fce8; --c-surface-container-low: #eef7e3; --c-on-surface: #171e12;
+            --c-surface-tint: #2b6c00; --c-secondary-container: #E0F2FE; --c-outline-variant: #becbb1;
+            --c-secondary-dark: #BAE6FD; --c-surface-raised: #FFFFFF; --c-surface-dim: #d5ddca;
+            --c-secondary: #006590; --c-surface: #f4fce8; --c-surface-container-lowest: #ffffff;
+            --c-surface-container-high: #e3ebd8; --c-error: #ba1a1a; --c-surface-container-highest: #dde5d2;
+            --c-primary-container: #DCFCE7; --c-on-primary-container: #14532D; --c-outline: #becbb1;
+            --c-primary: #2b6c00; --c-on-primary: #ffffff;
+            --c-on-secondary-container: #0369A1;
+            --glow-color: rgba(88, 204, 2, 0.08); --ripple-color: rgba(88, 204, 2, 0.2);
+            --shadow-chunky: 0 4px 0 0 rgba(221,229,210,1); --shadow-primary: 0 4px 0 0 #86EFAC;
+            --shadow-user: 0 4px 0 0 #7DD3FC; --shadow-btn: 0 4px 0 0 rgba(43,108,0,1);
+            --tail-ai: #DCFCE7; --tail-user: #E0F2FE;
         }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #171c22;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2f353b;
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #44464f;
-        }
-
-        /* Intro Animation Overlay */
-        #intro-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background-color: #0e1419;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
-        }
-        #intro-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .glass-panel {
-            background: rgba(23, 28, 34, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid #44464f;
-        }
-
-        @keyframes iridescence {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .iridescent-border {
-            position: relative;
-        }
-        .iridescent-border::before {
-            content: "";
-            position: absolute;
-            inset: -2px;
-            border-radius: inherit;
-            background: linear-gradient(45deg, #4f46e5, #9333ea, #06b6d4, #ec4899, #4f46e5);
-            background-size: 400% 400%;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .iridescent-border.processing::before {
-            opacity: 1;
-            animation: iridescence 3s ease infinite;
-        }
-
-        .wave-container {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            height: 16px;
-        }
-        .wave-bar {
-            width: 3px;
-            background-color: #d9e2ff;
-            border-radius: 99px;
-            animation: wave 1.2s ease-in-out infinite;
-        }
-        @keyframes wave {
-            0%, 100% { height: 4px; }
-            50% { height: 16px; }
-        }
-        .wave-bar:nth-child(1) { animation-delay: -1.2s; }
-        .wave-bar:nth-child(2) { animation-delay: -1.1s; }
-        .wave-bar:nth-child(3) { animation-delay: -1.0s; }
-        .wave-bar:nth-child(4) { animation-delay: -0.9s; }
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--c-surface-container-low); }
+        ::-webkit-scrollbar-thumb { background: var(--c-surface-variant); border-radius: 9999px; }
+        .chunky-shadow { box-shadow: var(--shadow-chunky); }
+        .chunky-shadow-primary { box-shadow: var(--shadow-primary); }
+        .chunky-shadow-user { box-shadow: var(--shadow-user); }
+        .chunky-shadow-btn { box-shadow: var(--shadow-btn); }
+        .squish { transition: transform 0.1s, box-shadow 0.1s; }
+        .squish:active { transform: translateY(4px); box-shadow: none !important; }
+        .squish-btn { transition: transform 0.1s, box-shadow 0.1s; }
+        .squish-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: none !important; }
+        .squish-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .message-tail-left { position: relative; }
+        .message-tail-left::before { content: ''; position: absolute; left: -8px; bottom: 12px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid var(--tail-ai); }
+        .message-tail-right { position: relative; }
+        .message-tail-right::before { content: ''; position: absolute; right: -8px; bottom: 12px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 12px solid var(--tail-user); }
+        @keyframes bounce-in { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 60% { transform: scale(1.05) translateY(-5px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        .animate-bounce-in { animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes logo-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .logo-breathe { animation: logo-breathe 3s ease-in-out infinite; }
+        @keyframes pulse-border { 0%, 100% { border-color: rgba(88,204,2, 0.3); } 50% { border-color: rgba(88,204,2, 1); } }
+        .dropzone.drag-over { animation: pulse-border 1.2s infinite; border-color: var(--c-primary); background: var(--c-surface-bright); }
+        @keyframes ripple-expand { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+        .click-ripple { position: fixed; width: 300px; height: 300px; border-radius: 50%; border: 2px solid var(--ripple-color); pointer-events: none; z-index: 9998; animation: ripple-expand 0.6s cubic-bezier(0, 0.55, 0.45, 1) forwards; }
+        @keyframes typing-bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+        .typing-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c-primary); animation: typing-bounce 1.2s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+        .citation-drawer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; opacity: 0; }
+        .citation-drawer.expanded { max-height: 600px; opacity: 1; }
+        #cursor-glow { position: fixed; width: 250px; height: 250px; border-radius: 50%; background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%); pointer-events: none; z-index: 1; transform: translate(-50%, -50%); transition: left 0.15s ease-out, top 0.15s ease-out, opacity 0.3s; opacity: 0; }
+        #cursor-glow.visible { opacity: 1; }
+        .file-item { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, border-color 0.2s; }
+        .file-item:hover { transform: scale(1.02) translateX(4px); }
+        #intro-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out; }
+        #intro-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .wave-container { display: flex; align-items: center; gap: 3px; height: 16px; }
+        .wave-bar { width: 3px; background-color: var(--c-primary); border-radius: 99px; animation: wave 1.2s ease-in-out infinite; }
+        @keyframes wave { 0%, 100% { height: 4px; } 50% { height: 16px; } }
+        .wave-bar:nth-child(1) { animation-delay: -1.2s; } .wave-bar:nth-child(2) { animation-delay: -1.1s; }
+        .wave-bar:nth-child(3) { animation-delay: -1.0s; } .wave-bar:nth-child(4) { animation-delay: -0.9s; }
         .wave-bar:nth-child(5) { animation-delay: -0.8s; }
-
-        .citation-drawer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
-            opacity: 0;
-        }
-        .citation-drawer.expanded {
-            max-height: 800px;
-            opacity: 1;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        @keyframes stagger-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .stagger-in { opacity: 0; animation: stagger-in 0.5s ease forwards; }
+        .magnetic-btn { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; }
+        .ingest-progress-bar { height: 3px; background: linear-gradient(90deg, var(--c-primary) 0%, var(--c-primary-fixed) 100%); border-radius: 99px; transition: width 0.5s ease; }
+        #sidebar { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        #sidebar-backdrop { transition: opacity 0.3s ease; }
+        #sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+        #sidebar-backdrop { opacity: 0; pointer-events: none; }
+        .prompt-chip { transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease; }
+        .prompt-chip:hover { transform: translateY(-2px); border-color: var(--c-primary); background: var(--c-surface-container-high); }
+        .prompt-chip:active { transform: translateY(0); }
+        #toast-container { position: fixed; top: 80px; right: 16px; z-index: 9990; display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
+        /* ── Model Selector ── */
+        .model-selector-wrap { position: relative; }
+        .model-selector-btn { cursor: pointer; transition: border-color 0.2s, background-color 0.2s; }
+        .model-selector-btn:hover { border-color: var(--c-primary); background: var(--c-surface-container-high); }
+        .model-dropdown { position: absolute; top: calc(100% + 8px); right: 0; min-width: 280px; max-height: 380px; overflow-y: auto;
+            background: var(--c-surface-raised); border: 3px solid var(--c-outline-variant); border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.35); z-index: 100; opacity: 0; visibility: hidden;
+            transform: translateY(-8px) scale(0.97); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s; }
+        .model-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .model-dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; transition: background 0.15s; border-radius: 12px; margin: 4px; }
+        .model-dropdown-item:hover { background: var(--c-surface-container-high); }
+        .model-dropdown-item.active { background: var(--c-primary-container); }
+        .model-dropdown-item .model-check { width: 20px; flex-shrink: 0; text-align: center; }
+        .model-dropdown-header { padding: 12px 14px 6px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--c-on-surface-variant); }
+        .toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--c-outline-variant); background: var(--c-surface-raised); box-shadow: var(--shadow-chunky); animation: toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .toast.leaving { animation: toast-out 0.25s ease forwards; }
+        @keyframes toast-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toast-out { to { opacity: 0; transform: translateX(40px); } }
+        .toast-success { border-color: var(--c-primary); }
+        .toast-error { border-color: var(--c-error); }
+        @keyframes success-pop { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+        .success-pop { animation: success-pop 0.4s ease; }
+        @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(80px) rotate(360deg); opacity: 0; } }
+        .confetti-piece { position: absolute; width: 6px; height: 6px; border-radius: 2px; animation: confetti-fall 0.8s ease forwards; }
+        .upload-preview-item { animation: stagger-in 0.3s ease forwards; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            #particle-canvas, #cursor-glow { display: none !important; }
         }
     </style>
 </head>
-<body class="antialiased relative h-screen w-screen flex">
-    <!-- Intro Animation Overlay -->
-    <div id="intro-overlay">
-        <div class="w-64 h-64 relative">
-            <div class="w-full h-full" style="display:block;">
-                <script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
-                <div id="threejs-container" style="width:100%;height:100%"></div>
-                <script>
-                (function() {
-                  const container = document.getElementById('threejs-container');
-                  if (!container) return;
-                  const canvas = document.createElement('canvas');
-                  canvas.className = 'w-full h-full';
-                  container.appendChild(canvas);
-                  const ctx = canvas.getContext('2d');
+<body class="bg-background text-on-surface font-body overflow-hidden h-screen w-screen flex">
 
-                  let width, height;
-                  function resize() {
-                    width = canvas.width = container.clientWidth || 256;
-                    height = canvas.height = container.clientHeight || 256;
-                  }
-                  window.addEventListener('resize', resize);
-                  resize();
+<div id="toast-container" aria-live="polite"></div>
+<input type="file" id="file-input" class="hidden" multiple accept=".pdf,.docx,.txt,.md,.csv,.json,.html,.htm,.py,.js,.ts,.java,.go,.rs,.yaml,.yml"/>
 
-                  const colors = ['#6366f1', '#a855f7', '#ec4899', '#3b82f6'];
-                  const threads = [];
-                  const threadCount = 12;
+<!-- Intro Overlay (skippable) -->
+<div id="intro-overlay" class="bg-background cursor-pointer" role="dialog" aria-label="Loading Lumina RAG">
+    <div class="flex flex-col items-center gap-4">
+        <img src="/static/logo-icon.png" alt="Lumina RAG" class="w-24 h-24 logo-breathe"/>
+        <span class="font-headline text-headline-lg font-black text-primary tracking-tight">Lumina RAG</span>
+        <div class="wave-container"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+        <span class="text-caption text-on-surface-variant mt-2">Tap to continue</span>
+    </div>
+</div>
 
-                  for (let i = 0; i < threadCount; i++) {
-                    threads.push({
-                      x: Math.random() * width,
-                      y: Math.random() * height,
-                      length: 0,
-                      maxLength: 150 + Math.random() * 200,
-                      angle: Math.random() * Math.PI * 2,
-                      speed: 2 + Math.random() * 2,
-                      color: colors[i % colors.length],
-                      points: []
-                    });
-                  }
+<canvas id="particle-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0" aria-hidden="true"></canvas>
+<div id="cursor-glow" aria-hidden="true"></div>
 
-                  let startTime = Date.now();
-                  let phase = 'weaving';
+<!-- Mobile sidebar backdrop -->
+<div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
 
-                  function animate() {
-                    const elapsed = Date.now() - startTime;
-                    ctx.clearRect(0, 0, width, height);
-
-                    if (phase === 'weaving') {
-                      threads.forEach(t => {
-                        if (t.length < t.maxLength) {
-                          t.length += t.speed;
-                          const px = t.x + Math.cos(t.angle) * t.length;
-                          const py = t.y + Math.sin(t.angle) * t.length;
-                          t.points.push({x: px, y: py});
-                          t.angle += (Math.random() - 0.5) * 0.1;
-                        }
-                        ctx.beginPath();
-                        ctx.strokeStyle = t.color;
-                        ctx.lineWidth = 2;
-                        ctx.lineCap = 'round';
-                        if (t.points.length > 0) {
-                          ctx.moveTo(t.points[0].x, t.points[0].y);
-                          for (let i = 1; i < t.points.length; i++) ctx.lineTo(t.points[i].x, t.points[i].y);
-                        }
-                        ctx.stroke();
-                      });
-                      if (elapsed > 2000) phase = 'glowing';
-                    } else if (phase === 'glowing') {
-                      const glowIntensity = Math.sin(elapsed * 0.005) * 0.5 + 0.5;
-                      threads.forEach(t => {
-                        ctx.shadowBlur = 15 * glowIntensity;
-                        ctx.shadowColor = t.color;
-                        ctx.strokeStyle = t.color;
-                        ctx.lineWidth = 2 + glowIntensity;
-                        ctx.beginPath();
-                        if (t.points.length > 0) {
-                          ctx.moveTo(t.points[0].x, t.points[0].y);
-                          for (let i = 1; i < t.points.length; i++) ctx.lineTo(t.points[i].x, t.points[i].y);
-                        }
-                        ctx.stroke();
-                      });
-                      if (elapsed > 2700) phase = 'dissolve';
-                    }
-                    requestAnimationFrame(animate);
-                  }
-                  animate();
-                })();
-                </script>
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center font-bold text-3xl text-primary tracking-tight" style="opacity: 0; animation: fadeIn 1.5s forwards 0.5s;">Lumina RAG</div>
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed left-0 top-[64px] w-[300px] h-[calc(100vh-64px)] bg-surface-container border-r-4 border-outline-variant flex flex-col p-4 gap-4 z-40 overflow-hidden -translate-x-full lg:translate-x-0">
+    <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+            <h2 class="font-headline text-headline-md text-on-surface">Knowledge Base</h2>
+            <span id="inbox-badge" class="hidden text-caption font-bold bg-accent-orange/20 text-accent-orange px-2 py-0.5 rounded-full border border-accent-orange/30">0 pending</span>
+        </div>
+        <div id="dropzone" class="dropzone h-[120px] rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center gap-2 bg-background cursor-pointer hover:bg-surface-bright transition-colors" role="button" tabindex="0" aria-label="Upload documents">
+            <span class="material-symbols-outlined text-on-surface-variant text-3xl">cloud_upload</span>
+            <span class="font-body text-label text-on-surface-variant text-center px-3">Drop files or click to upload</span>
+            <span class="text-[10px] text-on-surface-variant">PDF, DOCX, TXT, MD, CSV & more</span>
+        </div>
+        <div id="upload-preview" class="hidden flex flex-col gap-1 max-h-24 overflow-y-auto"></div>
+        <button id="ingest-card" class="bg-primary text-on-primary font-headline text-headline-md py-3 rounded-xl chunky-shadow-btn squish-btn transition-all flex items-center justify-center gap-2 relative overflow-hidden">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+            <span id="ingest-btn-text">Ingest Documents</span>
+            <div id="ingest-progress" class="absolute bottom-0 left-0 w-0 ingest-progress-bar"></div>
+        </button>
+        <div class="flex flex-col gap-1.5">
+            <label for="ocr-mode-select" class="text-caption text-on-surface-variant font-bold">PDF parsing mode</label>
+            <select id="ocr-mode-select" class="rounded-lg border-2 border-outline-variant bg-surface-container text-body text-on-surface px-3 py-2 focus:border-primary focus:ring-0">
+                <option value="native">Native text (fastest)</option>
+                <option value="auto">Auto — OCR if scanned</option>
+                <option value="unlimited">Unlimited-OCR (GPU)</option>
+            </select>
+        </div>
+        <p class="text-caption text-on-surface-variant" id="ingest-status-text">Upload files, then click Ingest to build your knowledge base.</p>
+    </div>
+    <div class="h-px bg-outline-variant w-full"></div>
+    <div class="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
+        <div class="flex items-center justify-between">
+            <h2 class="font-headline text-headline-md text-on-surface">Your Library</h2>
+            <span id="library-count" class="text-caption text-on-surface-variant">—</span>
+        </div>
+        <div id="library-files-list" class="flex flex-col gap-2">
+            <div class="px-3 py-2 text-on-surface-variant text-caption">Loading library...</div>
         </div>
     </div>
+</aside>
 
-    <!-- Persistent Background Shader -->
-    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <canvas id="shader-canvas" class="absolute inset-0 w-full h-full opacity-30"></canvas>
-        <script>
-        (function() {
-          const canvas = document.getElementById('shader-canvas');
-          function syncSize() {
-            const w = canvas.clientWidth || window.innerWidth;
-            const h = canvas.clientHeight || window.innerHeight;
-            if (canvas.width !== w || canvas.height !== h) {
-              canvas.width = w;
-              canvas.height = h;
+<div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
+    <header class="fixed top-0 left-0 lg:left-[300px] right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-gutter z-50 chunky-shadow">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button id="menu-toggle" class="lg:hidden w-10 h-10 rounded-xl bg-surface-bright flex items-center justify-center border-2 border-outline-variant squish" aria-label="Open knowledge base panel">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe"/>
+            <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight hidden sm:inline m-0">Lumina RAG</h1>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-4">
+            <div class="hidden sm:flex gap-2">
+                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Questions asked this session">
+                    <span class="material-symbols-outlined text-sm text-secondary">chat</span>
+                    <span class="font-body text-label text-secondary font-bold" id="questions-badge">0</span>
+                </div>
+                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Indexed knowledge chunks">
+                    <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span class="font-body text-label text-accent-purple font-bold" id="chunks-badge">0 chunks</span>
+                </div>
+                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Documents in library">
+                    <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">folder</span>
+                    <span class="font-body text-label text-primary font-bold" id="files-badge">0 docs</span>
+                </div>
+            </div>
+            <div class="model-selector-wrap">
+                <button id="model-selector-btn" class="model-selector-btn flex items-center gap-1.5 bg-surface-raised h-9 px-3 pr-2 rounded-full border-2 border-outline-variant" aria-label="Select AI model" aria-haspopup="listbox">
+                    <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">memory</span>
+                    <span class="font-body text-caption text-on-surface font-bold" id="model-display-name">Loading...</span>
+                    <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
+                </button>
+                <div class="model-dropdown" id="model-dropdown" role="listbox" aria-label="Available AI models">
+                    <div class="model-dropdown-header">Select Model</div>
+                    <div id="model-list"></div>
+                </div>
+            </div>
+            <button id="theme-toggle" class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface hover:bg-surface-variant transition-colors border-2 border-outline-variant squish magnetic-btn" aria-label="Toggle theme">
+                <span class="material-symbols-outlined" id="theme-icon" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto pt-[88px] pb-[200px] px-4 w-full flex justify-center" id="chat-container">
+        <div class="w-full max-w-[760px] flex flex-col gap-6" id="chat-messages">
+            <div class="flex justify-start gap-3 stagger-in" style="animation-delay: 0.2s;">
+                <div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden">
+                    <img src="/static/logo-icon.png" alt="Lumina" class="w-8 h-8 object-cover"/>
+                </div>
+                <div class="flex flex-col gap-3 max-w-[85%]">
+                    <div class="bg-primary-container text-on-primary-container px-5 py-4 rounded-2xl rounded-bl-sm border-2 border-primary-dark chunky-shadow-primary message-tail-left">
+                        <p class="font-body text-body">
+                            Welcome to <strong class="text-primary-fixed">Lumina RAG</strong> — your private document assistant. Upload files in the sidebar, ingest them, then ask anything. Everything stays on your machine.
+                        </p>
+                    </div>
+                    <div id="quick-prompts" class="flex flex-wrap gap-2">
+                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="Summarize the main topics across my documents">Summarize my docs</button>
+                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="What documents do I have indexed and what are they about?">What's in my library?</button>
+                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="Find key dates, deadlines, or action items mentioned in my files">Find deadlines</button>
+                    </div>
+                </div>
+            </div>
+            <div id="scroll-anchor" class="h-48 w-full flex-shrink-0 pointer-events-none min-h-[192px]" aria-hidden="true"></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-6 left-0 lg:left-[300px] right-0 flex justify-center px-4 pointer-events-none z-50">
+        <div class="w-full max-w-[760px] pointer-events-auto">
+            <div class="hidden items-center justify-center gap-3 mb-3" id="synthesizing-indicator" role="status" aria-live="polite">
+                <div class="flex items-center gap-2 bg-surface-raised px-4 py-2 rounded-full border-2 border-outline-variant chunky-shadow">
+                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                    <span class="text-caption text-primary font-bold ml-2" id="loading-message">Searching your knowledge base...</span>
+                </div>
+            </div>
+            <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-end p-2 chunky-shadow transition-all duration-300 focus-within:border-primary-container" id="input-wrapper">
+                <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-4 py-2.5 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
+                <button id="send-btn" class="w-12 h-12 rounded-full bg-primary text-on-primary hover:brightness-110 transition-all border-2 border-primary-dark squish-btn flex-shrink-0 ml-2 chunky-shadow-btn magnetic-btn" aria-label="Send message">
+                    <span class="material-symbols-outlined text-2xl font-bold" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const html = document.documentElement;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let isSending = false;
+    let isIngestRunning = false;
+    let citationCounter = 0;
+    let questionsAsked = Number(sessionStorage.getItem('lumina-questions') || 0);
+    const loadingMessages = ['Searching your knowledge base...', 'Retrieving relevant evidence...', 'Generating a cited answer...'];
+
+    // ── Intro (skippable, shorter) ──
+    const overlay = document.getElementById('intro-overlay');
+    function dismissIntro() { if (overlay) overlay.classList.add('hidden'); }
+    setTimeout(dismissIntro, reducedMotion ? 0 : 1400);
+    overlay?.addEventListener('click', dismissIntro);
+
+    // ── Toast notifications ──
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const icon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+        const color = type === 'success' ? 'text-primary' : type === 'error' ? 'text-error' : 'text-secondary';
+        toast.innerHTML = `<span class="material-symbols-outlined ${color} text-lg" style="font-variation-settings:'FILL' 1">${icon}</span><span class="font-body text-caption text-on-surface flex-1">${escapeHtml(message)}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.add('leaving'); toast.addEventListener('animationend', () => toast.remove()); }, 4000);
+    }
+
+    // ── Theme ──
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    function applyTheme(dark) {
+        html.classList.toggle('dark', dark);
+        themeIcon.textContent = dark ? 'light_mode' : 'dark_mode';
+        localStorage.setItem('lumina-theme', dark ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('lumina-theme') === 'light') applyTheme(false);
+    themeToggle.addEventListener('click', () => applyTheme(!html.classList.contains('dark')));
+
+    // ── Mobile sidebar ──
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    function openSidebar() { sidebar.classList.remove('-translate-x-full'); backdrop.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.add('-translate-x-full'); backdrop.classList.remove('open'); }
+    document.getElementById('menu-toggle').addEventListener('click', openSidebar);
+    backdrop.addEventListener('click', closeSidebar);
+    window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeSidebar(); });
+
+    // ── Particles (respect reduced motion) ──
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [], mouse = { x: -9999, y: -9999 }, clicks = [];
+    if (!reducedMotion) {
+        const PARTICLE_COUNT = 50, CONNECTION_DIST = 130, MOUSE_RADIUS = 160;
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1; this.baseSpeedX = (Math.random() - 0.5) * 0.5; this.baseSpeedY = (Math.random() - 0.5) * 0.5; this.vx = this.baseSpeedX; this.vy = this.baseSpeedY; this.phase = Math.random() * Math.PI * 2; }
+            update(time) {
+                this.vx = this.baseSpeedX + Math.sin(time * 0.001 + this.phase) * 0.12;
+                this.vy = this.baseSpeedY + Math.cos(time * 0.0012 + this.phase) * 0.12;
+                const dx = this.x - mouse.x, dy = this.y - mouse.y, dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < MOUSE_RADIUS && dist > 0) { const f = (1 - dist / MOUSE_RADIUS) * 1.5; this.vx += (dx / dist) * f; this.vy += (dy / dist) * f; }
+                this.vx *= 0.97; this.vy *= 0.97; this.x += this.vx; this.y += this.vy;
+                if (this.x < -20) this.x = canvas.width + 20; if (this.x > canvas.width + 20) this.x = -20;
+                if (this.y < -20) this.y = canvas.height + 20; if (this.y > canvas.height + 20) this.y = -20;
             }
-          }
-          window.addEventListener('resize', syncSize);
-          syncSize();
+            draw() {
+                const dark = html.classList.contains('dark');
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = dark ? 'rgba(88,204,2,0.5)' : 'rgba(43,108,0,0.3)'; ctx.fill();
+            }
+        }
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+        function animateParticles(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(time); p.draw(); });
+            const lc = html.classList.contains('dark') ? [88,204,2,0.08] : [43,108,0,0.05];
+            for (let i = 0; i < particles.length; i++) for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < CONNECTION_DIST) { ctx.beginPath(); ctx.strokeStyle = `rgba(${lc[0]},${lc[1]},${lc[2]},${(1-dist/CONNECTION_DIST)*lc[3]})`; ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        requestAnimationFrame(animateParticles);
+        document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        const cursorGlow = document.getElementById('cursor-glow');
+        document.addEventListener('mousemove', e => { cursorGlow.style.left = e.clientX + 'px'; cursorGlow.style.top = e.clientY + 'px'; cursorGlow.classList.add('visible'); });
+        document.addEventListener('mouseleave', () => cursorGlow.classList.remove('visible'));
+    }
 
-          const gl = canvas.getContext('webgl');
-          if (!gl) return;
-          const vs = `attribute vec2 a_position; varying vec2 v_texCoord; void main() { v_texCoord = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }`;
-          const fs = `precision highp float;
-          varying vec2 v_texCoord;
-          uniform float u_time;
-          uniform vec2 u_resolution;
-          uniform vec2 u_mouse;
-          void main() {
-              vec2 uv = v_texCoord;
-              vec2 mouse = u_mouse / u_resolution;
-              vec3 color1 = vec3(0.05, 0.07, 0.09);
-              vec3 color2 = vec3(0.07, 0.09, 0.12);
-              float t = u_time * 0.1;
-              float wave = sin(uv.x * 10.0 + t) * 0.02 + cos(uv.y * 8.0 - t * 1.5) * 0.02;
-              float dist = distance(uv, mouse);
-              float ripple = smoothstep(0.3, 0.0, dist) * 0.05 * sin(dist * 20.0 - u_time * 5.0);
-              vec2 distortedUV = uv + wave + ripple;
-              float grid = smoothstep(0.95, 1.0, sin(distortedUV.x * 40.0) * sin(distortedUV.y * 40.0));
-              vec3 finalColor = mix(color1, color2, sin(distortedUV.x * 2.0 + t) * 0.5 + 0.5) + grid * 0.03;
-              float v = distance(uv, vec2(0.5));
-              gl_FragColor = vec4(finalColor * (1.2 - v * 0.8), 1.0);
-          }`;
-          function cs(type, src) {
-            const s = gl.createShader(type);
-            gl.shaderSource(s, src);
-            gl.compileShader(s);
-            return s;
-          }
-          const prog = gl.createProgram();
-          gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
-          gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
-          gl.linkProgram(prog);
-          gl.useProgram(prog);
-          const buf = gl.createBuffer();
-          gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-          const pos = gl.getAttribLocation(prog, 'a_position');
-          gl.enableVertexAttribArray(pos);
-          gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-          const uTime = gl.getUniformLocation(prog, 'u_time');
-          const uRes = gl.getUniformLocation(prog, 'u_resolution');
-          const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+    // ── Magnetic buttons ──
+    document.querySelectorAll('.magnetic-btn').forEach(btn => {
+        btn.addEventListener('mousemove', e => {
+            if (reducedMotion) return;
+            const rect = btn.getBoundingClientRect();
+            btn.style.transform = `translate(${(e.clientX - rect.left - rect.width / 2) * 0.15}px, ${(e.clientY - rect.top - rect.height / 2) * 0.15}px)`;
+        });
+        btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
 
-          let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-          window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = canvas.height - e.clientY;
-          });
+    // ── DOM refs ──
+    const questionInput = document.getElementById('question-input');
+    const sendBtn = document.getElementById('send-btn');
+    const messagesContainer = document.getElementById('chat-messages');
+    const loadingIndicator = document.getElementById('synthesizing-indicator');
+    const loadingMessage = document.getElementById('loading-message');
+    const ingestBtn = document.getElementById('ingest-card');
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const uploadPreview = document.getElementById('upload-preview');
+    const questionsBadge = document.getElementById('questions-badge');
 
-          function render(t) {
-            gl.viewport(0, 0, canvas.width, canvas.height);
-            if (uTime) gl.uniform1f(uTime, t * 0.001);
-            if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
-            if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-          }
-          render(0);
-        })();
-        </script>
-    </div>
+    questionsBadge.textContent = String(questionsAsked);
 
-    <!-- UI Content -->
-    <div class="relative z-10 flex w-full h-full">
-        <!-- SideNavBar -->
-        <nav class="hidden md:flex flex-col fixed left-0 top-0 h-full w-72 bg-surface-container/80 backdrop-blur-xl border-r border-outline-variant shadow-xl py-6 px-6 z-20">
-            <!-- Header -->
-            <div class="flex items-center gap-4 mb-8">
-                <div class="relative">
-                    <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container">
-                        <span class="material-symbols-outlined">hub</span>
-                    </div>
-                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-status-ready rounded-full border-2 border-surface-container animate-pulse" id="status-pulse"></div>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-primary tracking-tight leading-none">Lumina RAG</h1>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mt-1" id="model-subtitle">Qwen 2.5 3B</p>
-                </div>
-            </div>
+    // ── File upload ──
+    async function uploadFiles(fileList) {
+        if (!fileList?.length) return;
+        const form = new FormData();
+        for (const file of fileList) form.append('files', file);
+        dropzone.classList.add('opacity-60', 'pointer-events-none');
+        try {
+            const res = await fetch('/upload', { method: 'POST', body: form });
+            const data = await res.json();
+            if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Upload failed');
+            updateInboxBadge(data.inbox_total);
+            if (data.saved?.length) {
+                showToast(`Uploaded ${data.saved.length} file${data.saved.length > 1 ? 's' : ''} — ready to ingest`, 'success');
+                uploadPreview.classList.remove('hidden');
+                uploadPreview.innerHTML = data.saved.map((name, i) =>
+                    `<div class="upload-preview-item flex items-center gap-2 text-caption text-on-surface-variant bg-surface-raised rounded-lg px-2 py-1 border border-outline-variant" style="animation-delay:${i*0.05}s"><span class="material-symbols-outlined text-sm text-primary">draft</span>${escapeHtml(name)}</div>`
+                ).join('');
+                ingestBtn.classList.add('success-pop');
+                setTimeout(() => ingestBtn.classList.remove('success-pop'), 400);
+            }
+            if (data.skipped?.length) showToast(data.skipped.join('; '), 'error');
+        } catch (err) {
+            showToast(err.message || 'Upload failed', 'error');
+        } finally {
+            dropzone.classList.remove('opacity-60', 'pointer-events-none', 'drag-over');
+        }
+    }
 
-            <!-- Ingest & Index Action Card -->
-            <div class="bg-surface-container-highest rounded-xl p-4 mb-6 border border-outline-variant shadow-lg relative overflow-hidden group cursor-pointer hover:border-primary transition-colors" id="ingest-card">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-on-surface font-semibold">Knowledge Base</span>
-                    <span class="material-symbols-outlined text-on-surface-variant text-sm">upload_file</span>
-                </div>
-                <div class="text-xs text-on-surface-variant mb-3" id="ingest-status-text">Click to ingest data/inbox documents.</div>
-                
-                <!-- Loading State -->
-                <div class="hidden absolute inset-0 bg-surface-container-highest/90 backdrop-blur-sm flex flex-col items-center justify-center" id="ingest-loading">
-                    <span class="material-symbols-outlined animate-spin text-primary mb-2">autorenew</span>
-                    <span class="text-xs text-primary font-medium">Weaving Knowledge...</span>
-                </div>
-            </div>
+    ['dragover', 'drop'].forEach(ev => window.addEventListener(ev, e => e.preventDefault()));
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+    fileInput.addEventListener('change', e => { uploadFiles(e.target.files); e.target.value = ''; });
+    ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('drag-over'); }));
+    ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('drag-over'); }));
+    dropzone.addEventListener('drop', e => uploadFiles(e.dataTransfer.files));
 
-            <!-- Navigation / Info -->
-            <div class="flex flex-col gap-1 mb-6 flex-grow overflow-y-auto">
-                <div class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider px-2 mb-2">Indexed Library Files</div>
-                <div id="library-files-list" class="flex flex-col gap-1 text-sm">
-                    <div class="px-3 py-2 text-on-surface-variant text-xs">Loading library...</div>
-                </div>
-            </div>
+    function updateInboxBadge(count) {
+        const badge = document.getElementById('inbox-badge');
+        if (count > 0) { badge.textContent = `${count} pending`; badge.classList.remove('hidden'); }
+        else badge.classList.add('hidden');
+    }
 
-            <!-- File Library Summary Badge -->
-            <div class="mb-6">
-                <h3 class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-3 px-2">Index Stats</h3>
-                <div class="flex flex-wrap gap-2 px-2" id="index-stats-badges">
-                    <span class="px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant flex items-center gap-1.5 text-xs">
-                        <span class="w-2 h-2 rounded-full bg-status-ready"></span>
-                        <span id="chunks-badge">Chunks: 0</span>
-                    </span>
-                </div>
-            </div>
+    function celebrateIngest(chunks) {
+        if (reducedMotion) return;
+        const rect = ingestBtn.getBoundingClientRect();
+        const colors = ['#58CC02', '#1CB0F6', '#FF9600', '#CE82FF'];
+        for (let i = 0; i < 12; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 80) + 'px';
+            piece.style.top = rect.top + 'px';
+            piece.style.background = colors[i % colors.length];
+            piece.style.animationDelay = (Math.random() * 0.2) + 's';
+            document.body.appendChild(piece);
+            piece.addEventListener('animationend', () => piece.remove());
+        }
+    }
 
-            <!-- Footer -->
-            <div class="mt-auto pt-4 border-t border-outline-variant flex flex-col gap-1">
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant opacity-80 hover:bg-surface-container-highest hover:text-on-surface transition-all" href="/docs" target="_blank">
-                    <span class="material-symbols-outlined">api</span>
-                    <span class="text-sm font-medium">API Docs</span>
-                </a>
-            </div>
-        </nav>
+    // ── Ingest ──
+    function setIngestRunning(running) {
+        isIngestRunning = running;
+        ingestBtn.disabled = running;
+    }
 
-        <!-- Main Workspace -->
-        <main class="flex-1 flex flex-col h-full ml-0 md:ml-72 relative">
-            <!-- TopAppBar -->
-            <header class="h-16 flex items-center justify-between px-6 glass-panel border-x-0 border-t-0 z-20">
-                <div class="flex items-center gap-4">
-                    <div class="font-semibold text-primary">Chat Assistant</div>
-                </div>
-                <div class="flex items-center gap-4 text-xs text-on-surface-variant">
-                    <span class="flex items-center gap-1.5 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant">
-                        <span class="w-2 h-2 rounded-full bg-status-ready"></span>
-                        Local RAG Server Active (Port 8000)
-                    </span>
-                </div>
-            </header>
+    function updateIngestStatus(job) {
+        if (!job) return;
+        const statusText = document.getElementById('ingest-status-text');
+        const progress = job.progress || {};
+        const progressBar = document.getElementById('ingest-progress');
+        const btnText = document.getElementById('ingest-btn-text');
+        const count = progress.total ? ` (${progress.completed || 0}/${progress.total})` : '';
+        statusText.textContent = `${job.message || 'Updating knowledge base'}${count}`;
+        const running = job.status === 'queued' || job.status === 'running';
+        setIngestRunning(running);
+        if (running) {
+            btnText.textContent = 'Processing...';
+            progressBar.style.width = progress.total ? Math.min((progress.completed / progress.total) * 100, 100) + '%' : '30%';
+        }
+        if (job.status === 'completed') {
+            const chunks = job.result?.chunks_indexed ?? 0;
+            statusText.textContent = `Indexed ${chunks} chunks from your library.`;
+            btnText.textContent = 'Ingest Documents';
+            progressBar.style.width = '100%';
+            setTimeout(() => { progressBar.style.width = '0%'; setIngestRunning(false); }, 1500);
+            celebrateIngest(chunks);
+            showToast(`Knowledge base ready — ${chunks} chunks indexed`, 'success');
+            uploadPreview.classList.add('hidden');
+            uploadPreview.innerHTML = '';
+            loadStatus();
+        }
+        if (job.status === 'failed') {
+            statusText.textContent = job.error || 'Ingestion failed.';
+            btnText.textContent = 'Ingest Documents';
+            progressBar.style.width = '0%';
+            setIngestRunning(false);
+            showToast(job.error || 'Ingestion failed', 'error');
+        }
+    }
 
-            <!-- Chat Feed Area -->
-            <div class="flex-1 overflow-y-auto px-6 py-8 scroll-smooth" id="chat-container">
-                <div class="max-w-[800px] mx-auto flex flex-col gap-6 pb-36" id="chat-messages">
-                    <!-- Initial Welcome Message -->
-                    <div class="flex justify-start gap-4">
-                        <div class="w-8 h-8 rounded-lg bg-primary-container flex-shrink-0 flex items-center justify-center text-on-primary-container mt-1 border border-primary/30 shadow-[0_0_15px_rgba(176,198,255,0.15)]">
-                            <span class="material-symbols-outlined text-sm">memory</span>
-                        </div>
-                        <div class="max-w-[85%] flex flex-col gap-3">
-                            <div class="glass-panel rounded-2xl rounded-tl-sm p-5 shadow-xl">
-                                <p class="text-on-surface leading-relaxed">
-                                    Welcome to <strong>Lumina RAG</strong>. I am your local AI assistant powered by <strong>Ollama (Qwen 2.5 3B + all-minilm)</strong> and <strong>FAISS</strong> vector retrieval. Ask me any question about your indexed documents!
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    function connectIngestEvents() {
+        const stream = new EventSource('/events');
+        ['ingest.status', 'ingest.started', 'parse.started', 'parse.progress', 'ocr.started', 'embedding.started', 'index.ready', 'ingest.completed', 'ingest.failed']
+            .forEach(name => stream.addEventListener(name, e => {
+                try { updateIngestStatus(JSON.parse(e.data).job); } catch (err) { console.error(err); }
+            }));
+    }
 
-            <!-- Floating Input Area -->
-            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#0e1419] via-[#0e1419]/90 to-transparent z-30">
-                <div class="max-w-[800px] mx-auto">
-                    <!-- Loading Indicator -->
-                    <div class="hidden items-center justify-center gap-3 mb-3" id="synthesizing-indicator">
-                        <div class="wave-container">
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                        </div>
-                        <span class="text-sm font-medium text-primary">Synthesizing Local Context...</span>
-                    </div>
+    ingestBtn.addEventListener('click', async () => {
+        if (isIngestRunning) return;
+        document.getElementById('ingest-status-text').textContent = 'Starting local ingestion...';
+        try {
+            const res = await fetch('/ingest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rebuild: false, ocr_mode: document.getElementById('ocr-mode-select').value })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Could not start ingestion');
+            if (!data.started) {
+                showToast('Ingestion already in progress', 'info');
+                updateIngestStatus(data.job);
+                return;
+            }
+            updateIngestStatus(data.job);
+            showToast('Building your knowledge base...', 'info');
+        } catch (err) {
+            showToast(err.message || 'Could not start ingestion', 'error');
+        }
+    });
 
-                    <!-- Input Bar -->
-                    <div class="glass-panel rounded-3xl shadow-2xl iridescent-border transition-all duration-300" id="input-wrapper">
-                        <div class="flex items-end gap-2 p-2 bg-surface-container-highest/50 rounded-3xl z-10 relative">
-                            <textarea id="question-input"
-                                class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface text-base resize-none max-h-32 min-h-[44px] py-3 px-4 placeholder-on-surface-variant/50 focus:outline-none"
-                                placeholder="Ask about your documents..."
-                                rows="1"></textarea>
-                            <button id="send-btn"
-                                class="p-3 bg-primary-container text-on-primary-container rounded-full hover:bg-primary transition-colors shadow-lg shadow-primary-container/20 flex-shrink-0 flex items-center justify-center h-11 w-11">
-                                <span class="material-symbols-outlined">send</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+    // ── Library & health ──
+    async function loadStatus() {
+        try {
+            const res = await fetch('/health');
+            const data = await res.json();
+            if (data.status === 'ok') {
+                document.getElementById('chunks-badge').textContent = `${data.indexed_chunks} chunks`;
+                document.getElementById('files-badge').textContent = `${data.library_files} docs`;
+                document.getElementById('model-display-name').textContent = data.model_display || data.model;
+                updateInboxBadge(data.inbox_files);
+                if (data.active_ingestion) updateIngestStatus(data.active_ingestion);
+                if (data.unlimited_ocr_configured === false) {
+                    const sel = document.getElementById('ocr-mode-select');
+                    sel.querySelector('option[value="unlimited"]').disabled = true;
+                }
+            }
+        } catch (err) { console.error(err); }
 
-    <script>
-        // Fade out intro overlay after 2.5s
-        setTimeout(() => {
-            const overlay = document.getElementById('intro-overlay');
-            if (overlay) overlay.classList.add('hidden');
-        }, 2500);
-
-        let citationCounter = 0;
-
-        function toggleCitation(id, btn) {
-            const drawer = document.getElementById(id);
-            const icon = btn.querySelector('.expand-icon');
-            if (!drawer) return;
-            if (drawer.classList.contains('expanded')) {
-                drawer.classList.remove('expanded');
-                if (icon) icon.style.transform = 'rotate(0deg)';
+        try {
+            const res = await fetch('/files');
+            const files = await res.json();
+            const listEl = document.getElementById('library-files-list');
+            document.getElementById('library-count').textContent = files.length ? `${files.length} file${files.length > 1 ? 's' : ''}` : 'Empty';
+            if (!files.length) {
+                listEl.innerHTML = `<div class="flex flex-col items-center gap-3 py-6 px-3 text-center rounded-xl border-2 border-dashed border-outline-variant bg-background">
+                    <span class="material-symbols-outlined text-4xl text-on-surface-variant">upload_file</span>
+                    <p class="text-caption text-on-surface-variant">No documents yet. Upload files above to get started.</p>
+                    <button class="text-caption font-bold text-primary hover:underline" onclick="document.getElementById('dropzone').click()">Upload now</button>
+                </div>`;
             } else {
-                drawer.classList.add('expanded');
-                if (icon) icon.style.transform = 'rotate(180deg)';
-            }
-        }
-
-        // Fetch health & file list on load
-        async function loadStatus() {
-            try {
-                const res = await fetch('/health');
-                const data = await res.json();
-                if (data.status === 'ok') {
-                    document.getElementById('chunks-badge').innerText = `Chunks: ${data.indexed_chunks}`;
-                    document.getElementById('model-subtitle').innerText = `${data.model} + ${data.embedding_model}`;
-                }
-            } catch (err) {
-                console.error('Health check failed', err);
-            }
-
-            try {
-                const res = await fetch('/files');
-                const files = await res.json();
-                const listEl = document.getElementById('library-files-list');
-                if (files.length === 0) {
-                    listEl.innerHTML = '<div class="px-3 py-2 text-on-surface-variant text-xs">No files indexed yet.</div>';
-                } else {
-                    listEl.innerHTML = files.map(f => {
-                        const name = f.path.split('/').pop();
-                        return `
-                        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-highest/60 text-on-surface">
-                            <span class="material-symbols-outlined text-sm text-primary">description</span>
-                            <span class="truncate text-xs font-mono">${name}</span>
-                        </div>`;
-                    }).join('');
-                }
-            } catch (err) {
-                console.error('Files check failed', err);
-            }
-        }
-
-        // Ingest card click handler
-        document.getElementById('ingest-card').addEventListener('click', async () => {
-            const loading = document.getElementById('ingest-loading');
-            const statusText = document.getElementById('ingest-status-text');
-            loading.classList.remove('hidden');
-            try {
-                const res = await fetch('/ingest', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({rebuild: true})
-                });
-                const data = await res.json();
-                statusText.innerText = `Indexed ${data.chunks_indexed} chunks successfully!`;
-                await loadStatus();
-            } catch (err) {
-                statusText.innerText = 'Error ingesting files.';
-            } finally {
-                loading.classList.add('hidden');
-            }
-        });
-
-        // Chat functionality
-        const questionInput = document.getElementById('question-input');
-        const sendBtn = document.getElementById('send-btn');
-        const messagesContainer = document.getElementById('chat-messages');
-        const inputWrapper = document.getElementById('input-wrapper');
-        const loadingIndicator = document.getElementById('synthesizing-indicator');
-
-        function appendUserMessage(text) {
-            const div = document.createElement('div');
-            div.className = 'flex justify-end';
-            div.innerHTML = `
-                <div class="max-w-[80%] bg-surface-container-highest rounded-2xl rounded-tr-sm p-4 shadow-xl border border-outline-variant">
-                    <p class="text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
-                </div>
-            `;
-            messagesContainer.appendChild(div);
-            scrollToBottom();
-        }
-
-        function appendAssistantMessage(answer, sources) {
-            citationCounter++;
-            const citId = `citation-drawer-${citationCounter}`;
-            const div = document.createElement('div');
-            div.className = 'flex justify-start gap-4';
-
-            let sourcesHTML = '';
-            let toggleBtnHTML = '';
-
-            if (sources && sources.length > 0) {
-                toggleBtnHTML = `
-                    <button class="flex items-center gap-2 text-sm text-primary hover:text-primary-fixed-dim transition-colors mt-3" onclick="toggleCitation('${citId}', this)">
-                        <span class="material-symbols-outlined text-sm">library_books</span>
-                        <span>${sources.length} Source${sources.length > 1 ? 's' : ''} Referenced</span>
-                        <span class="material-symbols-outlined text-sm transition-transform duration-200 expand-icon">expand_more</span>
-                    </button>
-                `;
-
-                const sourcesList = sources.map(s => {
-                    const fname = s.file ? s.file.split('/').pop() : 'Document';
-                    const matchPercent = Math.round((s.score || 0.5) * 100);
-                    return `
-                        <div class="bg-surface-container-lowest rounded-lg p-3 border border-outline-variant">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-txt-accent"></span>
-                                    <span class="font-mono text-xs text-on-surface-variant font-medium">${escapeHtml(fname)}</span>
-                                </div>
-                                <span class="text-xs font-medium text-txt-accent bg-txt-accent/10 px-2 py-0.5 rounded border border-txt-accent/20">Similarity Score: ${s.score.toFixed(3)}</span>
-                            </div>
-                            <p class="font-mono text-xs text-on-surface-variant opacity-80 leading-relaxed">"${escapeHtml(s.excerpt || '')}"</p>
-                        </div>
-                    `;
+                const iconMap = { pdf: 'picture_as_pdf', data: 'table_view', word: 'description', text: 'description', web: 'language', other: 'insert_drive_file' };
+                listEl.innerHTML = files.map((f, idx) => {
+                    const name = f.path.split('/').pop();
+                    const ext = name.split('.').pop().toUpperCase();
+                    const size = f.size_bytes > 1048576 ? (f.size_bytes / 1048576).toFixed(1) + ' MB' : Math.round(f.size_bytes / 1024) + ' KB';
+                    return `<button class="file-item w-full flex items-center gap-3 p-3 rounded-xl bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40 text-left stagger-in" style="animation-delay:${idx * 0.03}s" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open ${escapeHtml(name)}">
+                        <div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${iconMap[f.category] || iconMap.other}</span></div>
+                        <div class="flex flex-col flex-1 overflow-hidden"><span class="font-body text-caption font-bold truncate">${escapeHtml(name)}</span><span class="text-[10px] text-on-surface-variant">${ext} · ${size}</span></div>
+                        <span class="material-symbols-outlined text-sm text-on-surface-variant">open_in_new</span>
+                    </button>`;
                 }).join('');
-
-                sourcesHTML = `
-                    <div class="citation-drawer pl-4 border-l-2 border-surface-variant mt-2" id="${citId}">
-                        <div class="flex flex-col gap-2 mt-2">
-                            ${sourcesList}
-                        </div>
-                    </div>
-                `;
             }
+        } catch (err) { console.error(err); }
+    }
 
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-lg bg-primary-container flex-shrink-0 flex items-center justify-center text-on-primary-container mt-1 border border-primary/30 shadow-[0_0_15px_rgba(176,198,255,0.15)]">
-                    <span class="material-symbols-outlined text-sm">memory</span>
+    window.openFile = path => window.open('/files/' + path, '_blank', 'noopener');
+    window.toggleCitation = (id, btn) => {
+        const drawer = document.getElementById(id);
+        const icon = btn.querySelector('.expand-icon');
+        drawer?.classList.toggle('expanded');
+        if (icon) icon.style.transform = drawer?.classList.contains('expanded') ? 'rotate(180deg)' : '';
+        setTimeout(scrollToBottom, 150);
+    };
+    window.openCitation = async function(citationId) {
+        try {
+            const res = await fetch(`/sources/${encodeURIComponent(citationId)}`);
+            const source = await res.json();
+            if (!res.ok) throw new Error(source.detail || 'Citation unavailable');
+            window.open(`${source.file_url}${source.page ? '#page=' + source.page : ''}`, '_blank', 'noopener');
+        } catch (err) { showToast(err.message || 'Could not open source', 'error'); }
+    };
+
+    // ── Chat ──
+    function escapeHtml(text) {
+        return String(text).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m]));
+    }
+
+    function appendUserMessage(text) {
+        const div = document.createElement('div');
+        div.className = 'flex justify-end animate-bounce-in';
+        div.innerHTML = `<div class="bg-secondary-container text-on-secondary-container px-5 py-4 rounded-2xl rounded-br-sm max-w-[85%] border-2 border-secondary-dark chunky-shadow-user message-tail-right"><p class="font-body text-body whitespace-pre-wrap">${escapeHtml(text)}</p></div>`;
+        const anchor = document.getElementById('scroll-anchor');
+        if (anchor) messagesContainer.insertBefore(div, anchor);
+        else messagesContainer.appendChild(div);
+        scrollToBottom();
+    }
+
+    function renderAnswer(answer, sources) {
+        const ids = new Set((sources || []).map(s => String(s.citation_id || '').toLowerCase()));
+        let formatted = escapeHtml(answer);
+
+        // Render Markdown bold (**text**)
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-primary-fixed">$1</strong>');
+        // Render Markdown italic (*text*)
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+        // Render inline code (`code`)
+        formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-black/30 text-primary-fixed px-1.5 py-0.5 rounded font-mono text-xs">$1</code>');
+
+        return formatted.replace(/\[Evidence\s+([a-f0-9]{20})\]/gi, (match, id) =>
+            ids.has(id.toLowerCase()) ? `<button class="inline-flex items-center rounded-lg border border-primary/40 bg-primary/20 px-1.5 py-0.5 font-mono text-xs text-primary-fixed hover:bg-primary/40 transition-colors" onclick="openCitation('${id.toLowerCase()}')">${match}</button>` : match
+        );
+    }
+
+    function appendAssistantMessage(answer, sources, isError = false) {
+        citationCounter++;
+        const citId = `citation-drawer-${citationCounter}`;
+        const div = document.createElement('div');
+        div.className = 'flex justify-start gap-3 animate-bounce-in';
+        let toggleBtn = '', sourcesHTML = '';
+        if (sources?.length) {
+            toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
+            sourcesHTML = `<div class="citation-drawer mt-1" id="${citId}"><div class="flex flex-col gap-2 mt-2">${sources.map(s => {
+                const fname = s.file?.split('/').pop() || 'Document';
+                return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${s.citation_id}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
+            }).join('')}</div></div>`;
+        }
+        const bubbleClass = isError ? 'bg-error-container text-error border-error/30' : 'bg-primary-container text-on-primary-container border-primary-dark chunky-shadow-primary message-tail-left';
+        div.innerHTML = `<div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden"><img src="/static/logo-icon.png" alt="" class="w-8 h-8"/></div>
+            <div class="flex flex-col gap-2 max-w-[85%]"><div class="${bubbleClass} px-5 py-4 rounded-2xl rounded-bl-sm border-2"><div class="font-body text-body whitespace-pre-wrap leading-relaxed">${isError ? escapeHtml(answer) : renderAnswer(answer, sources)}</div></div>${toggleBtn}${sourcesHTML}</div>`;
+        const anchor = document.getElementById('scroll-anchor');
+        if (anchor) messagesContainer.insertBefore(div, anchor);
+        else messagesContainer.appendChild(div);
+        scrollToBottom();
+        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToBottom, 550);
+    }
+
+    function scrollToBottom() {
+        const anchor = document.getElementById('scroll-anchor');
+        const container = document.getElementById('chat-container');
+        if (anchor) {
+            anchor.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'end' });
+        } else if (container) {
+            container.scrollTo({ top: container.scrollHeight, behavior: reducedMotion ? 'auto' : 'smooth' });
+        }
+    }
+
+    if (window.ResizeObserver && messagesContainer) {
+        new ResizeObserver(() => scrollToBottom()).observe(messagesContainer);
+    }
+
+    function setSending(sending) {
+        isSending = sending;
+        sendBtn.disabled = sending;
+        questionInput.disabled = sending;
+        loadingIndicator.classList.toggle('hidden', !sending);
+        loadingIndicator.classList.toggle('flex', sending);
+    }
+
+    let loadingInterval;
+    async function sendMessage(text) {
+        const q = (text ?? questionInput.value).trim();
+        if (!q || isSending) return;
+        questionInput.value = '';
+        questionInput.style.height = '';
+        document.getElementById('quick-prompts')?.remove();
+        appendUserMessage(q);
+        questionsAsked++;
+        sessionStorage.setItem('lumina-questions', String(questionsAsked));
+        questionsBadge.textContent = String(questionsAsked);
+        setSending(true);
+        let msgIdx = 0;
+        loadingInterval = setInterval(() => { loadingMessage.textContent = loadingMessages[msgIdx++ % loadingMessages.length]; }, 2200);
+        try {
+            const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, top_k: 3 }) });
+            const data = await res.json();
+            if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Request failed');
+            appendAssistantMessage(data.answer || 'No answer returned.', data.sources);
+        } catch (err) {
+            appendAssistantMessage(err.message || 'Could not reach Lumina. Check that Ollama is running and documents are ingested.', [], true);
+            showToast(err.message || 'Failed to get an answer', 'error');
+        } finally {
+            clearInterval(loadingInterval);
+            setSending(false);
+        }
+    }
+
+    sendBtn.addEventListener('click', () => sendMessage());
+    questionInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    questionInput.addEventListener('input', function() { this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 128) + 'px'; });
+    document.querySelectorAll('.prompt-chip').forEach(chip => chip.addEventListener('click', () => sendMessage(chip.dataset.prompt)));
+
+    // ── Model Selector ──
+    const modelBtn = document.getElementById('model-selector-btn');
+    const modelDropdown = document.getElementById('model-dropdown');
+    const modelList = document.getElementById('model-list');
+    const modelChevron = document.getElementById('model-chevron');
+    const modelDisplayName = document.getElementById('model-display-name');
+    let currentModelId = '';
+
+    function toggleModelDropdown(open) {
+        const isOpen = open ?? !modelDropdown.classList.contains('open');
+        modelDropdown.classList.toggle('open', isOpen);
+        modelChevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+        if (isOpen) loadModels();
+    }
+
+    modelBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleModelDropdown(); });
+    document.addEventListener('click', (e) => {
+        if (!modelDropdown.contains(e.target) && e.target !== modelBtn) toggleModelDropdown(false);
+    });
+
+    async function loadModels() {
+        try {
+            const res = await fetch('/models');
+            const data = await res.json();
+            currentModelId = data.active;
+            modelDisplayName.textContent = data.active_display;
+            renderModelList(data.models, data.active);
+        } catch (err) {
+            modelList.innerHTML = '<div class="px-4 py-3 text-caption text-error">Could not load models. Is Ollama running?</div>';
+        }
+    }
+
+    function renderModelList(models, activeId) {
+        modelList.innerHTML = models.map(m => {
+            const isActive = m.id === activeId;
+            const sizeLabel = m.parameter_size || (m.size_gb + ' GB');
+            return `<div class="model-dropdown-item ${isActive ? 'active' : ''}" data-model-id="${escapeHtml(m.id)}" role="option" aria-selected="${isActive}">
+                <span class="model-check">${isActive ? '<span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings:\'FILL\' 1">check_circle</span>' : ''}</span>
+                <div class="flex flex-col flex-1 min-w-0">
+                    <span class="font-body text-caption font-bold text-on-surface truncate">${escapeHtml(m.display_name)}</span>
+                    <span class="text-[10px] text-on-surface-variant">${escapeHtml(sizeLabel)} · ${escapeHtml(m.family)}</span>
                 </div>
-                <div class="max-w-[85%] flex flex-col gap-2">
-                    <div class="glass-panel rounded-2xl rounded-tl-sm p-5 shadow-xl">
-                        <p class="text-on-surface leading-relaxed whitespace-pre-wrap">${escapeHtml(answer)}</p>
-                        ${toggleBtnHTML}
-                    </div>
-                    ${sourcesHTML}
-                </div>
-            `;
-            messagesContainer.appendChild(div);
-            scrollToBottom();
-        }
-
-        function escapeHtml(text) {
-            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
-            return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-
-        function scrollToBottom() {
-            const container = document.getElementById('chat-container');
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const q = questionInput.value.trim();
-            if (!q) return;
-            questionInput.value = '';
-            questionInput.style.height = '';
-
-            appendUserMessage(q);
-
-            inputWrapper.classList.add('processing');
-            loadingIndicator.classList.remove('hidden');
-            loadingIndicator.classList.add('flex');
-
-            try {
-                const res = await fetch('/ask', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({question: q, top_k: 3})
-                });
-                const data = await res.json();
-                appendAssistantMessage(data.answer, data.sources);
-            } catch (err) {
-                appendAssistantMessage('Sorry, there was an error processing your request across local RAG.', []);
-            } finally {
-                inputWrapper.classList.remove('processing');
-                loadingIndicator.classList.add('hidden');
-                loadingIndicator.classList.remove('flex');
-            }
-        }
-
-        sendBtn.addEventListener('click', sendMessage);
-        questionInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
+                <span class="text-[10px] text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded-full font-mono flex-shrink-0">${escapeHtml(m.size_gb + ' GB')}</span>
+            </div>`;
+        }).join('');
+        modelList.querySelectorAll('.model-dropdown-item').forEach(item => {
+            item.addEventListener('click', () => switchModel(item.dataset.modelId));
         });
+    }
 
-        questionInput.addEventListener('input', function() {
-            this.style.height = '';
-            this.style.height = Math.min(this.scrollHeight, 128) + 'px';
-        });
+    async function switchModel(modelId) {
+        if (modelId === currentModelId) { toggleModelDropdown(false); return; }
+        toggleModelDropdown(false);
+        try {
+            const res = await fetch('/models/active', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: modelId })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Switch failed');
+            currentModelId = data.active;
+            modelDisplayName.textContent = data.active_display;
+            showToast(`Switched to ${data.active_display}`, 'success');
+        } catch (err) {
+            showToast(err.message || 'Could not switch model', 'error');
+        }
+    }
 
-        loadStatus();
-    </script>
+    connectIngestEvents();
+    loadStatus();
+    loadModels();
+})();
+</script>
 </body>
 </html>

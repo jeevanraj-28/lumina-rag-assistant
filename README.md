@@ -213,6 +213,7 @@ RAG_TOP_K=3                              # Chunks retrieved per query
 RAG_CHUNK_SIZE=900                       # Characters per chunk
 RAG_CHUNK_OVERLAP=150                    # Overlap between chunks
 RAG_MAX_FILE_MB=25                       # Max file size to index
+RAG_EMBED_BATCH_SIZE=48                  # Bounded local embedding batch size
 ```
 
 ### Lighter / heavier model options
@@ -236,7 +237,10 @@ Returns server status, active model, and indexed chunk count.
 ```json
 { "rebuild": false }
 ```
-Scans `data/inbox/`, organises files into `data/library/`, and (re)builds the FAISS index.
+Starts an asynchronous local ingestion job. Existing queries continue to use the current FAISS index until the replacement index is complete.
+
+### `GET /ingest/{job_id}` · `GET /events`
+Check an ingestion job or subscribe to Server-Sent Events for parse, embedding, and completion updates.
 
 ### `POST /ask`
 ```json
@@ -247,10 +251,20 @@ Scans `data/inbox/`, organises files into `data/library/`, and (re)builds the FA
 {
   "answer": "The roadmap lists the MVP deadline as 15 August...",
   "sources": [
-    { "file": "text/roadmap.md", "category": "text", "excerpt": "...", "score": 0.91 }
+    {
+      "citation_id": "7f5db02f645fe2f1386c",
+      "file": "text/roadmap.md",
+      "page": null,
+      "category": "text",
+      "excerpt": "...",
+      "score": 0.91
+    }
   ]
 }
 ```
+
+### `GET /sources/{citation_id}`
+Returns the exact indexed text, source file, and PDF page (when available) for a citation. The browser UI opens PDF evidence at that page.
 
 ### `GET /files` · `GET /files/{path}`
 Browse and download files from the organised library.
