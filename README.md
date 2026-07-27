@@ -1,64 +1,91 @@
 # Lumina RAG 🔍✨
-> **A fully private, local-first document intelligence assistant — powered by Ollama, FAISS, and a beautiful web UI.**
+> **A fully private, local-first document intelligence assistant — powered by Ollama, FAISS, dynamic multi-model selection, and a sleek web UI.**
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Ollama-Qwen_2.5_3B-FF6B35?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Ollama-Multi--Model-FF6B35?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/FAISS-Local_Search-764ABC?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
   <img src="https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge"/>
 </p>
 
 <p align="center">
-  <strong>Drop files in. Ask questions. Get answers — 100% on your machine, zero cloud, zero data leaks.</strong>
+  <strong>Drop files in. Ask questions. Switch local AI models on-the-fly — 100% on your machine with zero data leaks.</strong>
 </p>
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Lumina RAG Dashboard — dark glassmorphism UI with sidebar and chat area" width="100%"/>
+  <img src="assets/demo-ui.png" alt="Lumina RAG UI Dashboard" width="100%"/>
 </p>
 
 ---
 
-## ✨ What is Lumina RAG?
+## 🌟 Key Features
 
-Lumina RAG turns any folder of documents into a private, conversational knowledge base. Upload PDFs, Word docs, Markdown notes, code files, CSVs and more — then ask natural language questions and get accurate, cited answers without any of your data leaving your machine.
-
-```
-flowchart:
-  📁 data/inbox  ──▶  POST /ingest  ──▶  FAISS Index
-       📂 Organize by type (pdf / word / data / web / other)
-       ✂️  Chunk + embed with all-minilm (46 MB)
-
-  💬 Question  ──▶  FAISS semantic search  ──▶  Top-K chunks
-       🤖 Ollama: Qwen 2.5 3B  ──▶  Cited answer
-```
-
-### Why Lumina RAG?
-| Feature | Lumina RAG | Cloud RAG APIs |
-|---|---|---|
-| Data privacy | ✅ 100% local | ❌ Sent to third party |
-| API key needed | ✅ None | ❌ Required |
-| Works offline | ✅ Fully offline | ❌ Needs internet |
-| Model cost | ✅ Free | ❌ Per-token billing |
-| GPU required | ✅ No (CPU works) | — |
+- **🧠 Runtime Model Selection (ChatGPT / Claude Style):** Switch between any of your locally installed Ollama chat models (`Lumina 3B`, `DeepSeek R1`, `Phi-4 Mini`, `Lumina 8B`, etc.) instantly from the header dropdown without restarting the server.
+- **📄 Metadata-Aware Evidence Context:** Lumina RAG injects document metadata (upload date, file size, format category) directly into prompt context. Ask questions about *content* OR *metadata* (*"When was my report uploaded?"*, *"What's my largest file?"*).
+- **🔒 100% Local & Private:** Runs entirely on your machine via Ollama & FAISS. Zero data sent to third-party cloud APIs, zero token costs, works completely offline.
+- **👁️ Multi-Tier OCR Pipeline:** Supports Native PDF text extraction → auto-scanned detection → optional GPU-backed Baidu Unlimited-OCR for complex scanned documents.
+- **⚡ Live Event Streaming (SSE):** Real-time ingestion progress monitoring and SSE event streams for file processing and index construction.
+- **🎨 Glassmorphism Responsive UI:** Built with dark mode ergonomics, smooth micro-animations, clickable source citations, and interactive particle canvas.
 
 ---
 
-## 🚀 Quick Start
+## 🖼️ Application Demos
+
+<table align="center">
+  <tr>
+    <td width="50%" align="center">
+      <b>Dynamic AI Model Selector</b><br/>
+      <img src="assets/demo-model-selector.png" alt="Model Selector Dropdown" width="100%"/>
+    </td>
+    <td width="50%" align="center">
+      <b>Interactive Document Q&A</b><br/>
+      <img src="assets/demo-chat.png" alt="Interactive Document Q&A" width="100%"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <b>Evidence Source Inspector</b><br/>
+      <img src="assets/demo-sources.png" alt="Evidence Source Inspector" width="100%"/>
+    </td>
+    <td width="50%" align="center">
+      <b>Local Knowledge Base Sidebar</b><br/>
+      <img src="app/static/logo-full.png" alt="Lumina RAG Branding" width="100%"/>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🏗️ Architecture & Pipeline
+
+```
+  ┌─────────────────┐       ┌────────────────────┐       ┌──────────────────┐
+  │   User Uploads  │ ───►  │  File Categorizer  │ ───►  │ Chunk & Embedder │
+  │ (PDF/DOCX/TXT)  │       │ (Library Inbox)    │       │ (all-minilm)     │
+  └─────────────────┘       └────────────────────┘       └────────┬─────────┘
+                                                                  │
+                                                                  ▼
+  ┌─────────────────┐       ┌────────────────────┐       ┌──────────────────┐
+  │  Cited Response │ ◄───  │ Active Ollama LLM  │ ◄───  │   FAISS Index    │
+  │ (with Evidence) │       │ (Runtime Selected) │       │  (Vector Search) │
+  └─────────────────┘       └────────────────────┘       └──────────────────┘
+```
+
+---
+
+## 🚀 Quick Start Guide
 
 ### Prerequisites
 
-| Requirement | Version | Install |
-|---|---|---|
-| Python | 3.11+ | [python.org](https://python.org) |
-| Ollama | Latest | [ollama.com](https://ollama.com/) |
-| Git | Any | [git-scm.com](https://git-scm.com/) |
-| curl | Any | Pre-installed on Linux/macOS/WSL |
+- **Python 3.11+** installed
+- **[Ollama](https://ollama.com)** installed and running locally
+- **Git**
 
 ---
 
-### Step 1 — Clone the repository
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/jeevanraj-28/lumina-rag-assistant.git
@@ -67,252 +94,90 @@ cd lumina-rag-assistant
 
 ---
 
-### Step 2 — Install Ollama
+### Step 2: Launch Lumina RAG
 
-Download and install Ollama for your OS from **[ollama.com](https://ollama.com/)**.
-
-- **Linux / macOS:** Ollama installs as a system service — it will be on your `PATH` automatically.
-- **Windows:** Ollama installs as a Windows app. You can run `start.sh` from **WSL** (recommended) or use the [PowerShell method](#windows-powershell) below.
-
----
-
-### Step 3 — Run the startup script
-
-Pick the method that matches your environment:
-
-#### 🐧 Linux / macOS
-
-```bash
-bash start.sh
-```
-
-#### 🪟 Windows — WSL (recommended)
-
-Open a WSL terminal (Ubuntu, Debian, etc.) inside the project folder:
-
-```bash
-# If Ollama is already running on Windows, the script will detect it automatically.
-# If not, start Ollama from Windows first, then run:
-bash start.sh
-```
-
-> **WSL tip:** The script automatically finds `ollama.exe` in your Windows `AppData` folder and uses your Windows-created `.venv` via WSL2 interop — no extra setup needed.
-
-#### 🪟 Windows — PowerShell <a name="windows-powershell"></a>
-
-If you prefer to run without WSL:
+#### 🪟 Windows (PowerShell)
 
 ```powershell
-# 1. Create and activate a virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\start.ps1
+```
 
-# 2. Install dependencies
-pip install -r requirements.txt
+*The script automatically creates a virtual environment, installs dependencies, pulls required Ollama models (`qwen2.5:3b` & `all-minilm`), and starts the Uvicorn web server at `http://localhost:8000`.*
 
-# 3. Start Ollama (in a separate terminal or as a Windows service)
-ollama serve
+#### 🐧 Linux / macOS / WSL
 
-# 4. Pull models (first time only)
-ollama pull qwen2.5:3b
-ollama pull all-minilm
-
-# 5. Launch the app
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```bash
+chmod +x start.sh
+./start.sh
 ```
 
 ---
 
-### What `start.sh` does automatically
+### Step 3: Open in Browser
 
-| Step | Action |
-|---|---|
-| 1 | Detects `ollama` / `ollama.exe` on Linux, macOS, or WSL |
-| 2 | Creates `data/inbox/`, `data/library/`, `data/index/` if missing |
-| 3 | Creates `.venv` (if absent) or uses the existing one |
-| 4 | Installs all Python dependencies from `requirements.txt` |
-| 5 | Starts Ollama server (skips if already running) |
-| 6 | Pulls `qwen2.5:3b` and `all-minilm` on first run only |
-| 7 | Launches FastAPI at **http://localhost:8000** |
-| 8 | Opens your browser automatically |
-| 9 | Gracefully stops all services on `Ctrl+C` |
-
-### Startup flags
-
-```bash
-bash start.sh                    # Normal start
-bash start.sh --rebuild          # Force full FAISS index rebuild
-bash start.sh --no-browser       # Don't auto-open the browser
-bash start.sh --rebuild --no-browser
-```
+Navigate to **`http://localhost:8000`** to start uploading and chatting with your documents!
 
 ---
 
+## 🐳 Docker Support
 
-
-## 🐳 Docker (alternative)
+To run Lumina RAG inside a Docker container:
 
 ```bash
-# CPU
 docker build -t lumina-rag .
-docker run --rm -p 8000:8000 -v "${PWD}/data:/app/data" lumina-rag
-
-# NVIDIA GPU
-docker run --rm --gpus all -p 8000:8000 -v "${PWD}/data:/app/data" lumina-rag
-```
-
-> On first run, models are downloaded into `data/ollama-models/` which is bind-mounted, so subsequent runs are instant.
-
----
-
-## 📂 Project Structure
-
-```
-lumina-rag-assistant/
-├── app/
-│   ├── main.py              # FastAPI application — all routes & RAG logic
-│   └── static/
-│       └── index.html       # Full-featured browser chat UI (Lumina Dashboard)
-├── data/
-│   ├── inbox/               # 📥 Drop your documents here
-│   ├── library/             # 📚 Auto-organised by file type after ingestion
-│   ├── index/               # 🗂️  FAISS index + metadata (auto-generated)
-│   └── ollama-models/       # 🤖 Ollama model cache (Docker / local)
-├── .env.example             # All configurable settings
-├── Dockerfile               # Production container
-├── docker-entrypoint.sh     # Container startup logic
-├── requirements.txt         # Python dependencies
-└── start.sh                 # ⚡ One-shot local startup script
+docker run -d -p 8000:8000 --name lumina-rag-app lumina-rag
 ```
 
 ---
 
-## 💬 Using the App
+## ⚙️ Environment Configuration (`.env`)
 
-1. **Drop files** into `data/inbox/` (PDF, DOCX, TXT, MD, CSV, JSON, HTML, code files)
-2. Click **"Knowledge Base"** in the sidebar (or call `POST /ingest`) to index them
-3. **Ask questions** in the chat — answers include cited source filenames and excerpts
+You can customize server settings by creating or editing a `.env` file in the root directory:
 
-### Supported file formats
-`PDF` · `DOCX` · `TXT` · `Markdown` · `CSV` · `JSON` · `HTML` · `Python` · `JavaScript` · `TypeScript` · `Java` · `Go` · `Rust` · `YAML`
-
-> ⚠️ Files larger than 25 MB are skipped by default. Adjust `RAG_MAX_FILE_MB` in `.env` to change this limit.
+```env
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:3b
+OLLAMA_EMBEDDING_MODEL=all-minilm
+RAG_DATA_DIR=data
+RAG_TOP_K=3
+RAG_CHUNK_SIZE=900
+RAG_CHUNK_OVERLAP=150
+RAG_MAX_FILE_MB=25
+```
 
 ---
 
-## ⚙️ Configuration
+## 📡 REST API Overview
 
-Copy `.env.example` to `.env` and edit as needed:
+Lumina RAG exposes a full FastAPI backend:
 
-```dotenv
-OLLAMA_BASE_URL=http://127.0.0.1:11434   # Ollama server address
-OLLAMA_MODEL=qwen2.5:3b                  # LLM for answer generation
-OLLAMA_EMBEDDING_MODEL=all-minilm        # Embedding model (46 MB, fast)
-RAG_DATA_DIR=data                        # Root data directory
-RAG_TOP_K=3                              # Chunks retrieved per query
-RAG_CHUNK_SIZE=900                       # Characters per chunk
-RAG_CHUNK_OVERLAP=150                    # Overlap between chunks
-RAG_MAX_FILE_MB=25                       # Max file size to index
-RAG_EMBED_BATCH_SIZE=48                  # Bounded local embedding batch size
-```
-
-### Lighter / heavier model options
-
-| Model | Size | When to use |
+| Endpoint | Method | Description |
 |---|---|---|
-| `qwen2.5:1.5b` | ~1 GB | Low-RAM machines (< 8 GB) |
-| `qwen2.5:3b` *(default)* | ~1.9 GB | Good balance on 8 GB+ |
-| `llama3.2:3b` | ~2 GB | Alternative CPU-friendly option |
+| `/health` | `GET` | System health, chunk counts, active model status |
+| `/models` | `GET` | List available Ollama chat models with parameter sizes |
+| `/models/active` | `PUT` | Switch active local LLM model dynamically |
+| `/upload` | `POST` | Upload local documents to inbox |
+| `/ingest` | `POST` | Trigger text extraction, chunking, and FAISS indexing |
+| `/ask` | `POST` | Perform RAG vector search & query LLM |
+| `/events` | `GET` | SSE stream for real-time indexing progress |
+| `/files` | `GET` | List all library files and metadata |
+| `/files/{path}` | `GET` | Securely download or view original document |
+| `/v1/chat/completions` | `POST` | OpenAI-compatible endpoint for third-party UIs |
 
 ---
 
-## 🔌 API Reference
+## 🛠️ Tech Stack
 
-All endpoints are also available at **http://localhost:8000/docs** (Swagger UI).
-
-### `GET /health`
-Returns server status, active model, and indexed chunk count.
-
-### `POST /ingest`
-```json
-{ "rebuild": false }
-```
-Starts an asynchronous local ingestion job. Existing queries continue to use the current FAISS index until the replacement index is complete.
-
-### `GET /ingest/{job_id}` · `GET /events`
-Check an ingestion job or subscribe to Server-Sent Events for parse, embedding, and completion updates.
-
-### `POST /ask`
-```json
-{ "question": "Which documents mention the project deadline?", "top_k": 5 }
-```
-**Response:**
-```json
-{
-  "answer": "The roadmap lists the MVP deadline as 15 August...",
-  "sources": [
-    {
-      "citation_id": "7f5db02f645fe2f1386c",
-      "file": "text/roadmap.md",
-      "page": null,
-      "category": "text",
-      "excerpt": "...",
-      "score": 0.91
-    }
-  ]
-}
-```
-
-### `GET /sources/{citation_id}`
-Returns the exact indexed text, source file, and PDF page (when available) for a citation. The browser UI opens PDF evidence at that page.
-
-### `GET /files` · `GET /files/{path}`
-Browse and download files from the organised library.
-
-### OpenAI-compatible endpoint (`POST /v1/chat/completions`)
-Point any OpenAI-compatible client (e.g., [Open WebUI](https://openwebui.com/)) at `http://localhost:8000/v1` and select model `local-rag`.
+- **Backend:** FastAPI, Uvicorn, Python 3.11+
+- **Vector Search:** FAISS (Facebook AI Similarity Search)
+- **Local LLM Engine:** Ollama (`qwen2.5`, `deepseek-r1`, `phi4-mini`, etc.)
+- **Text & PDF Extractors:** PyPDF, python-docx, Unlimited-OCR adapter
+- **Frontend:** Vanilla JS, HTML5, CSS3, Tailwind CSS (Design System)
 
 ---
 
-## 🛡️ Privacy & Security
+## 🧑‍💻 Author & Attribution
 
-- **Everything runs locally** — embeddings, retrieval, and generation never leave your machine.
-- The app only passes retrieved text chunks to the local Ollama service.
-- No telemetry, no analytics, no cloud calls.
-- Scanned / image-only PDFs require OCR pre-processing (text-based PDFs work out of the box).
-
----
-
-## 📊 Resource Profile
-
-| Component | Download size | RAM usage |
-|---|---|---|
-| `qwen2.5:3b` (default LLM) | ~1.9 GB | ~4 GB |
-| `all-minilm` (embeddings) | 46 MB | minimal |
-| FAISS index (typical personal doc set) | < 50 MB | < 200 MB |
-
-> **Low-RAM tip:** Set `OLLAMA_MODEL=qwen2.5:1.5b` in `.env` for machines with less than 8 GB RAM.
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! Please open an issue first to discuss major changes.
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -m 'Add my feature'`)
-4. Push to the branch (`git push origin feature/my-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
-<p align="center">
-  Built with ❤️ · Powered by <a href="https://ollama.com/">Ollama</a>, <a href="https://github.com/facebookresearch/faiss">FAISS</a>, and <a href="https://fastapi.tiangolo.com/">FastAPI</a>
-</p>
+- **Creator & Lead Developer:** **Jeevan Raj M**
+- **Project Repository:** [github.com/jeevanraj-28/lumina-rag-assistant](https://github.com/jeevanraj-28/lumina-rag-assistant)
+- **License:** [MIT License](LICENSE)
