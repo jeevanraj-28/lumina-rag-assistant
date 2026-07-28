@@ -214,10 +214,12 @@
             <h2 class="font-headline text-headline-md text-on-surface">Knowledge Base</h2>
             <span id="inbox-badge" class="hidden text-caption font-bold bg-accent-orange/20 text-accent-orange px-2 py-0.5 rounded-full border border-accent-orange/30">0 pending</span>
         </div>
-        <div id="dropzone" class="dropzone h-[120px] rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center gap-2 bg-background cursor-pointer hover:bg-surface-bright transition-colors" role="button" tabindex="0" aria-label="Upload documents">
-            <span class="material-symbols-outlined text-on-surface-variant text-3xl">cloud_upload</span>
-            <span class="font-body text-label text-on-surface-variant text-center px-3">Drop files or click to upload</span>
-            <span class="text-[10px] text-on-surface-variant">PDF, DOCX, TXT, MD, CSV & more</span>
+        <div id="dropzone" class="dropzone h-[115px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary flex flex-col items-center justify-center gap-1.5 bg-surface-raised/40 hover:bg-surface-raised transition-all cursor-pointer group" role="button" tabindex="0" aria-label="Upload documents">
+            <div class="w-10 h-10 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-primary transition-colors">
+                <span class="material-symbols-outlined text-xl">cloud_upload</span>
+            </div>
+            <span class="font-body text-caption font-bold text-on-surface text-center px-2">Drop files or click to upload</span>
+            <span class="text-[10px] text-on-surface-variant font-mono">PDF, DOCX, TXT, MD, CSV (Max 25MB)</span>
         </div>
         <div id="upload-preview" class="hidden flex flex-col gap-1 max-h-24 overflow-y-auto"></div>
         <button id="ingest-card" class="bg-primary text-on-primary font-headline text-headline-md py-3 rounded-xl chunky-shadow-btn squish-btn transition-all flex items-center justify-center gap-2 relative overflow-hidden">
@@ -226,7 +228,17 @@
             <div id="ingest-progress" class="absolute bottom-0 left-0 w-0 ingest-progress-bar"></div>
         </button>
         <div class="flex flex-col gap-1.5">
-            <label for="ocr-mode-select" class="text-caption text-on-surface-variant font-bold">PDF parsing mode</label>
+            <div class="flex items-center justify-between">
+                <label for="ocr-mode-select" class="text-caption text-on-surface-variant font-bold">PDF parsing mode</label>
+                <div class="group relative cursor-pointer">
+                    <span class="material-symbols-outlined text-xs text-on-surface-variant hover:text-primary">info</span>
+                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-1 w-56 p-2 rounded-lg bg-surface-bright border border-outline-variant text-[10px] text-on-surface shadow-xl z-50 pointer-events-none">
+                        <strong>Native:</strong> Reads embedded text.<br/>
+                        <strong>Auto:</strong> Runs OCR if <80 chars/page.<br/>
+                        <strong>Unlimited:</strong> GPU VLM multi-page OCR.
+                    </div>
+                </div>
+            </div>
             <select id="ocr-mode-select" class="rounded-lg border-2 border-outline-variant bg-surface-container text-body text-on-surface px-3 py-2 focus:border-primary focus:ring-0">
                 <option value="native">Native text (fastest)</option>
                 <option value="auto">Auto — OCR if scanned</option>
@@ -302,6 +314,24 @@
     </div>
 </aside>
 
+<!-- Knowledge Base Breakdown Modal -->
+<div id="kb-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-xl">dataset</span>
+                <h3 class="font-headline text-headline-md text-on-surface">Knowledge Base Breakdown</h3>
+            </div>
+            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        <div id="kb-breakdown-body" class="p-4 flex flex-col gap-3 overflow-y-auto">
+            <div class="text-center text-on-surface-variant text-caption py-4">Loading stats...</div>
+        </div>
+    </div>
+</div>
+
 <!-- Trash Bin Modal -->
 <div id="trash-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
@@ -339,19 +369,19 @@
             <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight m-0">Lumina RAG</h1>
         </div>
         <div class="flex items-center gap-2 sm:gap-4">
-            <div class="hidden sm:flex gap-2">
-                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Questions asked this session">
-                    <span class="material-symbols-outlined text-sm text-secondary">chat</span>
-                    <span class="font-body text-label text-secondary font-bold" id="questions-badge">0</span>
+            <div class="hidden sm:flex items-center gap-2 bg-surface-raised/60 p-1 rounded-full border border-outline-variant">
+                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-secondary font-bold text-caption" title="Questions asked this session">
+                    <span class="material-symbols-outlined text-sm">chat</span>
+                    <span id="questions-badge">0</span>
                 </div>
-                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Indexed knowledge chunks">
-                    <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">bolt</span>
-                    <span class="font-body text-label text-accent-purple font-bold" id="chunks-badge">0 chunks</span>
-                </div>
-                <div class="flex items-center gap-1 bg-surface-raised h-8 px-3 rounded-full border-2 border-outline-variant" title="Documents in library">
-                    <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">folder</span>
-                    <span class="font-body text-label text-primary font-bold" id="files-badge">0 docs</span>
-                </div>
+                <button id="open-kb-chunks-btn" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-accent-purple font-bold text-caption hover:bg-surface-bright transition-colors cursor-pointer" title="Click for Knowledge Breakdown">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                    <span id="chunks-badge">0 chunks</span>
+                </button>
+                <button id="open-kb-files-btn" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-primary font-bold text-caption hover:bg-surface-bright transition-colors cursor-pointer" title="Click for Knowledge Breakdown">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">folder</span>
+                    <span id="files-badge">0 docs</span>
+                </button>
             </div>
             <div class="model-selector-wrap">
                 <button id="model-selector-btn" class="model-selector-btn flex items-center gap-1.5 bg-surface-raised h-9 px-3 pr-2 rounded-full border-2 border-outline-variant" aria-label="Select AI model" aria-haspopup="listbox">
@@ -373,19 +403,28 @@
     <main class="flex-1 overflow-y-auto pt-[88px] pb-[200px] px-4 w-full flex justify-center" id="chat-container">
         <div class="w-full max-w-[760px] flex flex-col gap-6" id="chat-messages">
             <div class="flex justify-start gap-3 stagger-in" style="animation-delay: 0.2s;">
-                <div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden">
+                <div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden shadow-md">
                     <img src="/static/logo-icon.png" alt="Lumina" class="w-8 h-8 object-cover"/>
                 </div>
                 <div class="flex flex-col gap-3 max-w-[85%]">
                     <div class="bg-primary-container text-on-primary-container px-5 py-4 rounded-2xl rounded-bl-sm border-2 border-primary-dark chunky-shadow-primary message-tail-left">
-                        <p class="font-body text-body">
-                            Welcome to <strong class="text-primary-fixed">Lumina RAG</strong> — your private document assistant. Upload files in the sidebar, ingest them, then ask anything. Everything stays on your machine.
+                        <p class="font-body text-body leading-relaxed">
+                            Welcome to <strong class="text-primary-fixed font-black">Lumina RAG</strong> — your local private document intelligence assistant. Drop files in the sidebar, click Ingest, then ask questions with zero token costs and 100% privacy.
                         </p>
                     </div>
-                    <div id="quick-prompts" class="flex flex-wrap gap-2">
-                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="Summarize the main topics across my documents">Summarize my docs</button>
-                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="What documents do I have indexed and what are they about?">What's in my library?</button>
-                        <button class="prompt-chip font-body text-caption text-on-surface-variant bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1.5" data-prompt="Find key dates, deadlines, or action items mentioned in my files">Find deadlines</button>
+                    <div id="quick-prompts" class="flex flex-wrap gap-2 pt-1">
+                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="Summarize the main topics across my documents">
+                            <span class="material-symbols-outlined text-sm text-primary group-hover:scale-110 transition-transform">auto_awesome</span>
+                            <span>Summarize my docs</span>
+                        </button>
+                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="What documents do I have indexed and what are they about?">
+                            <span class="material-symbols-outlined text-sm text-secondary group-hover:scale-110 transition-transform">folder_open</span>
+                            <span>What's in my library?</span>
+                        </button>
+                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="Find key dates, deadlines, or action items mentioned in my files">
+                            <span class="material-symbols-outlined text-sm text-accent-orange group-hover:scale-110 transition-transform">event</span>
+                            <span>Find deadlines</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -401,9 +440,12 @@
                     <span class="text-caption text-primary font-bold ml-2" id="loading-message">Searching your knowledge base...</span>
                 </div>
             </div>
-            <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-end p-2 chunky-shadow transition-all duration-300 focus-within:border-primary-container" id="input-wrapper">
-                <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-4 py-2.5 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
-                <button id="send-btn" class="w-12 h-12 rounded-full bg-primary text-on-primary hover:brightness-110 transition-all border-2 border-primary-dark squish-btn flex-shrink-0 ml-2 chunky-shadow-btn magnetic-btn" aria-label="Send message">
+            <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-end p-2 chunky-shadow transition-all duration-300 focus-within:border-primary-container gap-1" id="input-wrapper">
+                <button id="attach-file-btn" class="w-10 h-10 rounded-full hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors flex-shrink-0 mb-0.5" title="Upload document to inbox" onclick="document.getElementById('dropzone').click()">
+                    <span class="material-symbols-outlined text-xl">attach_file</span>
+                </button>
+                <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-2 py-2.5 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
+                <button id="send-btn" class="w-12 h-12 rounded-full bg-primary text-on-primary hover:brightness-110 transition-all border-2 border-primary-dark squish-btn flex-shrink-0 ml-1 chunky-shadow-btn magnetic-btn" aria-label="Send message">
                     <span class="material-symbols-outlined text-2xl font-bold" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
                 </button>
             </div>
@@ -766,6 +808,64 @@
         }
     });
 
+    // Knowledge Base Breakdown Modal
+    const kbModal = document.getElementById('kb-modal');
+    const closeKbModalBtn = document.getElementById('close-kb-modal');
+    const openKbChunksBtn = document.getElementById('open-kb-chunks-btn');
+    const openKbFilesBtn = document.getElementById('open-kb-files-btn');
+
+    function openKbBreakdown() {
+        kbModal.classList.remove('hidden');
+        renderKbBreakdown();
+    }
+
+    openKbChunksBtn?.addEventListener('click', openKbBreakdown);
+    openKbFilesBtn?.addEventListener('click', openKbBreakdown);
+    closeKbModalBtn?.addEventListener('click', () => kbModal.classList.add('hidden'));
+    kbModal?.addEventListener('click', (e) => { if (e.target === kbModal) kbModal.classList.add('hidden'); });
+
+    function renderKbBreakdown() {
+        const body = document.getElementById('kb-breakdown-body');
+        if (!libraryFiles.length) {
+            body.innerHTML = `<div class="text-center text-on-surface-variant text-caption py-6">No documents indexed yet. Upload files to get started.</div>`;
+            return;
+        }
+
+        const catCounts = {};
+        let totalSize = 0;
+        libraryFiles.forEach(f => {
+            catCounts[f.category] = (catCounts[f.category] || 0) + 1;
+            totalSize += (f.size_bytes || 0);
+        });
+
+        const totalMB = (totalSize / (1024 * 1024)).toFixed(2);
+
+        body.innerHTML = `
+            <div class="grid grid-cols-2 gap-3 mb-2">
+                <div class="bg-surface-raised p-3 rounded-xl border border-outline-variant text-center">
+                    <span class="text-xs text-on-surface-variant font-bold">Total Storage</span>
+                    <p class="font-headline text-headline-md text-primary mt-1">${totalMB} MB</p>
+                </div>
+                <div class="bg-surface-raised p-3 rounded-xl border border-outline-variant text-center">
+                    <span class="text-xs text-on-surface-variant font-bold">Active Model</span>
+                    <p class="font-headline text-caption font-bold text-accent-purple mt-1 truncate">${escapeHtml(currentModelId || 'Lumina AI')}</p>
+                </div>
+            </div>
+            <h4 class="font-headline text-caption font-bold text-on-surface mt-2 mb-1">Indexed Documents (${libraryFiles.length})</h4>
+            <div class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
+                ${libraryFiles.map(f => `
+                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-raised border border-outline-variant text-xs">
+                        <div class="flex items-center gap-2 min-w-0 pr-2">
+                            <span class="material-symbols-outlined text-sm text-primary flex-shrink-0">description</span>
+                            <span class="font-bold text-on-surface truncate" title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</span>
+                        </div>
+                        <span class="font-mono text-[10px] text-on-surface-variant flex-shrink-0">${f.size_human}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
     // Trash Modal toggles
     trashModalBtn?.addEventListener('click', () => {
         trashModal.classList.remove('hidden');
@@ -839,6 +939,9 @@
     function renderLibrary() {
         const filtered = getFilteredFiles();
         document.getElementById('library-count').textContent = libraryFiles.length ? `${libraryFiles.length}` : '0';
+        if (searchInput) {
+            searchInput.placeholder = libraryFiles.length ? `Search ${libraryFiles.length} doc${libraryFiles.length !== 1 ? 's' : ''}...` : 'Search library...';
+        }
         updateBulkUI();
         renderLibraryListOnly(filtered);
     }
@@ -849,32 +952,54 @@
 
         if (!files.length) {
             if (searchQuery || activeCategory !== 'all') {
-                listEl.innerHTML = `<div class="p-4 text-center text-on-surface-variant text-caption">No documents match your filter.</div>`;
+                listEl.innerHTML = `<div class="p-6 text-center text-on-surface-variant text-caption flex flex-col items-center gap-2">
+                    <span class="material-symbols-outlined text-3xl opacity-50">search_off</span>
+                    <span>No documents match "${escapeHtml(searchQuery || activeCategory)}"</span>
+                    <button class="text-xs font-bold text-primary hover:underline mt-1" onclick="document.getElementById('library-search-clear').click()">Clear search</button>
+                </div>`;
             } else {
-                listEl.innerHTML = `<div class="flex flex-col items-center gap-3 py-6 px-3 text-center rounded-xl border-2 border-dashed border-outline-variant bg-background">
-                    <span class="material-symbols-outlined text-4xl text-on-surface-variant">upload_file</span>
-                    <p class="text-caption text-on-surface-variant">No documents yet. Upload files above to get started.</p>
-                    <button class="text-caption font-bold text-primary hover:underline" onclick="document.getElementById('dropzone').click()">Upload now</button>
+                listEl.innerHTML = `<div class="flex flex-col items-center gap-3 py-8 px-3 text-center rounded-xl border-2 border-dashed border-outline-variant bg-background/50">
+                    <span class="material-symbols-outlined text-4xl text-on-surface-variant/70">upload_file</span>
+                    <div>
+                        <p class="font-bold text-caption text-on-surface">Your library is empty</p>
+                        <p class="text-[11px] text-on-surface-variant">Drop files above or click to upload</p>
+                    </div>
+                    <button class="text-caption font-bold text-primary hover:underline px-3 py-1 bg-primary/10 rounded-lg border border-primary/30" onclick="document.getElementById('dropzone').click()">Browse files</button>
                 </div>`;
             }
             return;
         }
 
-        const iconMap = { pdf: 'picture_as_pdf', data: 'table_view', word: 'description', text: 'description', web: 'language', other: 'insert_drive_file' };
+        const categoryStyles = {
+            pdf: { icon: 'picture_as_pdf', color: 'text-accent-red', bg: 'bg-accent-red/15 border-accent-red/30' },
+            word: { icon: 'description', color: 'text-secondary', bg: 'bg-secondary/15 border-secondary/30' },
+            text: { icon: 'article', color: 'text-accent-purple', bg: 'bg-accent-purple/15 border-accent-purple/30' },
+            data: { icon: 'table_view', color: 'text-accent-orange', bg: 'bg-accent-orange/15 border-accent-orange/30' },
+            web: { icon: 'language', color: 'text-primary', bg: 'bg-primary/15 border-primary/30' },
+            other: { icon: 'insert_drive_file', color: 'text-on-surface-variant', bg: 'bg-surface-variant border-outline-variant' },
+        };
+
         listEl.innerHTML = files.map((f, idx) => {
             const isSelected = selectedPaths.has(f.path);
+            const isActive = activeFilePath === f.path;
             const ext = (f.filename.split('.').pop() || '').toUpperCase();
-            return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40 text-left transition-colors relative">
+            const catStyle = categoryStyles[f.category] || categoryStyles.other;
+
+            const cardClasses = isActive 
+                ? 'bg-primary/15 border-2 border-primary border-l-4 border-l-primary shadow-md' 
+                : 'bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40';
+
+            return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl ${cardClasses} text-left transition-all relative">
                 ${isSelectMode ? `<input type="checkbox" class="file-select-cb rounded border-outline-variant text-primary focus:ring-0 cursor-pointer" data-path="${escapeHtml(f.path)}" ${isSelected ? 'checked' : ''}/>` : ''}
-                <div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary flex-shrink-0 cursor-pointer" onclick="openFile('${encodeURIComponent(f.path)}')">
-                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${iconMap[f.category] || iconMap.other}</span>
+                <div class="w-8 h-8 rounded-lg ${catStyle.bg} border flex items-center justify-center ${catStyle.color} flex-shrink-0 cursor-pointer" onclick="openFile('${encodeURIComponent(f.path)}')" title="View ${escapeHtml(f.filename)}">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${catStyle.icon}</span>
                 </div>
-                <div class="flex flex-col flex-1 overflow-hidden cursor-pointer" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(f.path)}')` : `openFile('${encodeURIComponent(f.path)}')`}">
+                <div class="flex flex-col flex-1 overflow-hidden cursor-pointer min-w-0" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(f.path)}')` : `openFile('${encodeURIComponent(f.path)}')`}">
                     <span class="font-body text-caption font-bold truncate text-on-surface" title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</span>
-                    <span class="text-[10px] text-on-surface-variant">${ext} · ${f.size_human || 'File'}</span>
+                    <span class="text-[10px] ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'} truncate">${ext} · ${f.size_human || 'File'}${f.upload_date ? ' · ' + f.upload_date.split(' ')[0] : ''}</span>
                 </div>
-                <div class="flex items-center gap-1 opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open document">
+                <div class="flex items-center gap-1 opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                    <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open document (${ext})">
                         <span class="material-symbols-outlined text-sm">open_in_new</span>
                     </button>
                     <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="confirmDeleteSingle('${escapeHtml(f.path)}', '${escapeHtml(f.filename)}')" title="Move to Trash">
@@ -998,7 +1123,12 @@
         }
     };
 
-    window.openFile = path => window.open('/files/' + path, '_blank', 'noopener');
+    let activeFilePath = null;
+    window.openFile = path => {
+        activeFilePath = decodeURIComponent(path);
+        renderLibraryListOnly();
+        window.open('/files/' + path, '_blank', 'noopener');
+    };
     window.toggleCitation = (id, btn) => {
         const drawer = document.getElementById(id);
         const icon = btn.querySelector('.expand-icon');
