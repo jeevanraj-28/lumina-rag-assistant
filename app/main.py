@@ -42,7 +42,7 @@ from app.unlimited_ocr import UnlimitedOCRError, UnlimitedOCRSettings, parse_pdf
 
 load_dotenv()
 BASE = Path(os.getenv("RAG_DATA_DIR", "data")).resolve()
-INBOX, LIBRARY, INDEX_DIR = (BASE / "inbox", BASE / "library", BASE / "index")
+INBOX, LIBRARY, INDEX_DIR, TRASH = (BASE / "inbox", BASE / "library", BASE / "index", BASE / "trash")
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "all-minilm")
 OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
@@ -52,6 +52,7 @@ CHUNK_OVERLAP = int(os.getenv("RAG_CHUNK_OVERLAP", "150"))
 MAX_FILE_BYTES = int(os.getenv("RAG_MAX_FILE_MB", "25")) * 1024 * 1024
 EMBED_BATCH_SIZE = int(os.getenv("RAG_EMBED_BATCH_SIZE", "48"))
 OCR_MODE = os.getenv("RAG_OCR_MODE", "native").lower()
+MIN_RELEVANCE_SCORE = float(os.getenv("RAG_MIN_RELEVANCE_SCORE", "0.35"))
 OCR_MIN_CHARS_PER_PAGE = int(os.getenv("RAG_OCR_MIN_CHARS_PER_PAGE", "80"))
 UNLIMITED_OCR_URL = os.getenv("UNLIMITED_OCR_URL", "").rstrip("/")
 UNLIMITED_OCR_MODEL = os.getenv("UNLIMITED_OCR_MODEL", "baidu/Unlimited-OCR")
@@ -63,7 +64,8 @@ if OCR_MODE not in {"native", "auto", "unlimited"}:
     OCR_MODE = "native"
 TEXT_EXTENSIONS = {".pdf", ".docx", ".txt", ".md", ".csv", ".json", ".html", ".htm", ".py", ".js", ".ts", ".java", ".go", ".rs", ".yaml", ".yml"}
 EMBEDDING_FAMILIES = {"bert", "nomic-bert"}
-for folder in (INBOX, LIBRARY, INDEX_DIR):
+TRASH_RETENTION_DAYS = 30
+for folder in (INBOX, LIBRARY, INDEX_DIR, TRASH):
     folder.mkdir(parents=True, exist_ok=True)
 
 # Mutable active model — changed at runtime by /models/active
@@ -396,7 +398,7 @@ def organize_and_index(
         shutil.rmtree(LIBRARY, ignore_errors=True)
         LIBRARY.mkdir(parents=True, exist_ok=True)
     moved, skipped = 0, []
-    inbox_files = [source for source in INBOX.rglob("*") if source.is_file()]
+    inbox_files = [source for source in INBOX.rglob("*") if source.is_file() and not source.name.startswith(".")]
     for source_number, source in enumerate(inbox_files, start=1):
         if not source.is_file():
             continue
@@ -422,7 +424,7 @@ def organize_and_index(
             message="Organizing documents",
         )
     chunks, metas = [], []
-    library_files = [file for file in LIBRARY.rglob("*") if file.is_file()]
+    library_files = [file for file in LIBRARY.rglob("*") if file.is_file() and not file.name.startswith(".")]
     for file_number, file in enumerate(library_files, start=1):
         if file.suffix.lower() not in TEXT_EXTENSIONS:
             skipped.append(f"Skipped {file.name}: unsupported for text indexing")
@@ -484,16 +486,21 @@ def organize_and_index(
 
 
 IDENTITY_PATTERNS = [
-    r"\bwho\s+(?:are|'re)\s+you\b",
-    r"\bwho\s+(?:created|developed|built|made|designed)\s*(?:you|lumina|this|this\s+app|this\s+assistant)?\b",
-    r"\bwhat\s+(?:are\s+you|is\s+lumina\s*rag)\b",
-    r"\bwho\s+(?:is|was)\s+(?:your\s+creator|your\s+developer|jeevan|jeevan\s+raj)\b",
+    r"\bwho\s+(?:are|'re)\s+(?:you|u)\b",
+    r"\bwho\s+(?:r|are)\s+(?:u|you)\b",
+    r"\bwho\s+(?:created|developed|built|made|designed)\s*(?:you|u|lumina|this|this\s+app|this\s+assistant)?\b",
+    r"\bwh(?:at|o)\s+(?:are\s+(?:you|u)|is\s+lumina\s*rag)\b",
+    r"\bwho\s+(?:is|was)\s+(?:(?:you|ur|your)\s+creator|(?:you|ur|your)\s+developer|jeevan|jeevan\s+raj)\b",
+    r"\bwho\s+(?:built|made)\s+(?:u|you|dis|this)\b",
+    r"\b(?:ur|your)\s+(?:creator|developer|maker)\b",
+    r"\btell\s+(?:me\s+)?about\s+(?:you|yourself|urself)\b",
 ]
 
 CAPABILITY_PATTERNS = [
-    r"\bwhat\s+can\s+you\s+do\b",
-    r"\bhow\s+does\s+(?:this|lumina)\s+work\b",
-    r"\bhelp\s+me\s+understand\s+what\s+you\s+do\b",
+    r"\bwh?at\s+can\s+(?:you|u)\s+do\b",
+    r"\bhow\s+does?\s+(?:this|lumina)\s+work\b",
+    r"\bhelp\s+me\s+understand\s+wh?at\s+(?:you|u)\s+do\b",
+    r"\bwh?at\s+(?:do|can)\s+(?:u|you)\s+do\b",
 ]
 
 def check_system_question(question: str) -> str | None:
@@ -542,6 +549,8 @@ def answer(question: str, top_k: int) -> tuple[str, list[dict[str, Any]]]:
     sources = []
     context_chunks = []
     for score, pos in zip(scores[0], positions[0]):
+        if float(score) < MIN_RELEVANCE_SCORE:
+            continue
         item = active_metadata[int(pos)]
         citation_label = item["citation_id"]
         page_label = f", page {item['page']}" if item.get("page") else ""
@@ -739,8 +748,8 @@ def health() -> dict[str, Any]:
     with ingest_lock:
         active_job = ingest_jobs.get(active_ingest_job_id) if active_ingest_job_id else None
     current_model = get_active_model()
-    inbox_files = [path for path in INBOX.rglob("*") if path.is_file()]
-    library_files = [path for path in LIBRARY.rglob("*") if path.is_file()]
+    inbox_files = [path for path in INBOX.rglob("*") if path.is_file() and not path.name.startswith(".")]
+    library_files = [path for path in LIBRARY.rglob("*") if path.is_file() and not path.name.startswith(".")]
     return {
         "status": "ok",
         "model": current_model,
@@ -792,11 +801,16 @@ async def upload(files: list[UploadFile] = File(...)) -> dict[str, Any]:
         saved.append(destination.name)
     if not saved and skipped:
         raise HTTPException(400, "; ".join(skipped))
-    return {"saved": saved, "skipped": skipped, "inbox_total": len([path for path in INBOX.rglob("*") if path.is_file()])}
+    inbox_valid = [path for path in INBOX.rglob("*") if path.is_file() and not path.name.startswith(".")]
+    return {"saved": saved, "skipped": skipped, "inbox_total": len(inbox_valid)}
 
 
 @app.post("/ingest")
 def ingest(payload: IngestRequest) -> dict[str, Any]:
+    inbox_files = [f for f in INBOX.rglob("*") if f.is_file() and not f.name.startswith(".")]
+    library_files = [f for f in LIBRARY.rglob("*") if f.is_file() and not f.name.startswith(".")]
+    if not inbox_files and not library_files:
+        raise HTTPException(400, "No documents found to ingest. Upload files to your inbox first.")
     job, started = start_ingestion(payload.rebuild, payload.ocr_mode or OCR_MODE)
     return {"started": started, "job": job}
 
@@ -888,12 +902,170 @@ def openai_chat(payload: ChatCompletionRequest) -> dict[str, Any]:
     }
 
 
+class FileActionRequest(BaseModel):
+    paths: list[str]
+
+
+def load_trash_manifest() -> dict[str, dict[str, Any]]:
+    manifest_path = TRASH / "manifest.json"
+    if manifest_path.is_file():
+        try:
+            return json.loads(manifest_path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def save_trash_manifest(data: dict[str, dict[str, Any]]) -> None:
+    manifest_path = TRASH / "manifest.json"
+    manifest_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def auto_purge_old_trash() -> None:
+    """Purge files from trash older than TRASH_RETENTION_DAYS (30 days)."""
+    manifest = load_trash_manifest()
+    now = time.time()
+    cutoff = now - (TRASH_RETENTION_DAYS * 86400)
+    changed = False
+    for trash_key, info in list(manifest.items()):
+        deleted_at = info.get("deleted_at", 0)
+        if deleted_at < cutoff:
+            trash_file = TRASH / trash_key
+            trash_file.unlink(missing_ok=True)
+            del manifest[trash_key]
+            changed = True
+    if changed:
+        save_trash_manifest(manifest)
+
+
 @app.get("/files")
 def files() -> list[dict[str, Any]]:
+    auto_purge_old_trash()
+    result = []
     try:
-        return [{"path": f.relative_to(LIBRARY).as_posix(), "size_bytes": f.stat().st_size, "category": category(f)} for f in LIBRARY.rglob("*") if f.is_file()]
+        for f in LIBRARY.rglob("*"):
+            if f.is_file():
+                rel_path = f.relative_to(LIBRARY).as_posix()
+                stat = f.stat()
+                mtime_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat.st_mtime))
+                size_kb = round(stat.st_size / 1024, 1)
+                size_str = f"{size_kb} KB" if stat.st_size < 1048576 else f"{round(stat.st_size / 1048576, 1)} MB"
+                result.append({
+                    "path": rel_path,
+                    "filename": f.name,
+                    "category": category(f),
+                    "size_bytes": stat.st_size,
+                    "size_human": size_str,
+                    "modified_time": int(stat.st_mtime),
+                    "upload_date": mtime_str,
+                })
     except (FileNotFoundError, OSError):
-        return []
+        pass
+    return result
+
+
+@app.post("/files/delete")
+def delete_files(payload: FileActionRequest) -> dict[str, Any]:
+    """Soft delete files by moving them from LIBRARY to TRASH with a 30-day retention manifest."""
+    manifest = load_trash_manifest()
+    deleted = []
+    failed = []
+    now = int(time.time())
+
+    for rel_path in payload.paths:
+        target = (LIBRARY / rel_path).resolve()
+        if not target.is_relative_to(LIBRARY) or not target.is_file():
+            failed.append(f"{rel_path}: Not found")
+            continue
+        try:
+            trash_key = sha256(rel_path.encode("utf-8")).hexdigest()[:16] + "_" + target.name
+            trash_target = TRASH / trash_key
+            shutil.move(str(target), str(trash_target))
+            manifest[trash_key] = {
+                "original_path": rel_path,
+                "filename": target.name,
+                "category": category(target),
+                "deleted_at": now,
+                "size_bytes": trash_target.stat().st_size if trash_target.exists() else 0,
+            }
+            deleted.append(rel_path)
+        except Exception as exc:
+            failed.append(f"{rel_path}: {exc}")
+
+    save_trash_manifest(manifest)
+    return {"deleted": deleted, "failed": failed, "trash_count": len(manifest)}
+
+
+@app.get("/files/trash")
+def list_trash() -> list[dict[str, Any]]:
+    auto_purge_old_trash()
+    manifest = load_trash_manifest()
+    now = time.time()
+    items = []
+    for trash_key, info in manifest.items():
+        trash_file = TRASH / trash_key
+        if not trash_file.is_file():
+            continue
+        deleted_at = info.get("deleted_at", now)
+        elapsed_days = (now - deleted_at) / 86400
+        days_remaining = max(0, int(TRASH_RETENTION_DAYS - elapsed_days))
+        deleted_date_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(deleted_at))
+        size_bytes = info.get("size_bytes", 0)
+        size_kb = round(size_bytes / 1024, 1)
+        size_str = f"{size_kb} KB" if size_bytes < 1048576 else f"{round(size_bytes / 1048576, 1)} MB"
+        items.append({
+            "trash_key": trash_key,
+            "original_path": info.get("original_path", trash_key),
+            "filename": info.get("filename", trash_key),
+            "category": info.get("category", "document"),
+            "deleted_at": deleted_at,
+            "deleted_date": deleted_date_str,
+            "days_remaining": days_remaining,
+            "size_bytes": size_bytes,
+            "size_human": size_str,
+        })
+    return items
+
+
+@app.post("/files/trash/restore")
+def restore_trash(payload: FileActionRequest) -> dict[str, Any]:
+    manifest = load_trash_manifest()
+    restored = []
+    failed = []
+    for trash_key in payload.paths:
+        info = manifest.get(trash_key)
+        if not info:
+            failed.append(f"{trash_key}: Not in trash manifest")
+            continue
+        trash_file = TRASH / trash_key
+        if not trash_file.is_file():
+            failed.append(f"{trash_key}: File missing from trash storage")
+            del manifest[trash_key]
+            continue
+        try:
+            target_rel = info.get("original_path", trash_file.name)
+            target = (LIBRARY / target_rel).resolve()
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(trash_file), str(target))
+            del manifest[trash_key]
+            restored.append(target_rel)
+        except Exception as exc:
+            failed.append(f"{trash_key}: {exc}")
+    save_trash_manifest(manifest)
+    return {"restored": restored, "failed": failed}
+
+
+@app.delete("/files/trash/empty")
+def empty_trash() -> dict[str, Any]:
+    manifest = load_trash_manifest()
+    purged_count = 0
+    for trash_key in list(manifest.keys()):
+        trash_file = TRASH / trash_key
+        trash_file.unlink(missing_ok=True)
+        del manifest[trash_key]
+        purged_count += 1
+    save_trash_manifest(manifest)
+    return {"purged": purged_count}
 
 
 @app.get("/files/{path:path}")

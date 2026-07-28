@@ -236,25 +236,107 @@
         <p class="text-caption text-on-surface-variant" id="ingest-status-text">Upload files, then click Ingest to build your knowledge base.</p>
     </div>
     <div class="h-px bg-outline-variant w-full"></div>
-    <div class="flex flex-col gap-3 flex-1 overflow-y-auto min-h-0">
-        <div class="flex items-center justify-between">
-            <h2 class="font-headline text-headline-md text-on-surface">Your Library</h2>
-            <span id="library-count" class="text-caption text-on-surface-variant">—</span>
+    <div class="flex flex-col gap-2.5 flex-1 overflow-hidden min-h-0">
+        <!-- Library Header & Controls -->
+        <div class="flex items-center justify-between gap-1">
+            <div class="flex items-center gap-1.5 min-w-0">
+                <h2 class="font-headline text-headline-md text-on-surface truncate">Your Library</h2>
+                <span id="library-count" class="text-[11px] font-mono text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded-full">—</span>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button id="select-mode-btn" class="p-1.5 rounded-lg bg-surface-bright text-on-surface-variant hover:text-primary hover:bg-surface-variant border border-outline-variant transition-colors" title="Select multiple files">
+                    <span class="material-symbols-outlined text-base">checklist</span>
+                </button>
+                <button id="trash-modal-btn" class="p-1.5 rounded-lg bg-surface-bright text-on-surface-variant hover:text-accent-red hover:bg-surface-variant border border-outline-variant transition-colors relative" title="View Trash (Soft-deleted files)">
+                    <span class="material-symbols-outlined text-base">delete</span>
+                    <span id="trash-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-accent-red text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+                </button>
+            </div>
         </div>
-        <div id="library-files-list" class="flex flex-col gap-2">
+
+        <!-- Search Bar -->
+        <div class="relative w-full">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">search</span>
+            <input id="library-search-input" type="text" placeholder="Search 40+ docs..." class="w-full bg-surface-raised border border-outline-variant rounded-lg pl-8 pr-7 py-1.5 font-body text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"/>
+            <button id="library-search-clear" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface text-xs">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+
+        <!-- Category Filters & Sort Bar -->
+        <div class="flex items-center justify-between gap-2">
+            <!-- Category Chips -->
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-[11px]" id="category-pills">
+                <button class="cat-pill active px-2 py-0.5 rounded-md font-bold bg-primary/20 text-primary border border-primary/40 flex-shrink-0" data-cat="all">All</button>
+                <button class="cat-pill px-2 py-0.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface bg-surface-raised border border-outline-variant flex-shrink-0" data-cat="pdf">PDF</button>
+                <button class="cat-pill px-2 py-0.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface bg-surface-raised border border-outline-variant flex-shrink-0" data-cat="word">Word</button>
+                <button class="cat-pill px-2 py-0.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface bg-surface-raised border border-outline-variant flex-shrink-0" data-cat="text">Text</button>
+                <button class="cat-pill px-2 py-0.5 rounded-md font-medium text-on-surface-variant hover:text-on-surface bg-surface-raised border border-outline-variant flex-shrink-0" data-cat="data">Data</button>
+            </div>
+            <!-- Sort Selector -->
+            <select id="library-sort-select" class="bg-surface-raised border border-outline-variant rounded-md font-body text-[11px] text-on-surface-variant px-1.5 py-0.5 focus:outline-none focus:border-primary flex-shrink-0">
+                <option value="newest">Newest</option>
+                <option value="name">Name A-Z</option>
+                <option value="size">Largest</option>
+            </select>
+        </div>
+
+        <!-- Bulk Selection Action Bar (Hidden by default) -->
+        <div id="bulk-toolbar" class="hidden flex items-center justify-between bg-secondary-container border border-secondary-dark rounded-lg p-2 text-xs">
+            <div class="flex items-center gap-2">
+                <input id="select-all-checkbox" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-0 cursor-pointer"/>
+                <span id="selected-count-label" class="font-bold text-on-secondary-container text-caption">0 selected</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button id="bulk-delete-btn" class="px-2 py-1 rounded bg-accent-red/20 text-accent-red hover:bg-accent-red hover:text-white font-bold text-[11px] border border-accent-red/30 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">delete</span> Delete
+                </button>
+                <button id="cancel-select-btn" class="px-2 py-1 rounded bg-surface-raised text-on-surface-variant hover:text-on-surface text-[11px]">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Library File List -->
+        <div id="library-files-list" class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
             <div class="px-3 py-2 text-on-surface-variant text-caption">Loading library...</div>
         </div>
     </div>
 </aside>
 
-<div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
-    <header class="fixed top-0 left-0 lg:left-[300px] right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-gutter z-50 chunky-shadow">
-        <div class="flex items-center gap-2 sm:gap-3">
-            <button id="menu-toggle" class="lg:hidden w-10 h-10 rounded-xl bg-surface-bright flex items-center justify-center border-2 border-outline-variant squish" aria-label="Open knowledge base panel">
-                <span class="material-symbols-outlined">menu</span>
+<!-- Trash Bin Modal -->
+<div id="trash-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-accent-red text-xl">delete</span>
+                <div>
+                    <h3 class="font-headline text-headline-md text-on-surface">Trash Bin</h3>
+                    <p class="text-caption text-on-surface-variant text-[11px]">Items are stored for 30 days before permanent deletion</p>
+                </div>
+            </div>
+            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm">close</span>
             </button>
-            <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe"/>
-            <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight hidden sm:inline m-0">Lumina RAG</h1>
+        </div>
+        <div id="trash-file-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[200px]">
+            <div class="text-center text-on-surface-variant text-caption py-8">Loading trash bin...</div>
+        </div>
+        <div class="p-4 border-t border-outline-variant bg-surface-raised flex items-center justify-between">
+            <span id="trash-summary-text" class="text-caption text-on-surface-variant">0 items in trash</span>
+            <button id="empty-trash-btn" class="px-3 py-1.5 rounded-lg bg-accent-red/20 text-accent-red hover:bg-accent-red hover:text-white font-bold text-caption border border-accent-red/30 transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">delete_forever</span> Empty Trash Now
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
+    <header class="fixed top-0 left-0 right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-4 sm:px-6 z-50 chunky-shadow">
+        <div class="flex items-center gap-2.5">
+            <button id="menu-toggle" class="lg:hidden w-9 h-9 rounded-xl bg-surface-bright flex items-center justify-center border-2 border-outline-variant squish" aria-label="Open knowledge base panel">
+                <span class="material-symbols-outlined text-sm">menu</span>
+            </button>
+            <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe flex-shrink-0"/>
+            <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight m-0">Lumina RAG</h1>
         </div>
         <div class="flex items-center gap-2 sm:gap-4">
             <div class="hidden sm:flex gap-2">
@@ -577,7 +659,133 @@
         }
     });
 
-    // ── Library & health ──
+    // ── Library & Document Management State ──
+    let libraryFiles = [];
+    let trashFiles = [];
+    let selectedPaths = new Set();
+    let isSelectMode = false;
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let sortBy = 'newest';
+
+    const searchInput = document.getElementById('library-search-input');
+    const searchClearBtn = document.getElementById('library-search-clear');
+    const sortSelect = document.getElementById('library-sort-select');
+    const categoryPillsContainer = document.getElementById('category-pills');
+    const selectModeBtn = document.getElementById('select-mode-btn');
+    const bulkToolbar = document.getElementById('bulk-toolbar');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const selectedCountLabel = document.getElementById('selected-count-label');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const cancelSelectBtn = document.getElementById('cancel-select-btn');
+    const trashModalBtn = document.getElementById('trash-modal-btn');
+    const trashBadge = document.getElementById('trash-badge');
+    const trashModal = document.getElementById('trash-modal');
+    const closeTrashModalBtn = document.getElementById('close-trash-modal');
+    const trashFileList = document.getElementById('trash-file-list');
+    const emptyTrashBtn = document.getElementById('empty-trash-btn');
+    const trashSummaryText = document.getElementById('trash-summary-text');
+
+    // Search input listener
+    searchInput?.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        searchClearBtn.classList.toggle('hidden', !searchQuery);
+        renderLibrary();
+    });
+
+    searchClearBtn?.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        searchClearBtn.classList.add('hidden');
+        renderLibrary();
+    });
+
+    // Category pills listener
+    categoryPillsContainer?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.cat-pill');
+        if (!btn) return;
+        categoryPillsContainer.querySelectorAll('.cat-pill').forEach(p => {
+            p.classList.remove('active', 'font-bold', 'bg-primary/20', 'text-primary', 'border-primary/40');
+            p.classList.add('font-medium', 'text-on-surface-variant', 'bg-surface-raised', 'border-outline-variant');
+        });
+        btn.classList.add('active', 'font-bold', 'bg-primary/20', 'text-primary', 'border-primary/40');
+        btn.classList.remove('font-medium', 'text-on-surface-variant', 'bg-surface-raised', 'border-outline-variant');
+        activeCategory = btn.dataset.cat;
+        renderLibrary();
+    });
+
+    // Sort select listener
+    sortSelect?.addEventListener('change', (e) => {
+        sortBy = e.target.value;
+        renderLibrary();
+    });
+
+    // Select mode toggle
+    function toggleSelectMode(enable) {
+        isSelectMode = enable ?? !isSelectMode;
+        selectedPaths.clear();
+        selectModeBtn.classList.toggle('bg-primary/20', isSelectMode);
+        selectModeBtn.classList.toggle('text-primary', isSelectMode);
+        bulkToolbar.classList.toggle('hidden', !isSelectMode);
+        renderLibrary();
+    }
+
+    selectModeBtn?.addEventListener('click', () => toggleSelectMode());
+    cancelSelectBtn?.addEventListener('click', () => toggleSelectMode(false));
+
+    // Select All Checkbox
+    selectAllCheckbox?.addEventListener('change', (e) => {
+        const currentFiltered = getFilteredFiles();
+        if (e.target.checked) {
+            currentFiltered.forEach(f => selectedPaths.add(f.path));
+        } else {
+            selectedPaths.clear();
+        }
+        updateBulkUI();
+        renderLibraryListOnly();
+    });
+
+    function updateBulkUI() {
+        const count = selectedPaths.size;
+        selectedCountLabel.textContent = `${count} selected`;
+        bulkDeleteBtn.disabled = count === 0;
+        bulkDeleteBtn.classList.toggle('opacity-50', count === 0);
+        const filtered = getFilteredFiles();
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = filtered.length > 0 && selectedPaths.size >= filtered.length;
+        }
+    }
+
+    // Bulk Delete Action
+    bulkDeleteBtn?.addEventListener('click', async () => {
+        if (!selectedPaths.size) return;
+        const paths = Array.from(selectedPaths);
+        if (confirm(`Move ${paths.length} document(s) to Trash?`)) {
+            await deleteFiles(paths);
+            toggleSelectMode(false);
+        }
+    });
+
+    // Trash Modal toggles
+    trashModalBtn?.addEventListener('click', () => {
+        trashModal.classList.remove('hidden');
+        loadTrash();
+    });
+    closeTrashModalBtn?.addEventListener('click', () => trashModal.classList.add('hidden'));
+    trashModal?.addEventListener('click', (e) => { if (e.target === trashModal) trashModal.classList.add('hidden'); });
+
+    emptyTrashBtn?.addEventListener('click', async () => {
+        if (!confirm('Permanently delete all files in Trash? This cannot be undone.')) return;
+        try {
+            const res = await fetch('/files/trash/empty', { method: 'DELETE' });
+            const data = await res.json();
+            showToast(`Permanently deleted ${data.purged} file(s)`, 'info');
+            loadTrash();
+        } catch (err) {
+            showToast('Failed to empty trash', 'error');
+        }
+    });
+
     async function loadStatus() {
         try {
             const res = await fetch('/health');
@@ -595,32 +803,200 @@
             }
         } catch (err) { console.error(err); }
 
+        await loadLibrary();
+        await updateTrashBadge();
+    }
+
+    async function updateTrashBadge() {
+        try {
+            const res = await fetch('/files/trash');
+            const trash = await res.json();
+            trashBadge.textContent = trash.length;
+            trashBadge.classList.toggle('hidden', trash.length === 0);
+        } catch (err) { console.error(err); }
+    }
+
+    async function loadLibrary() {
         try {
             const res = await fetch('/files');
-            const files = await res.json();
-            const listEl = document.getElementById('library-files-list');
-            document.getElementById('library-count').textContent = files.length ? `${files.length} file${files.length > 1 ? 's' : ''}` : 'Empty';
-            if (!files.length) {
+            libraryFiles = await res.json();
+            renderLibrary();
+        } catch (err) { console.error(err); }
+    }
+
+    function getFilteredFiles() {
+        return libraryFiles.filter(f => {
+            const matchesCat = activeCategory === 'all' || f.category === activeCategory;
+            const matchesSearch = !searchQuery || f.filename.toLowerCase().includes(searchQuery) || f.path.toLowerCase().includes(searchQuery);
+            return matchesCat && matchesSearch;
+        }).sort((a, b) => {
+            if (sortBy === 'name') return a.filename.localeCompare(b.filename);
+            if (sortBy === 'size') return b.size_bytes - a.size_bytes;
+            return (b.modified_time || 0) - (a.modified_time || 0); // newest
+        });
+    }
+
+    function renderLibrary() {
+        const filtered = getFilteredFiles();
+        document.getElementById('library-count').textContent = libraryFiles.length ? `${libraryFiles.length}` : '0';
+        updateBulkUI();
+        renderLibraryListOnly(filtered);
+    }
+
+    function renderLibraryListOnly(filteredFiles) {
+        const listEl = document.getElementById('library-files-list');
+        const files = filteredFiles || getFilteredFiles();
+
+        if (!files.length) {
+            if (searchQuery || activeCategory !== 'all') {
+                listEl.innerHTML = `<div class="p-4 text-center text-on-surface-variant text-caption">No documents match your filter.</div>`;
+            } else {
                 listEl.innerHTML = `<div class="flex flex-col items-center gap-3 py-6 px-3 text-center rounded-xl border-2 border-dashed border-outline-variant bg-background">
                     <span class="material-symbols-outlined text-4xl text-on-surface-variant">upload_file</span>
                     <p class="text-caption text-on-surface-variant">No documents yet. Upload files above to get started.</p>
                     <button class="text-caption font-bold text-primary hover:underline" onclick="document.getElementById('dropzone').click()">Upload now</button>
                 </div>`;
-            } else {
-                const iconMap = { pdf: 'picture_as_pdf', data: 'table_view', word: 'description', text: 'description', web: 'language', other: 'insert_drive_file' };
-                listEl.innerHTML = files.map((f, idx) => {
-                    const name = f.path.split('/').pop();
-                    const ext = name.split('.').pop().toUpperCase();
-                    const size = f.size_bytes > 1048576 ? (f.size_bytes / 1048576).toFixed(1) + ' MB' : Math.round(f.size_bytes / 1024) + ' KB';
-                    return `<button class="file-item w-full flex items-center gap-3 p-3 rounded-xl bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40 text-left stagger-in" style="animation-delay:${idx * 0.03}s" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open ${escapeHtml(name)}">
-                        <div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary"><span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${iconMap[f.category] || iconMap.other}</span></div>
-                        <div class="flex flex-col flex-1 overflow-hidden"><span class="font-body text-caption font-bold truncate">${escapeHtml(name)}</span><span class="text-[10px] text-on-surface-variant">${ext} · ${size}</span></div>
-                        <span class="material-symbols-outlined text-sm text-on-surface-variant">open_in_new</span>
-                    </button>`;
-                }).join('');
             }
-        } catch (err) { console.error(err); }
+            return;
+        }
+
+        const iconMap = { pdf: 'picture_as_pdf', data: 'table_view', word: 'description', text: 'description', web: 'language', other: 'insert_drive_file' };
+        listEl.innerHTML = files.map((f, idx) => {
+            const isSelected = selectedPaths.has(f.path);
+            const ext = (f.filename.split('.').pop() || '').toUpperCase();
+            return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40 text-left transition-colors relative">
+                ${isSelectMode ? `<input type="checkbox" class="file-select-cb rounded border-outline-variant text-primary focus:ring-0 cursor-pointer" data-path="${escapeHtml(f.path)}" ${isSelected ? 'checked' : ''}/>` : ''}
+                <div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-primary flex-shrink-0 cursor-pointer" onclick="openFile('${encodeURIComponent(f.path)}')">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${iconMap[f.category] || iconMap.other}</span>
+                </div>
+                <div class="flex flex-col flex-1 overflow-hidden cursor-pointer" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(f.path)}')` : `openFile('${encodeURIComponent(f.path)}')`}">
+                    <span class="font-body text-caption font-bold truncate text-on-surface" title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</span>
+                    <span class="text-[10px] text-on-surface-variant">${ext} · ${f.size_human || 'File'}</span>
+                </div>
+                <div class="flex items-center gap-1 opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open document">
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    </button>
+                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="confirmDeleteSingle('${escapeHtml(f.path)}', '${escapeHtml(f.filename)}')" title="Move to Trash">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+
+        listEl.querySelectorAll('.file-select-cb').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const path = e.target.dataset.path;
+                if (e.target.checked) selectedPaths.add(path);
+                else selectedPaths.delete(path);
+                updateBulkUI();
+            });
+        });
     }
+
+    window.togglePathSelection = (path) => {
+        if (!isSelectMode) return;
+        if (selectedPaths.has(path)) selectedPaths.delete(path);
+        else selectedPaths.add(path);
+        updateBulkUI();
+        renderLibraryListOnly();
+    };
+
+    window.confirmDeleteSingle = async (path, filename) => {
+        if (confirm(`Move "${filename}" to Trash?`)) {
+            await deleteFiles([path]);
+        }
+    };
+
+    async function deleteFiles(paths) {
+        try {
+            const res = await fetch('/files/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paths })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Delete failed');
+            showReingestToast(`Moved ${data.deleted.length} document(s) to Trash.`);
+            await loadLibrary();
+            await updateTrashBadge();
+        } catch (err) {
+            showToast(err.message || 'Could not delete file', 'error');
+        }
+    }
+
+    function showReingestToast(message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-info flex items-center justify-between gap-3';
+        toast.innerHTML = `<div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-accent-orange text-lg">delete</span>
+            <span class="font-body text-caption text-on-surface">${escapeHtml(message)}</span>
+        </div>
+        <button class="px-2.5 py-1 bg-primary text-on-primary font-bold text-caption rounded-lg hover:brightness-110 flex-shrink-0" onclick="triggerReingestFromToast(this)">Re-ingest Knowledge Base</button>`;
+        container.appendChild(toast);
+        setTimeout(() => { if (toast.parentNode) { toast.classList.add('leaving'); toast.addEventListener('animationend', () => toast.remove()); } }, 7000);
+    }
+
+    window.triggerReingestFromToast = async (btn) => {
+        btn.disabled = true;
+        btn.textContent = 'Ingesting...';
+        document.getElementById('ingest-card').click();
+    };
+
+    async function loadTrash() {
+        trashFileList.innerHTML = `<div class="text-center text-on-surface-variant text-caption py-8">Loading trash bin...</div>`;
+        try {
+            const res = await fetch('/files/trash');
+            trashFiles = await res.json();
+            renderTrash();
+        } catch (err) {
+            trashFileList.innerHTML = `<div class="text-center text-error text-caption py-8">Failed to load trash</div>`;
+        }
+    }
+
+    function renderTrash() {
+        trashSummaryText.textContent = `${trashFiles.length} item${trashFiles.length !== 1 ? 's' : ''} in trash`;
+        emptyTrashBtn.disabled = trashFiles.length === 0;
+        emptyTrashBtn.classList.toggle('opacity-50', trashFiles.length === 0);
+
+        if (!trashFiles.length) {
+            trashFileList.innerHTML = `<div class="flex flex-col items-center gap-2 py-8 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl opacity-50">delete_sweep</span>
+                <p class="text-caption font-bold">Trash is empty</p>
+                <p class="text-[11px] opacity-70">Soft-deleted files will appear here for 30 days.</p>
+            </div>`;
+            return;
+        }
+
+        trashFileList.innerHTML = trashFiles.map(t => `<div class="flex items-center justify-between p-3 rounded-xl bg-surface-raised border border-outline-variant">
+            <div class="flex flex-col flex-1 overflow-hidden pr-3">
+                <span class="font-body text-caption font-bold text-on-surface truncate" title="${escapeHtml(t.filename)}">${escapeHtml(t.filename)}</span>
+                <span class="text-[10px] text-on-surface-variant">Deleted: ${escapeHtml(t.deleted_date)} · ${t.days_remaining} days left</span>
+            </div>
+            <button class="px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary hover:text-on-primary font-bold text-caption border border-primary/40 transition-colors flex items-center gap-1 flex-shrink-0" onclick="restoreFile('${escapeHtml(t.trash_key)}')">
+                <span class="material-symbols-outlined text-sm">restore_from_trash</span> Restore
+            </button>
+        </div>`).join('');
+    }
+
+    window.restoreFile = async (trashKey) => {
+        try {
+            const res = await fetch('/files/trash/restore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paths: [trashKey] })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Restore failed');
+            showToast('Restored file back to library', 'success');
+            await loadTrash();
+            await loadLibrary();
+            await updateTrashBadge();
+        } catch (err) {
+            showToast(err.message || 'Could not restore file', 'error');
+        }
+    };
 
     window.openFile = path => window.open('/files/' + path, '_blank', 'noopener');
     window.toggleCitation = (id, btn) => {
