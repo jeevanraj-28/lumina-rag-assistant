@@ -40,9 +40,22 @@ _REF_PATTERN = re.compile(r"<\|ref\|>(.*?)<\|/ref\|>", re.DOTALL)
 _DET_PATTERN = re.compile(r"<\|det\|>.*?<\|/det\|>", re.DOTALL)
 
 
+def scan_pdf_info(pdf_path: Path) -> dict[str, Any]:
+    """Pre-scan a PDF to check page count and basic details before OCR."""
+    try:
+        import fitz
+        doc = fitz.open(pdf_path)
+        count = doc.page_count
+        doc.close()
+        return {"file": pdf_path.name, "page_count": count, "valid": True}
+    except Exception as exc:
+        return {"file": pdf_path.name, "page_count": 0, "valid": False, "error": str(exc)}
+
+
 def parse_pdf(
     pdf_path: Path,
     settings: UnlimitedOCRSettings,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> UnlimitedOCRResult:
     """Render a bounded PDF and submit all pages in one OCR request."""
     try:
@@ -65,7 +78,12 @@ def parse_pdf(
                 f"{pdf_path.name} has {document.page_count} pages; this Unlimited-OCR run is capped at "
                 f"{settings.max_pages}. Increase UNLIMITED_OCR_MAX_PAGES only after GPU testing."
             )
-        image_parts = [_encode_page(document[index], settings.dpi) for index in range(document.page_count)]
+        image_parts = []
+        total = document.page_count
+        for index in range(total):
+            image_parts.append(_encode_page(document[index], settings.dpi))
+            if progress_callback:
+                progress_callback(index + 1, total)
     finally:
         document.close()
 

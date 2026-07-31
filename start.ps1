@@ -46,26 +46,29 @@ if (-not (Test-Path $VenvPython)) {
 
 # 3. Install dependencies
 Write-Host "[Lumina] Checking Python dependencies..." -ForegroundColor Cyan
-& $VenvPip install -q -r requirements.txt
+& $VenvPython -m pip install -q -r requirements.txt
 Write-Host "[  OK  ] Dependencies ready." -ForegroundColor Green
 
 # 4. Pull models if missing
 function Ensure-OllamaModel($Model) {
-    $list = ollama list 2>$null
-    if ($list -match [regex]::Escape($Model)) {
-        Write-Host "[  OK  ] Model '$Model' already available." -ForegroundColor Green
-    } else {
-        Write-Host "[Lumina] Pulling model '$Model' (first run may take a while)..." -ForegroundColor Cyan
-        ollama pull $Model
-        Write-Host "[  OK  ] Model '$Model' ready." -ForegroundColor Green
+    try {
+        $list = ollama list 2>$null
+        if ($list -match [regex]::Escape($Model)) {
+            Write-Host "[  OK  ] Model '$Model' already available." -ForegroundColor Green
+        } else {
+            Write-Host "[Lumina] Pulling model '$Model' (first run may take a while)..." -ForegroundColor Cyan
+            ollama pull $Model
+            Write-Host "[  OK  ] Model '$Model' ready." -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "[ WARN ] Could not check/pull model '$Model' via CLI." -ForegroundColor Yellow
     }
 }
 Ensure-OllamaModel $OllamaModel
 Ensure-OllamaModel $EmbeddingModel
 
-# 5. Ensure Data Folders Exist
 $DataDir = ".\data"
-New-Item -ItemType Directory -Force -Path "$DataDir\inbox", "$DataDir\library", "$DataDir\index" | Out-Null
+New-Item -ItemType Directory -Force -Path "$DataDir\inbox", "$DataDir\library", "$DataDir\index", "$DataDir\trash", "$DataDir\memory", "$DataDir\feedback", "$DataDir\sessions" | Out-Null
 Write-Host "[  OK  ] Data directories verified." -ForegroundColor Green
 
 # 6. Launch Application

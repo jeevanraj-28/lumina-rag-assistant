@@ -6,9 +6,8 @@
     <title>Lumina RAG — Your Local AI Knowledge Assistant</title>
     <meta name="description" content="Lumina RAG is a local AI-powered document assistant using Ollama and FAISS for private, intelligent document Q&A."/>
     <link rel="icon" href="/static/logo-icon.png" type="image/png"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+    <script src="/static/js/tailwindcss.js"></script>
+    <link href="/static/css/fonts.css" rel="stylesheet"/>
     <script>
         tailwind.config = {
           darkMode: "class",
@@ -308,8 +307,24 @@
         </div>
 
         <!-- Library File List -->
-        <div id="library-files-list" class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
+        <div id="library-files-list" class="flex flex-col gap-2 overflow-y-auto max-h-[220px] pr-1">
             <div class="px-3 py-2 text-on-surface-variant text-caption">Loading library...</div>
+        </div>
+
+        <div class="h-px bg-outline-variant w-full"></div>
+
+        <!-- Chat Session History Section -->
+        <div class="flex flex-col gap-2 flex-1 overflow-hidden min-h-0">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-primary">history</span>
+                    <h2 class="font-headline text-caption font-bold text-on-surface">Recent Sessions</h2>
+                </div>
+                <button id="clear-sessions-btn" class="text-[10px] text-on-surface-variant hover:text-accent-red font-bold transition-colors" title="Clear chat session history">Clear</button>
+            </div>
+            <div id="sidebar-sessions-list" class="flex flex-col gap-1.5 overflow-y-auto flex-1 pr-1">
+                <div class="px-2 py-1 text-on-surface-variant text-[11px] opacity-70">No previous sessions</div>
+            </div>
         </div>
     </div>
 </aside>
@@ -359,6 +374,121 @@
     </div>
 </div>
 
+<!-- Adaptive Memory Manager Modal -->
+<div id="memory-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-accent-purple text-xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                <div>
+                    <h3 class="font-headline text-headline-md text-on-surface">Adaptive Memory System</h3>
+                    <p class="text-caption text-on-surface-variant text-[11px]">Saved facts & corrections injected into Lumina's system prompt</p>
+                </div>
+            </div>
+            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        
+        <!-- Add Manual Memory Bar -->
+        <div class="p-3 bg-surface-bright/40 border-b border-outline-variant flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <span class="text-caption font-bold text-on-surface text-xs">💡 Add Memory / Fact Manually:</span>
+                <div class="flex gap-2">
+                    <button class="cat-pill active text-[10px] px-2 py-0.5 rounded font-bold bg-accent-purple/20 text-accent-purple border border-accent-purple/40" id="mem-type-fact" data-type="user_fact">🧑 Fact</button>
+                    <button class="cat-pill text-[10px] px-2 py-0.5 rounded font-medium text-on-surface-variant bg-surface-raised border border-outline-variant" id="mem-type-corr" data-type="correction">🔧 Correction</button>
+                    <button class="cat-pill text-[10px] px-2 py-0.5 rounded font-medium text-on-surface-variant bg-surface-raised border border-outline-variant" id="mem-type-pref" data-type="preference">⚙️ Preference</button>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <input id="manual-memory-input" type="text" placeholder="e.g., My name is Arun, or bank means river bank..." class="flex-1 bg-surface-raised border border-outline-variant rounded-lg px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:border-accent-purple"/>
+                <button id="save-manual-memory-btn" class="px-3 py-1.5 rounded-lg bg-accent-purple text-white font-bold text-caption hover:brightness-110 flex items-center gap-1 flex-shrink-0 squish">
+                    <span class="material-symbols-outlined text-sm">add</span> Save Memory
+                </button>
+            </div>
+        </div>
+
+        <div id="memory-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[220px]">
+            <div class="text-center text-on-surface-variant text-caption py-8">Loading memories...</div>
+        </div>
+        
+        <div class="p-4 border-t border-outline-variant bg-surface-raised flex items-center justify-between">
+            <span id="memory-summary-text" class="text-caption text-on-surface-variant">0 active memories</span>
+            <button id="clear-all-memories-btn" class="px-3 py-1.5 rounded-lg bg-accent-red/20 text-accent-red hover:bg-accent-red hover:text-white font-bold text-caption border border-accent-red/30 transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">delete_sweep</span> Clear All Memories
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Global Feedback Modal -->
+<div id="feedback-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+        <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-accent-orange text-xl" style="font-variation-settings: 'FILL' 1;">rate_review</span>
+                <div>
+                    <h3 class="font-headline text-headline-md text-on-surface">Lumina Feedback</h3>
+                    <p class="text-caption text-on-surface-variant text-[11px]">Help us improve Lumina RAG — bugs, suggestions & feature requests</p>
+                </div>
+            </div>
+            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        
+        <div class="p-4 flex flex-col gap-4 overflow-y-auto">
+            <div class="flex flex-col gap-1.5">
+                <label class="text-caption font-bold text-on-surface">Feedback Category</label>
+                <div class="flex gap-2" id="feedback-type-chips">
+                    <button class="fb-type-chip active px-3 py-1.5 rounded-lg font-bold text-xs bg-primary/20 text-primary border border-primary/40 flex-1 flex items-center justify-center gap-1" data-type="bug">
+                        <span class="material-symbols-outlined text-sm">bug_report</span> Bug
+                    </button>
+                    <button class="fb-type-chip px-3 py-1.5 rounded-lg font-medium text-xs bg-surface-raised text-on-surface-variant border border-outline-variant flex-1 flex items-center justify-center gap-1" data-type="suggestion">
+                        <span class="material-symbols-outlined text-sm">lightbulb</span> Suggestion
+                    </button>
+                    <button class="fb-type-chip px-3 py-1.5 rounded-lg font-medium text-xs bg-surface-raised text-on-surface-variant border border-outline-variant flex-1 flex items-center justify-center gap-1" data-type="feature">
+                        <span class="material-symbols-outlined text-sm">auto_awesome</span> Feature
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+                <label for="feedback-comment-input" class="text-caption font-bold text-on-surface">Your Message</label>
+                <textarea id="feedback-comment-input" rows="4" placeholder="Describe the bug, idea, or feedback in detail..." class="w-full bg-surface-raised border border-outline-variant rounded-xl p-3 text-xs text-on-surface focus:outline-none focus:border-primary resize-none"></textarea>
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-outline-variant bg-surface-raised flex items-center justify-end gap-2">
+            <button id="cancel-feedback-btn" class="px-4 py-2 rounded-xl bg-surface-bright text-on-surface-variant hover:text-on-surface font-bold text-caption">Cancel</button>
+            <button id="submit-feedback-btn" class="px-5 py-2 rounded-xl bg-primary text-on-primary font-headline text-headline-md font-bold squish-btn flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">send</span> Submit Feedback
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Command Palette Search Modal (Ctrl+K) -->
+<div id="search-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-16 sm:pt-24 p-4">
+    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-2xl max-h-[75vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+        <div class="p-3 border-b border-outline-variant bg-surface-raised flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-xl pl-2">search</span>
+            <input id="cmd-search-input" type="text" placeholder="Search documents, chat history, or knowledge chunks... (Esc to close)" class="flex-1 bg-transparent font-body text-body text-on-surface placeholder:text-on-surface-variant focus:outline-none py-1"/>
+            <kbd class="font-mono text-[10px] bg-surface-variant px-2 py-1 rounded border border-outline-variant text-on-surface-variant">ESC</kbd>
+            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        
+        <div id="cmd-search-results" class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 min-h-[250px]">
+            <div class="text-center text-on-surface-variant text-caption py-12 flex flex-col items-center gap-2">
+                <span class="material-symbols-outlined text-4xl opacity-40">manage_search</span>
+                <span>Type to search across documents, past Q&A sessions, and knowledge chunks...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
     <header class="fixed top-0 left-0 right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-4 sm:px-6 z-50 chunky-shadow">
         <div class="flex items-center gap-2.5">
@@ -368,7 +498,12 @@
             <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe flex-shrink-0"/>
             <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight m-0">Lumina RAG</h1>
         </div>
-        <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button id="cmd-search-btn" class="hidden sm:flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption text-on-surface-variant hover:text-on-surface cursor-pointer" title="Search Everything (Ctrl+K)">
+                <span class="material-symbols-outlined text-sm">search</span>
+                <span class="font-bold">Search</span>
+                <kbd class="font-mono text-[10px] bg-surface-variant px-1.5 py-0.5 rounded border border-outline-variant text-on-surface-variant">⌘K</kbd>
+            </button>
             <div class="hidden sm:flex items-center gap-2 bg-surface-raised/60 p-1 rounded-full border border-outline-variant">
                 <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-secondary font-bold text-caption" title="Questions asked this session">
                     <span class="material-symbols-outlined text-sm">chat</span>
@@ -383,6 +518,15 @@
                     <span id="files-badge">0 docs</span>
                 </button>
             </div>
+            <button id="open-memory-btn" class="flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption font-bold text-on-surface cursor-pointer squish" title="Adaptive Memory System — Saved facts & corrections">
+                <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                <span class="hidden md:inline">Memory</span>
+                <span id="memory-count-badge" class="bg-accent-purple/20 text-accent-purple px-1.5 py-0.5 text-[10px] font-mono rounded-full font-bold">0</span>
+            </button>
+            <button id="open-feedback-btn" class="flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption font-bold text-on-surface cursor-pointer squish" title="Send Feedback">
+                <span class="material-symbols-outlined text-sm text-accent-orange" style="font-variation-settings: 'FILL' 1;">rate_review</span>
+                <span class="hidden md:inline">Feedback</span>
+            </button>
             <div class="model-selector-wrap">
                 <button id="model-selector-btn" class="model-selector-btn flex items-center gap-1.5 bg-surface-raised h-9 px-3 pr-2 rounded-full border-2 border-outline-variant" aria-label="Select AI model" aria-haspopup="listbox">
                     <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">memory</span>
@@ -1176,12 +1320,17 @@
         );
     }
 
-    function appendAssistantMessage(answer, sources, isError = false) {
+    let messageCounter = 0;
+    function appendAssistantMessage(answer, sources, isError = false, userQuestion = '') {
         citationCounter++;
+        messageCounter++;
+        const msgId = `msg-${messageCounter}`;
         const citId = `citation-drawer-${citationCounter}`;
+        const teachId = `teach-panel-${messageCounter}`;
         const div = document.createElement('div');
         div.className = 'flex justify-start gap-3 animate-bounce-in';
-        let toggleBtn = '', sourcesHTML = '';
+        let toggleBtn = '', sourcesHTML = '', actionBarHTML = '';
+
         if (sources?.length) {
             toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
             sourcesHTML = `<div class="citation-drawer mt-1" id="${citId}"><div class="flex flex-col gap-2 mt-2">${sources.map(s => {
@@ -1189,9 +1338,63 @@
                 return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${s.citation_id}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
             }).join('')}</div></div>`;
         }
+
+        if (!isError) {
+            const rawAnsAttr = escapeHtml(answer).replace(/"/g, '&quot;');
+            const rawQAttr = escapeHtml(userQuestion || '').replace(/"/g, '&quot;');
+
+            actionBarHTML = `<div class="flex flex-col gap-2 mt-1">
+                <div class="flex items-center gap-1 text-caption text-on-surface-variant">
+                    <button class="fb-thumb-up-btn px-2.5 py-1 rounded-lg bg-surface-raised border border-outline-variant hover:border-primary hover:text-primary transition-colors flex items-center gap-1 font-bold text-[11px] squish" data-msg-id="${msgId}" data-q="${rawQAttr}" data-ans="${rawAnsAttr}" title="Good answer">
+                        <span class="material-symbols-outlined text-sm">thumb_up</span> Helpful
+                    </button>
+                    <button class="fb-thumb-down-btn px-2.5 py-1 rounded-lg bg-surface-raised border border-outline-variant hover:border-accent-red hover:text-accent-red transition-colors flex items-center gap-1 font-bold text-[11px] squish" data-teach-id="${teachId}" title="Report issue or Teach Lumina">
+                        <span class="material-symbols-outlined text-sm">thumb_down</span> Teach / Fix
+                    </button>
+                    <button class="copy-msg-btn px-2.5 py-1 rounded-lg bg-surface-raised border border-outline-variant hover:border-secondary hover:text-secondary transition-colors flex items-center gap-1 font-bold text-[11px] squish" data-ans="${rawAnsAttr}" title="Copy to clipboard">
+                        <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+                    </button>
+                    ${userQuestion ? `<button class="retry-msg-btn px-2.5 py-1 rounded-lg bg-surface-raised border border-outline-variant hover:border-accent-purple hover:text-accent-purple transition-colors flex items-center gap-1 font-bold text-[11px] squish" data-q="${rawQAttr}" title="Regenerate answer">
+                        <span class="material-symbols-outlined text-sm">refresh</span> Retry
+                    </button>` : ''}
+                </div>
+
+                <!-- Inline Teach Lumina / Correction Expansion -->
+                <div id="${teachId}" class="hidden flex flex-col gap-2.5 p-3 rounded-xl bg-surface-bright border-2 border-outline-variant shadow-md animate-bounce-in">
+                    <div class="flex items-center justify-between">
+                        <span class="text-caption font-bold text-on-surface flex items-center gap-1 text-xs">
+                            <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                            Teach Lumina (Adaptive Memory)
+                        </span>
+                        <button class="close-teach-btn text-on-surface-variant hover:text-on-surface text-xs" data-teach-id="${teachId}">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-1 text-[10px]">
+                        <button class="reason-chip px-2 py-0.5 rounded bg-surface-raised border border-outline-variant hover:border-primary text-on-surface-variant" data-reason="Inaccurate">Inaccurate</button>
+                        <button class="reason-chip px-2 py-0.5 rounded bg-surface-raised border border-outline-variant hover:border-primary text-on-surface-variant" data-reason="Vague">Too Vague</button>
+                        <button class="reason-chip px-2 py-0.5 rounded bg-surface-raised border border-outline-variant hover:border-primary text-on-surface-variant" data-reason="Wrong Source">Wrong Source</button>
+                        <button class="reason-chip px-2 py-0.5 rounded bg-surface-raised border border-outline-variant hover:border-primary text-on-surface-variant" data-reason="Terminology">Word Meaning</button>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-on-surface-variant">💡 Correction / Fact to remember from next time:</label>
+                        <input type="text" class="teach-input bg-surface-raised border border-outline-variant rounded-lg px-2.5 py-1.5 text-xs text-on-surface focus:outline-none focus:border-accent-purple" placeholder="e.g., bank means river bank here, or my name is Arun..." data-q="${rawQAttr}"/>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button class="submit-teach-btn px-3 py-1 rounded-lg bg-accent-purple text-white font-bold text-caption hover:brightness-110 flex items-center gap-1 squish" data-teach-id="${teachId}" data-q="${rawQAttr}" data-ans="${rawAnsAttr}">
+                            <span class="material-symbols-outlined text-xs">save</span> Save & Remember
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
         const bubbleClass = isError ? 'bg-error-container text-error border-error/30' : 'bg-primary-container text-on-primary-container border-primary-dark chunky-shadow-primary message-tail-left';
         div.innerHTML = `<div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden"><img src="/static/logo-icon.png" alt="" class="w-8 h-8"/></div>
-            <div class="flex flex-col gap-2 max-w-[85%]"><div class="${bubbleClass} px-5 py-4 rounded-2xl rounded-bl-sm border-2"><div class="font-body text-body whitespace-pre-wrap leading-relaxed">${isError ? escapeHtml(answer) : renderAnswer(answer, sources)}</div></div>${toggleBtn}${sourcesHTML}</div>`;
+            <div class="flex flex-col gap-2 max-w-[85%]"><div class="${bubbleClass} px-5 py-4 rounded-2xl rounded-bl-sm border-2"><div class="font-body text-body whitespace-pre-wrap leading-relaxed">${isError ? escapeHtml(answer) : renderAnswer(answer, sources)}</div></div>${toggleBtn}${sourcesHTML}${actionBarHTML}</div>`;
         const anchor = document.getElementById('scroll-anchor');
         if (anchor) messagesContainer.insertBefore(div, anchor);
         else messagesContainer.appendChild(div);
@@ -1240,9 +1443,10 @@
             const res = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, top_k: 3 }) });
             const data = await res.json();
             if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Request failed');
-            appendAssistantMessage(data.answer || 'No answer returned.', data.sources);
+            appendAssistantMessage(data.answer || 'No answer returned.', data.sources, false, q);
+            loadSessions();
         } catch (err) {
-            appendAssistantMessage(err.message || 'Could not reach Lumina. Check that Ollama is running and documents are ingested.', [], true);
+            appendAssistantMessage(err.message || 'Could not reach Lumina. Check that Ollama is running and documents are ingested.', [], true, q);
             showToast(err.message || 'Failed to get an answer', 'error');
         } finally {
             clearInterval(loadingInterval);
@@ -1324,6 +1528,436 @@
         }
     }
 
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  Adaptive Memory System UI Logic
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const memoryModal = document.getElementById('memory-modal');
+    const openMemoryBtn = document.getElementById('open-memory-btn');
+    const closeMemoryBtn = document.getElementById('close-memory-modal');
+    const memoryList = document.getElementById('memory-list');
+    const memoryCountBadge = document.getElementById('memory-count-badge');
+    const memorySummaryText = document.getElementById('trash-summary-text') ? document.getElementById('memory-summary-text') : null;
+    const manualMemoryInput = document.getElementById('manual-memory-input');
+    const saveManualMemoryBtn = document.getElementById('save-manual-memory-btn');
+    const clearAllMemoriesBtn = document.getElementById('clear-all-memories-btn');
+    let selectedMemType = 'user_fact';
+
+    openMemoryBtn?.addEventListener('click', () => { memoryModal?.classList.remove('hidden'); loadMemories(); });
+    closeMemoryBtn?.addEventListener('click', () => memoryModal?.classList.add('hidden'));
+
+    // Manual memory type selector pills
+    ['mem-type-fact', 'mem-type-corr', 'mem-type-pref'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', function() {
+            selectedMemType = this.dataset.type;
+            ['mem-type-fact', 'mem-type-corr', 'mem-type-pref'].forEach(i => {
+                const el = document.getElementById(i);
+                if (el) {
+                    el.classList.remove('active', 'font-bold', 'bg-accent-purple/20', 'text-accent-purple', 'border-accent-purple/40');
+                    el.classList.add('font-medium', 'text-on-surface-variant', 'bg-surface-raised', 'border-outline-variant');
+                }
+            });
+            this.classList.add('active', 'font-bold', 'bg-accent-purple/20', 'text-accent-purple', 'border-accent-purple/40');
+        });
+    });
+
+    async function loadMemories() {
+        try {
+            const res = await fetch('/memory');
+            const memories = await res.json();
+            const activeCount = memories.filter(m => m.active).length;
+            if (memoryCountBadge) memoryCountBadge.textContent = String(activeCount);
+            if (memorySummaryText) memorySummaryText.textContent = `${activeCount} active memory (total ${memories.length})`;
+            renderMemories(memories);
+        } catch (err) {
+            if (memoryList) memoryList.innerHTML = '<div class="text-center text-error text-caption py-8">Failed to load memories</div>';
+        }
+    }
+
+    function renderMemories(memories) {
+        if (!memoryList) return;
+        if (!memories.length) {
+            memoryList.innerHTML = `<div class="flex flex-col items-center gap-2 py-10 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl text-accent-purple/50" style="font-variation-settings:'FILL' 1">psychology</span>
+                <p class="text-caption font-bold">No saved memories yet</p>
+                <p class="text-[11px] opacity-70">When you correct Lumina or add facts, they will appear here and shape future answers.</p>
+            </div>`;
+            return;
+        }
+
+        const typeBadges = {
+            user_fact: { label: '🧑 USER FACT', color: 'bg-primary/20 text-primary border-primary/40' },
+            correction: { label: '🔧 CORRECTION', color: 'bg-accent-purple/20 text-accent-purple border-accent-purple/40' },
+            preference: { label: '⚙️ PREFERENCE', color: 'bg-accent-orange/20 text-accent-orange border-accent-orange/40' }
+        };
+
+        memoryList.innerHTML = memories.map(m => {
+            const badge = typeBadges[m.type] || typeBadges.correction;
+            return `<div class="flex items-start justify-between p-3 rounded-xl bg-surface-raised border border-outline-variant gap-3">
+                <div class="flex flex-col flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badge.color}">${badge.label}</span>
+                        ${!m.active ? '<span class="text-[10px] font-bold text-on-surface-variant opacity-60">(Inactive)</span>' : ''}
+                    </div>
+                    <p class="font-body text-xs font-bold text-on-surface leading-snug">${escapeHtml(m.content)}</p>
+                    ${m.original_feedback ? `<p class="text-[11px] text-on-surface-variant opacity-70 mt-1 italic">From: "${escapeHtml(m.original_feedback)}"</p>` : ''}
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button class="toggle-mem-btn text-caption font-bold px-2.5 py-1 rounded-lg ${m.active ? 'bg-primary/20 text-primary border border-primary/40' : 'bg-surface-variant text-on-surface-variant border border-outline-variant'}" onclick="toggleMemoryActive('${m.id}', ${!m.active})">
+                        ${m.active ? 'Active' : 'Off'}
+                    </button>
+                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="deleteMemorySingle('${m.id}')" title="Delete memory">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    window.toggleMemoryActive = async (memId, active) => {
+        try {
+            await fetch(`/memory/${memId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active })
+            });
+            loadMemories();
+        } catch (err) { showToast('Could not update memory', 'error'); }
+    };
+
+    window.deleteMemorySingle = async (memId) => {
+        try {
+            await fetch(`/memory/${memId}`, { method: 'DELETE' });
+            loadMemories();
+            showToast('Memory removed', 'info');
+        } catch (err) { showToast('Could not delete memory', 'error'); }
+    };
+
+    saveManualMemoryBtn?.addEventListener('click', async () => {
+        const text = manualMemoryInput?.value.trim();
+        if (!text) return;
+        try {
+            const res = await fetch('/memory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: selectedMemType, content: text })
+            });
+            if (!res.ok) throw new Error('Failed to save');
+            manualMemoryInput.value = '';
+            showToast('Memory saved! Lumina will apply this to future answers.', 'success');
+            loadMemories();
+        } catch (err) { showToast('Could not save memory', 'error'); }
+    });
+
+    clearAllMemoriesBtn?.addEventListener('click', async () => {
+        if (confirm('Clear all saved memories? Lumina will reset to default system prompt behavior.')) {
+            try {
+                await fetch('/memory', { method: 'DELETE' });
+                showToast('All memories cleared', 'info');
+                loadMemories();
+            } catch (err) { showToast('Could not clear memories', 'error'); }
+        }
+    });
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  Global Feedback Modal Logic
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const feedbackModal = document.getElementById('feedback-modal');
+    const openFeedbackBtn = document.getElementById('open-feedback-btn');
+    const closeFeedbackBtn = document.getElementById('close-feedback-modal');
+    const cancelFeedbackBtn = document.getElementById('cancel-feedback-btn');
+    const submitFeedbackBtn = document.getElementById('submit-feedback-btn');
+    const feedbackCommentInput = document.getElementById('feedback-comment-input');
+    let selectedFbCategory = 'bug';
+
+    openFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.remove('hidden'));
+    closeFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.add('hidden'));
+    cancelFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.add('hidden'));
+
+    document.querySelectorAll('.fb-type-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            selectedFbCategory = this.dataset.type;
+            document.querySelectorAll('.fb-type-chip').forEach(c => {
+                c.classList.remove('active', 'font-bold', 'bg-primary/20', 'text-primary', 'border-primary/40');
+                c.classList.add('font-medium', 'text-on-surface-variant', 'bg-surface-raised', 'border-outline-variant');
+            });
+            this.classList.add('active', 'font-bold', 'bg-primary/20', 'text-primary', 'border-primary/40');
+        });
+    });
+
+    submitFeedbackBtn?.addEventListener('click', async () => {
+        const comment = feedbackCommentInput?.value.trim();
+        if (!comment) { showToast('Please enter a feedback message', 'error'); return; }
+        try {
+            const res = await fetch('/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: selectedFbCategory, comment })
+            });
+            if (!res.ok) throw new Error('Submission failed');
+            feedbackCommentInput.value = '';
+            feedbackModal?.classList.add('hidden');
+            showToast('Thank you for your feedback!', 'success');
+        } catch (err) { showToast(err.message || 'Submission failed', 'error'); }
+    });
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  Action Bar Delegated Event Handlers (Per-Message 👍 👎 Copy Retry Teach)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    document.addEventListener('click', async (e) => {
+        // Thumbs Up
+        const thumbUp = e.target.closest('.fb-thumb-up-btn');
+        if (thumbUp) {
+            const q = thumbUp.dataset.q;
+            const ans = thumbUp.dataset.ans;
+            thumbUp.classList.add('bg-primary/20', 'text-primary', 'border-primary');
+            thumbUp.disabled = true;
+            try {
+                await fetch('/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'thumbs_up', question: q, answer: ans })
+                });
+                showToast('Thanks for your feedback! 👍', 'success');
+            } catch (err) { console.error(err); }
+            return;
+        }
+
+        // Thumbs Down — opens inline Teach Lumina panel
+        const thumbDown = e.target.closest('.fb-thumb-down-btn');
+        if (thumbDown) {
+            const teachId = thumbDown.dataset.teachId;
+            const panel = document.getElementById(teachId);
+            panel?.classList.toggle('hidden');
+            return;
+        }
+
+        // Close Teach Panel
+        const closeTeach = e.target.closest('.close-teach-btn');
+        if (closeTeach) {
+            const teachId = closeTeach.dataset.teachId;
+            document.getElementById(teachId)?.classList.add('hidden');
+            return;
+        }
+
+        // Copy Answer
+        const copyBtn = e.target.closest('.copy-msg-btn');
+        if (copyBtn) {
+            const ans = copyBtn.dataset.ans;
+            navigator.clipboard.writeText(ans).then(() => {
+                showToast('Copied answer to clipboard!', 'success');
+            }).catch(() => showToast('Could not copy text', 'error'));
+            return;
+        }
+
+        // Retry Question
+        const retryBtn = e.target.closest('.retry-msg-btn');
+        if (retryBtn) {
+            const q = retryBtn.dataset.q;
+            if (q) sendMessage(q);
+            return;
+        }
+
+        // Submit Teach Lumina Correction
+        const submitTeach = e.target.closest('.submit-teach-btn');
+        if (submitTeach) {
+            const teachId = submitTeach.dataset.teachId;
+            const panel = document.getElementById(teachId);
+            const input = panel?.querySelector('.teach-input');
+            const correctionText = input?.value.trim();
+            const q = submitTeach.dataset.q;
+            const ans = submitTeach.dataset.ans;
+
+            if (!correctionText) {
+                showToast('Please enter a correction or fact to remember', 'info');
+                return;
+            }
+
+            try {
+                const res = await fetch('/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'thumbs_down',
+                        question: q,
+                        answer: ans,
+                        correction: correctionText
+                    })
+                });
+                const data = await res.json();
+                panel?.classList.add('hidden');
+                showToast('Correction saved as active Memory! Lumina will remember this.', 'success');
+                loadMemories();
+            } catch (err) { showToast('Could not save memory', 'error'); }
+            return;
+        }
+    });
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  Command Palette Search (Ctrl+K)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const searchModal = document.getElementById('search-modal');
+    const cmdSearchBtn = document.getElementById('cmd-search-btn');
+    const closeSearchBtn = document.getElementById('close-search-modal');
+    const cmdSearchInput = document.getElementById('cmd-search-input');
+    const cmdSearchResults = document.getElementById('cmd-search-results');
+
+    function openSearchModal() {
+        searchModal?.classList.remove('hidden');
+        cmdSearchInput?.focus();
+    }
+    function closeSearchModal() {
+        searchModal?.classList.add('hidden');
+    }
+
+    cmdSearchBtn?.addEventListener('click', openSearchModal);
+    closeSearchBtn?.addEventListener('click', closeSearchModal);
+
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (searchModal?.classList.contains('hidden')) openSearchModal();
+            else closeSearchModal();
+        }
+        if (e.key === 'Escape' && !searchModal?.classList.contains('hidden')) {
+            closeSearchModal();
+        }
+    });
+
+    let cmdSearchDebounce;
+    cmdSearchInput?.addEventListener('input', (e) => {
+        clearTimeout(cmdSearchDebounce);
+        const query = e.target.value.trim();
+        if (!query) {
+            cmdSearchResults.innerHTML = `<div class="text-center text-on-surface-variant text-caption py-12 flex flex-col items-center gap-2">
+                <span class="material-symbols-outlined text-4xl opacity-40">manage_search</span>
+                <span>Type to search across documents, past Q&A sessions, and knowledge chunks...</span>
+            </div>`;
+            return;
+        }
+        cmdSearchDebounce = setTimeout(() => performUnifiedSearch(query), 200);
+    });
+
+    async function performUnifiedSearch(q) {
+        cmdSearchResults.innerHTML = '<div class="text-center text-on-surface-variant text-caption py-8">Searching...</div>';
+        try {
+            const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            renderSearchResults(data, q);
+        } catch (err) {
+            cmdSearchResults.innerHTML = '<div class="text-center text-error text-caption py-8">Search failed</div>';
+        }
+    }
+
+    function renderSearchResults(data, query) {
+        const { documents = [], sessions = [], chunks = [] } = data;
+        if (!documents.length && !sessions.length && !chunks.length) {
+            cmdSearchResults.innerHTML = `<div class="text-center text-on-surface-variant text-caption py-12 flex flex-col items-center gap-2">
+                <span class="material-symbols-outlined text-4xl opacity-40">search_off</span>
+                <span>No results found for "${escapeHtml(query)}"</span>
+            </div>`;
+            return;
+        }
+
+        let html = '';
+
+        if (documents.length) {
+            html += `<div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">📁 Documents (${documents.length})</span>
+                ${documents.map(d => `<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-primary cursor-pointer transition-colors" onclick="openFile('${encodeURIComponent(d.path)}'); closeSearchModal();">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <span class="material-symbols-outlined text-sm text-primary">description</span>
+                        <span class="font-body text-xs font-bold text-on-surface truncate">${escapeHtml(d.filename)}</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-on-surface-variant">${d.size_human}</span>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        if (sessions.length) {
+            html += `<div class="flex flex-col gap-1 mt-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">💬 Q&A Sessions (${sessions.length})</span>
+                ${sessions.map(s => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-accent-purple cursor-pointer transition-colors" onclick="replaySession('${escapeHtml(s.question)}', '${escapeHtml(s.answer)}'); closeSearchModal();">
+                    <span class="font-body text-xs font-bold text-on-surface line-clamp-1">Q: ${escapeHtml(s.question)}</span>
+                    <span class="text-[11px] text-on-surface-variant opacity-80 line-clamp-2">${escapeHtml(s.answer)}</span>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        if (chunks.length) {
+            html += `<div class="flex flex-col gap-1 mt-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">⚡ Knowledge Chunks (${chunks.length})</span>
+                ${chunks.map(c => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-secondary cursor-pointer transition-colors" onclick="openCitation('${c.citation_id}'); closeSearchModal();">
+                    <span class="text-[10px] font-mono font-bold text-secondary">${escapeHtml(c.file)}${c.page ? ' (p. '+c.page+')' : ''}</span>
+                    <p class="text-[11px] text-on-surface-variant line-clamp-2">"${escapeHtml(c.excerpt)}"</p>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        cmdSearchResults.innerHTML = html;
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  Chat Session History Sidebar Logic
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const sidebarSessionsList = document.getElementById('sidebar-sessions-list');
+    const clearSessionsBtn = document.getElementById('clear-sessions-btn');
+
+    async function loadSessions() {
+        if (!sidebarSessionsList) return;
+        try {
+            const res = await fetch('/sessions');
+            const sessions = await res.json();
+            renderSessions(sessions);
+        } catch (err) {
+            sidebarSessionsList.innerHTML = '<div class="px-2 py-1 text-error text-[11px]">Failed to load sessions</div>';
+        }
+    }
+
+    function renderSessions(sessions) {
+        if (!sidebarSessionsList) return;
+        if (!sessions.length) {
+            sidebarSessionsList.innerHTML = '<div class="px-2 py-1 text-on-surface-variant text-[11px] opacity-70">No previous sessions</div>';
+            return;
+        }
+
+        sidebarSessionsList.innerHTML = sessions.map(s => {
+            const timeAgo = formatTimeAgo(s.created_at);
+            const qAttr = escapeHtml(s.question).replace(/"/g, '&quot;');
+            const aAttr = escapeHtml(s.answer).replace(/"/g, '&quot;');
+            return `<div class="flex flex-col gap-0.5 p-2 rounded-lg bg-surface-raised hover:bg-surface-bright border border-outline-variant hover:border-primary/40 cursor-pointer transition-colors" onclick="replaySession('${qAttr}', '${aAttr}')" title="${escapeHtml(s.question)}">
+                <span class="font-body text-xs font-bold text-on-surface truncate">${escapeHtml(s.question)}</span>
+                <span class="text-[10px] text-on-surface-variant font-mono opacity-75">${timeAgo} · ${escapeHtml(s.model_display || 'Lumina')}</span>
+            </div>`;
+        }).join('');
+    }
+
+    function formatTimeAgo(timestamp) {
+        if (!timestamp) return 'recently';
+        const diff = Math.floor(Date.now() / 1000) - timestamp;
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    }
+
+    window.replaySession = (question, answer) => {
+        document.getElementById('quick-prompts')?.remove();
+        appendUserMessage(question);
+        appendAssistantMessage(answer, [], false, question);
+    };
+
+    clearSessionsBtn?.addEventListener('click', async () => {
+        if (confirm('Clear all chat session history?')) {
+            try {
+                await fetch('/sessions', { method: 'DELETE' });
+                loadSessions();
+                showToast('Session history cleared', 'info');
+            } catch (err) { showToast('Could not clear sessions', 'error'); }
+        }
+    });
+
+    loadMemories();
+    loadSessions();
     connectIngestEvents();
     loadStatus();
     loadModels();

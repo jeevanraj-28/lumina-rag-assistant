@@ -24,11 +24,19 @@ pip-wheel-metadata/
 data/inbox/*
 data/library/*
 data/index/*
+data/trash/*
+data/memory/*
+data/feedback/*
+data/sessions/*
 data/ollama-models/*
 # Keep the directory structure in git via placeholder files
 !data/inbox/.gitkeep
 !data/library/.gitkeep
 !data/index/.gitkeep
+!data/trash/.gitkeep
+!data/memory/.gitkeep
+!data/feedback/.gitkeep
+!data/sessions/.gitkeep
 !data/ollama-models/.gitkeep
 
 # ── OS files ──────────────────────────────────────────────────────────────────

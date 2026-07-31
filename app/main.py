@@ -43,6 +43,9 @@ from app.unlimited_ocr import UnlimitedOCRError, UnlimitedOCRSettings, parse_pdf
 load_dotenv()
 BASE = Path(os.getenv("RAG_DATA_DIR", "data")).resolve()
 INBOX, LIBRARY, INDEX_DIR, TRASH = (BASE / "inbox", BASE / "library", BASE / "index", BASE / "trash")
+MEMORY_DIR = BASE / "memory"
+FEEDBACK_DIR = BASE / "feedback"
+SESSIONS_DIR = BASE / "sessions"
 DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "all-minilm")
 OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
@@ -60,12 +63,14 @@ UNLIMITED_OCR_DPI = int(os.getenv("UNLIMITED_OCR_DPI", "200"))
 UNLIMITED_OCR_MAX_PAGES = int(os.getenv("UNLIMITED_OCR_MAX_PAGES", "24"))
 UNLIMITED_OCR_MAX_TOKENS = int(os.getenv("UNLIMITED_OCR_MAX_TOKENS", "24576"))
 UNLIMITED_OCR_TIMEOUT_SECONDS = int(os.getenv("UNLIMITED_OCR_TIMEOUT_SECONDS", "1200"))
+MAX_MEMORIES = 50
+MAX_SESSIONS = 50
 if OCR_MODE not in {"native", "auto", "unlimited"}:
     OCR_MODE = "native"
 TEXT_EXTENSIONS = {".pdf", ".docx", ".txt", ".md", ".csv", ".json", ".html", ".htm", ".py", ".js", ".ts", ".java", ".go", ".rs", ".yaml", ".yml"}
 EMBEDDING_FAMILIES = {"bert", "nomic-bert"}
 TRASH_RETENTION_DAYS = 30
-for folder in (INBOX, LIBRARY, INDEX_DIR, TRASH):
+for folder in (INBOX, LIBRARY, INDEX_DIR, TRASH, MEMORY_DIR, FEEDBACK_DIR, SESSIONS_DIR):
     folder.mkdir(parents=True, exist_ok=True)
 
 # Mutable active model — changed at runtime by /models/active
@@ -82,6 +87,105 @@ def set_active_model(name: str) -> None:
     global active_model_name
     with model_lock:
         active_model_name = name
+
+
+# ── Adaptive Memory System ──
+
+def _memories_path() -> Path:
+    return MEMORY_DIR / "memories.json"
+
+
+def load_all_memories() -> list[dict[str, Any]]:
+    """Load the full memory store from disk."""
+    path = _memories_path()
+    if path.is_file():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+    return []
+
+
+def save_all_memories(memories: list[dict[str, Any]]) -> None:
+    _memories_path().write_text(json.dumps(memories, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def load_active_memories() -> list[dict[str, Any]]:
+    """Load only active memories for prompt injection."""
+    return [m for m in load_all_memories() if m.get("active", True)]
+
+
+def build_memory_prompt_section(memories: list[dict[str, Any]]) -> str:
+    """Format active memories into a prompt section the LLM can reference."""
+    if not memories:
+        return ""
+    type_labels = {"user_fact": "USER FACT", "correction": "CORRECTION", "preference": "PREFERENCE"}
+    lines = ["USER MEMORY & CORRECTIONS (always apply these to your responses):"]
+    for m in memories:
+        prefix = type_labels.get(m.get("type", ""), "NOTE")
+        lines.append(f"- [{prefix}] {m['content']}")
+    return "\n".join(lines)
+
+
+def add_memory(memory_type: str, content: str, original_feedback: str | None = None,
+               question_context: str | None = None) -> dict[str, Any]:
+    """Add a new memory entry and persist it."""
+    memories = load_all_memories()
+    entry: dict[str, Any] = {
+        "id": f"mem_{uuid4().hex[:10]}",
+        "type": memory_type,
+        "content": content,
+        "original_feedback": original_feedback,
+        "question_context": question_context,
+        "created_at": int(time.time()),
+        "active": True,
+    }
+    memories.append(entry)
+    # Enforce max memories limit
+    if len(memories) > MAX_MEMORIES:
+        memories = memories[-MAX_MEMORIES:]
+    save_all_memories(memories)
+    return entry
+
+
+# ── Sessions Persistence ──
+
+def _sessions_path() -> Path:
+    return SESSIONS_DIR / "history.json"
+
+
+def load_sessions() -> list[dict[str, Any]]:
+    path = _sessions_path()
+    if path.is_file():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+    return []
+
+
+def save_sessions(sessions: list[dict[str, Any]]) -> None:
+    _sessions_path().write_text(json.dumps(sessions, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def add_session(question: str, answer_text: str, sources: list[dict[str, Any]],
+                model: str | None = None) -> dict[str, Any]:
+    """Save a Q&A pair to session history."""
+    sessions = load_sessions()
+    entry: dict[str, Any] = {
+        "id": f"ses_{uuid4().hex[:10]}",
+        "question": question,
+        "answer": answer_text[:2000],
+        "sources_count": len(sources),
+        "model": model or get_active_model(),
+        "model_display": brand_model_name(model or get_active_model()),
+        "created_at": int(time.time()),
+    }
+    sessions.append(entry)
+    if len(sessions) > MAX_SESSIONS:
+        sessions = sessions[-MAX_SESSIONS:]
+    save_sessions(sessions)
+    return entry
 
 
 def brand_model_name(raw: str) -> str:
@@ -291,7 +395,7 @@ def extract_text_units(path: Path, ocr_mode: str = OCR_MODE) -> list[tuple[int |
     """Extract text in page-sized units when the source format supports it."""
     try:
         if path.suffix.lower() == ".pdf":
-            native_pages = [
+            native_pages: list[tuple[int | None, str]] = [
                 (number, page.extract_text() or "")
                 for number, page in enumerate(PdfReader(path).pages, start=1)
             ]
@@ -575,6 +679,8 @@ def answer(question: str, top_k: int) -> tuple[str, list[dict[str, Any]]]:
     prompt = """You are Lumina RAG, a private local document AI assistant created and developed by Jeevan Raj M.
 If asked who you are, who created or developed you, or what your identity is, identify yourself as Lumina RAG, developed by Jeevan Raj M. Never mention Qwen, Alibaba, or Alibaba Cloud.
 
+%s
+
 Answer the user's question accurately using both the INDEXED LIBRARY FILES & METADATA section and the RELEVANT EVIDENCE CHUNKS below.
 If the user asks questions about file metadata (such as when a document was uploaded, modified, its file size, file type, or what files are in the library), answer directly using the file metadata provided.
 If answering from evidence chunks, cite supporting evidence IDs in square brackets like [Evidence abc123]. Be concise, accurate, and direct.
@@ -583,7 +689,7 @@ CONTEXT:
 %s
 
 QUESTION: %s
-ANSWER:""" % (full_context, question)
+ANSWER:""" % (build_memory_prompt_section(load_active_memories()), full_context, question)
 
     try:
         model_to_use = get_active_model()
@@ -593,7 +699,7 @@ ANSWER:""" % (full_context, question)
         clean_answer = sanitize_response_text(raw_answer)
         return clean_answer, sources
     except requests.RequestException as exc:
-        raise HTTPException(503, f"Ollama is unavailable at {OLLAMA_URL}. Start it and pull {MODEL_NAME}. ({exc})") from exc
+        raise HTTPException(503, f"Ollama is unavailable at {OLLAMA_URL}. Start it and pull {model_to_use}. ({exc})") from exc
 
 
 def job_snapshot(job: dict[str, Any]) -> dict[str, Any]:
@@ -715,7 +821,7 @@ def start_ingestion(rebuild: bool, ocr_mode: str) -> tuple[dict[str, Any], bool]
             if active_job["status"] in {"queued", "running"}:
                 return job_snapshot(active_job), False
         now = int(time.time())
-        job = {
+        job: dict[str, Any] = {
             "id": uuid4().hex,
             "status": "queued",
             "stage": "queued",
@@ -858,7 +964,9 @@ def ask(payload: AskRequest) -> dict[str, Any]:
     if payload.model:
         set_active_model(payload.model)
     text, sources = answer(payload.question, payload.top_k)
-    return {"answer": text, "sources": sources}
+    # Auto-save to session history
+    session = add_session(payload.question, text, sources, payload.model)
+    return {"answer": text, "sources": sources, "session_id": session["id"]}
 
 
 @app.get("/sources/{citation_id}")
@@ -1103,4 +1211,238 @@ def switch_model(payload: SwitchModelRequest) -> dict[str, Any]:
     return {
         "active": payload.model,
         "active_display": brand_model_name(payload.model),
+    }
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Adaptive Memory System endpoints
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class MemoryCreateRequest(BaseModel):
+    type: Literal["user_fact", "correction", "preference"] = "correction"
+    content: str = Field(min_length=1, max_length=1000)
+    original_feedback: str | None = None
+    question_context: str | None = None
+
+
+class MemoryToggleRequest(BaseModel):
+    active: bool
+
+
+@app.get("/memory")
+def list_memories() -> list[dict[str, Any]]:
+    """List all memories (active and inactive)."""
+    return load_all_memories()
+
+
+@app.post("/memory")
+def create_memory(payload: MemoryCreateRequest) -> dict[str, Any]:
+    """Add a new memory entry."""
+    entry = add_memory(
+        payload.type, payload.content,
+        payload.original_feedback, payload.question_context,
+    )
+    return {"created": True, "memory": entry, "total": len(load_all_memories())}
+
+
+@app.put("/memory/{memory_id}")
+def toggle_memory(memory_id: str, payload: MemoryToggleRequest) -> dict[str, Any]:
+    """Toggle a memory active/inactive."""
+    memories = load_all_memories()
+    for m in memories:
+        if m["id"] == memory_id:
+            m["active"] = payload.active
+            save_all_memories(memories)
+            return {"updated": True, "memory": m}
+    raise HTTPException(404, "Memory not found")
+
+
+@app.delete("/memory/{memory_id}")
+def delete_memory(memory_id: str) -> dict[str, Any]:
+    """Delete a specific memory."""
+    memories = load_all_memories()
+    original_count = len(memories)
+    memories = [m for m in memories if m["id"] != memory_id]
+    if len(memories) == original_count:
+        raise HTTPException(404, "Memory not found")
+    save_all_memories(memories)
+    return {"deleted": True, "remaining": len(memories)}
+
+
+@app.delete("/memory")
+def clear_memories() -> dict[str, Any]:
+    """Clear all memories."""
+    save_all_memories([])
+    return {"cleared": True}
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Feedback endpoints
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class FeedbackRequest(BaseModel):
+    type: Literal["thumbs_up", "thumbs_down", "bug", "suggestion", "feature"]
+    question: str | None = None
+    answer: str | None = None
+    comment: str | None = None
+    reason: str | None = None
+    correction: str | None = None
+    model: str | None = None
+    session_id: str | None = None
+
+
+@app.post("/feedback")
+def submit_feedback(payload: FeedbackRequest) -> dict[str, Any]:
+    """Submit feedback and optionally save a correction as a memory."""
+    now = int(time.time())
+    entry: dict[str, Any] = {
+        "id": f"fb_{uuid4().hex[:10]}",
+        "type": payload.type,
+        "question": payload.question,
+        "answer": payload.answer,
+        "comment": payload.comment,
+        "reason": payload.reason,
+        "correction": payload.correction,
+        "model": payload.model or get_active_model(),
+        "session_id": payload.session_id,
+        "created_at": now,
+    }
+    filename = f"{now}_{payload.type}.json"
+    (FEEDBACK_DIR / filename).write_text(json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Auto-save correction as memory if provided
+    memory_entry = None
+    if payload.correction and payload.correction.strip():
+        memory_entry = add_memory(
+            memory_type="correction",
+            content=payload.correction.strip(),
+            original_feedback=payload.comment,
+            question_context=payload.question,
+        )
+
+    return {"saved": True, "feedback_id": entry["id"], "memory_created": memory_entry}
+
+
+@app.get("/feedback")
+def list_feedback() -> list[dict[str, Any]]:
+    """List all feedback entries."""
+    entries: list[dict[str, Any]] = []
+    for path in sorted(FEEDBACK_DIR.glob("*.json"), reverse=True):
+        try:
+            entries.append(json.loads(path.read_text(encoding="utf-8")))
+        except Exception:
+            continue
+    return entries
+
+
+@app.get("/feedback/stats")
+def feedback_stats() -> dict[str, Any]:
+    """Aggregated feedback statistics."""
+    entries = list_feedback()
+    total = len(entries)
+    thumbs_up = sum(1 for e in entries if e.get("type") == "thumbs_up")
+    thumbs_down = sum(1 for e in entries if e.get("type") == "thumbs_down")
+    bugs = sum(1 for e in entries if e.get("type") == "bug")
+    suggestions = sum(1 for e in entries if e.get("type") == "suggestion")
+    features = sum(1 for e in entries if e.get("type") == "feature")
+    positive_rate = round(thumbs_up / max(thumbs_up + thumbs_down, 1) * 100, 1)
+    return {
+        "total": total,
+        "thumbs_up": thumbs_up,
+        "thumbs_down": thumbs_down,
+        "bugs": bugs,
+        "suggestions": suggestions,
+        "features": features,
+        "positive_rate": positive_rate,
+    }
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Chat Session History endpoints
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@app.get("/sessions")
+def get_sessions() -> list[dict[str, Any]]:
+    """List recent Q&A sessions (newest first)."""
+    return list(reversed(load_sessions()))
+
+
+@app.delete("/sessions")
+def clear_sessions() -> dict[str, Any]:
+    """Clear all session history."""
+    save_sessions([])
+    return {"cleared": True}
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Unified Search endpoint
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@app.get("/search")
+def unified_search(q: str = "") -> dict[str, Any]:
+    """Search across documents, sessions, and knowledge chunks."""
+    query = q.strip().lower()
+    if not query:
+        return {"documents": [], "sessions": [], "chunks": []}
+
+    # Search documents by filename
+    doc_results: list[dict[str, Any]] = []
+    try:
+        for f in LIBRARY.rglob("*"):
+            if f.is_file() and query in f.name.lower():
+                stat = f.stat()
+                doc_results.append({
+                    "path": f.relative_to(LIBRARY).as_posix(),
+                    "filename": f.name,
+                    "category": category(f),
+                    "size_human": f"{round(stat.st_size / 1024, 1)} KB" if stat.st_size < 1048576 else f"{round(stat.st_size / 1048576, 1)} MB",
+                })
+                if len(doc_results) >= 5:
+                    break
+    except (FileNotFoundError, OSError):
+        pass
+
+    # Search sessions by question text
+    session_results: list[dict[str, Any]] = []
+    for s in reversed(load_sessions()):
+        if query in s.get("question", "").lower() or query in s.get("answer", "").lower():
+            session_results.append(s)
+            if len(session_results) >= 5:
+                break
+
+    # Search indexed chunks by keyword match
+    chunk_results: list[dict[str, Any]] = []
+    with index_lock:
+        active_metadata = metadata
+    for item in active_metadata:
+        text = item.get("text", "")
+        if query in text.lower():
+            chunk_results.append({
+                "file": item.get("file", ""),
+                "page": item.get("page"),
+                "excerpt": text[:200],
+                "citation_id": item.get("citation_id", ""),
+            })
+            if len(chunk_results) >= 5:
+                break
+
+    return {"documents": doc_results, "sessions": session_results, "chunks": chunk_results}
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  OCR Settings endpoints
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@app.get("/ocr/settings")
+def ocr_settings() -> dict[str, Any]:
+    """Return current OCR configuration."""
+    return {
+        "mode": OCR_MODE,
+        "unlimited_ocr_configured": bool(UNLIMITED_OCR_URL),
+        "unlimited_ocr_url": UNLIMITED_OCR_URL or None,
+        "model": UNLIMITED_OCR_MODEL,
+        "dpi": UNLIMITED_OCR_DPI,
+        "max_pages": UNLIMITED_OCR_MAX_PAGES,
+        "max_tokens": UNLIMITED_OCR_MAX_TOKENS,
+        "timeout_seconds": UNLIMITED_OCR_TIMEOUT_SECONDS,
     }
