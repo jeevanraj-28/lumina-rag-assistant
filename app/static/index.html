@@ -183,6 +183,117 @@
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
             #particle-canvas, #cursor-glow { display: none !important; }
         }
+
+        /* ── Design System Extensions (lumina-ui-agent-prompt) ── */
+        :root {
+            --elev-1: 0 1px 2px rgba(0,0,0,.25);
+            --elev-2: 0 4px 12px -2px rgba(0,0,0,.35);
+            --elev-3: 0 16px 40px -8px rgba(0,0,0,.5);
+            --ring: 0 0 0 3px color-mix(in oklab, var(--c-primary) 35%, transparent);
+        }
+        html:not(.dark) {
+            --elev-1: 0 1px 2px rgba(23,30,18,.06);
+            --elev-2: 0 4px 12px -2px rgba(23,30,18,.10);
+            --elev-3: 0 16px 40px -8px rgba(23,30,18,.18);
+        }
+
+        .material-symbols-outlined { line-height: 1; display: inline-block; vertical-align: middle; font-variation-settings: 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+        .mi-sm { font-size: 18px !important; }
+        .mi-md { font-size: 20px !important; }
+        .mi-lg { font-size: 24px !important; }
+
+        .hdr-btn { height: 36px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 999px; border: 2px solid var(--c-outline-variant); background: var(--c-surface-raised); font-size: 12px; font-weight: 700; color: var(--c-on-surface); white-space: nowrap; cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .12s ease; }
+        .hdr-btn:hover { border-color: var(--c-primary); background: var(--c-surface-bright); }
+        .hdr-btn:active { transform: translateY(1px); }
+        .hdr-icon-btn { width: 36px; height: 36px; padding: 0; justify-content: center; }
+        .hdr-stats { height: 36px; display: inline-flex; align-items: stretch; border-radius: 999px; border: 2px solid var(--c-outline-variant); background: color-mix(in oklab, var(--c-surface-raised) 60%, transparent); overflow: hidden; }
+        .hdr-stat { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; transition: background .15s ease; }
+        .hdr-stat + .hdr-stat { border-left: 1px solid var(--c-outline-variant); }
+        button.hdr-stat { cursor: pointer; }
+        button.hdr-stat:hover { background: var(--c-surface-bright); }
+        .hdr-badge { min-width: 18px; height: 18px; padding: 0 5px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700; }
+        .side-icon-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--c-outline-variant); background: var(--c-surface-bright); color: var(--c-on-surface-variant); cursor: pointer; transition: color .15s, background .15s, border-color .15s; }
+        .side-icon-btn:hover { background: var(--c-surface-variant); border-color: var(--c-primary); }
+
+        :focus-visible { outline: none; box-shadow: var(--ring); border-radius: 10px; }
+        button:focus-visible, a:focus-visible, [tabindex]:focus-visible { position: relative; z-index: 1; }
+
+        * { scrollbar-width: thin; scrollbar-color: var(--c-surface-variant) transparent; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: transparent; border: 3px solid transparent; border-radius: 99px; background-clip: content-box; transition: background-color .2s; }
+        :hover::-webkit-scrollbar-thumb { background-color: var(--c-surface-variant); background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background-color: var(--c-on-surface-variant); background-clip: content-box; }
+
+        body { font-feature-settings: "cv02","cv03","cv04","ss01"; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+        .font-headline, h1, h2, h3 { letter-spacing: -0.022em; }
+        h1 { letter-spacing: -0.03em; }
+        .text-body, p.font-body { line-height: 1.65; }
+        [id$="-badge"], .font-mono, #library-count { font-variant-numeric: tabular-nums; }
+        .side-label { font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--c-on-surface-variant); }
+        .side-sticky { position: sticky; top: 0; z-index: 5; background: var(--c-surface-container); padding-block: 4px; }
+
+        #sidebar { box-shadow: var(--elev-2); }
+        .message-tail-left, .message-tail-right { box-shadow: var(--elev-2); }
+
+        #chat-messages .max-w-\[85\%\] { max-width: min(85%, 62ch); }
+        @keyframes msg-in-left { from { opacity:0; transform: translate3d(-8px,10px,0) scale(.98);} to { opacity:1; transform:none; } }
+        @keyframes msg-in-right { from { opacity:0; transform: translate3d(8px,10px,0) scale(.98);} to { opacity:1; transform:none; } }
+        .msg-in-left { animation: msg-in-left .35s cubic-bezier(.22,1,.36,1) both; }
+        .msg-in-right { animation: msg-in-right .35s cubic-bezier(.22,1,.36,1) both; }
+
+        .answer-body > * + * { margin-top: .75em; }
+        .answer-body ul, .answer-body ol { padding-left: 1.25em; }
+        .answer-body ul { list-style: disc; } .answer-body ol { list-style: decimal; }
+        .answer-body li + li { margin-top: .25em; }
+        .answer-body code { font-family: ui-monospace, monospace; font-size: .875em; background: color-mix(in oklab, var(--c-surface-variant) 60%, transparent); padding: .1em .35em; border-radius: 5px; }
+        .answer-body pre { background: var(--c-surface-container-lowest); border: 1px solid var(--c-outline-variant); border-radius: 12px; padding: 12px 14px; overflow-x: auto; }
+        .answer-body pre code { background: none; padding: 0; }
+        .answer-body table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .answer-body th, .answer-body td { border: 1px solid var(--c-outline-variant); padding: 6px 10px; text-align: left; }
+        .answer-body th { background: var(--c-surface-container-high); font-weight: 700; }
+
+        #input-wrapper { box-shadow: var(--elev-3); backdrop-filter: blur(12px); background: color-mix(in oklab, var(--c-surface-raised) 92%, transparent); }
+        #input-wrapper:focus-within { border-color: var(--c-primary); box-shadow: var(--elev-3), 0 0 0 4px color-mix(in oklab, var(--c-primary) 18%, transparent); }
+        #send-btn { opacity: .45; transition: opacity .2s, filter .2s, transform .12s; }
+        #send-btn.is-ready { opacity: 1; }
+        #send-btn.is-ready:hover { filter: brightness(1.1); }
+        #chat-container::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 140px; background: linear-gradient(to top, var(--c-background) 25%, transparent); pointer-events: none; z-index: 40; }
+
+        .file-item { border-radius: 12px; border: 1px solid var(--c-outline-variant); background: var(--c-surface-raised); position: relative; overflow: hidden; transition: border-color .18s, background .18s; }
+        .file-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c-outline-variant); transition: background .18s; }
+        .file-item:hover { transform: none; border-color: var(--c-primary); background: var(--c-surface-container-high); }
+        .file-item:hover::before { background: var(--c-primary); }
+        .file-item[data-type="pdf"]::before { background: #FF4B4B; }
+        .file-item[data-type="word"]::before { background: #1CB0F6; }
+        .file-item[data-type="text"]::before { background: var(--c-on-surface-variant); }
+        .file-item[data-type="data"]::before { background: #FF9600; }
+        .file-item.is-selected { border-color: var(--c-primary); background: color-mix(in oklab, var(--c-primary) 12%, transparent); }
+        .file-item .file-actions { opacity: 0; transition: opacity .15s; }
+        .file-item:hover .file-actions, .file-item:focus-within .file-actions { opacity: 1; }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 16px; text-align: center; color: var(--c-on-surface-variant); font-size: 12px; }
+        .empty-state .material-symbols-outlined { font-size: 34px !important; opacity: .35; }
+        @keyframes skeleton-sweep { to { background-position: 200% 0; } }
+        .skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--c-surface-raised) 25%, var(--c-surface-variant) 50%, var(--c-surface-raised) 75%) 0 0 / 200% 100%; animation: skeleton-sweep 1.3s linear infinite; }
+
+        .modal-backdrop { background: rgba(0,0,0,.55); backdrop-filter: blur(6px) saturate(.9); }
+        .modal-shell { background: var(--c-surface-container); border: 1px solid var(--c-outline-variant); border-radius: 20px; box-shadow: var(--elev-3); overflow: hidden; }
+        .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--c-outline-variant); background: var(--c-surface-raised); }
+        .modal-body { padding: 18px; overflow-y: auto; }
+        .modal-foot { padding: 12px 18px; border-top: 1px solid var(--c-outline-variant); background: var(--c-surface-raised); display: flex; justify-content: flex-end; gap: 8px; }
+
+        #particle-canvas { opacity: .45; }
+        #cursor-glow { width: 340px; height: 340px; }
+        .logo-breathe { animation-duration: 5s; }
+        @media (max-width: 1024px) { #particle-canvas, #cursor-glow { display: none; } }
+
+        #toast-container { top: 76px; right: 20px; }
+        .toast { position: relative; padding-left: 18px; border-width: 1px; border-radius: 14px; box-shadow: var(--elev-3); }
+        .toast::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 14px 0 0 14px; background: var(--c-outline-variant); }
+        .toast-success::before { background: var(--c-primary); }
+        .toast-error::before { background: var(--c-error); }
+
     </style>
 </head>
 <body class="bg-background text-on-surface font-body overflow-hidden h-screen w-screen flex">
@@ -210,7 +321,7 @@
 <aside id="sidebar" class="fixed left-0 top-[64px] w-[300px] h-[calc(100vh-64px)] bg-surface-container border-r-4 border-outline-variant flex flex-col p-4 gap-4 z-40 overflow-hidden -translate-x-full lg:translate-x-0">
     <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between">
-            <h2 class="font-headline text-headline-md text-on-surface">Knowledge Base</h2>
+            <h2 class="side-label">Knowledge Base</h2>
             <span id="inbox-badge" class="hidden text-caption font-bold bg-accent-orange/20 text-accent-orange px-2 py-0.5 rounded-full border border-accent-orange/30">0 pending</span>
         </div>
         <div id="dropzone" class="dropzone h-[115px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary flex flex-col items-center justify-center gap-1.5 bg-surface-raised/40 hover:bg-surface-raised transition-all cursor-pointer group" role="button" tabindex="0" aria-label="Upload documents">
@@ -249,18 +360,18 @@
     <div class="h-px bg-outline-variant w-full"></div>
     <div class="flex flex-col gap-2.5 flex-1 overflow-hidden min-h-0">
         <!-- Library Header & Controls -->
-        <div class="flex items-center justify-between gap-1">
-            <div class="flex items-center gap-1.5 min-w-0">
-                <h2 class="font-headline text-headline-md text-on-surface truncate">Your Library</h2>
-                <span id="library-count" class="text-[11px] font-mono text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded-full">—</span>
+        <div class="flex items-center justify-between gap-2 side-sticky">
+            <div class="flex min-w-0 items-center gap-2">
+                <h2 class="side-label truncate">Your Library</h2>
+                <span id="library-count" class="text-[11px] font-mono text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded-full flex-shrink-0">—</span>
             </div>
-            <div class="flex items-center gap-1 flex-shrink-0">
-                <button id="select-mode-btn" class="p-1.5 rounded-lg bg-surface-bright text-on-surface-variant hover:text-primary hover:bg-surface-variant border border-outline-variant transition-colors" title="Select multiple files">
-                    <span class="material-symbols-outlined text-base">checklist</span>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button id="select-mode-btn" class="side-icon-btn" title="Select multiple files">
+                    <span class="material-symbols-outlined mi-sm">checklist</span>
                 </button>
-                <button id="trash-modal-btn" class="p-1.5 rounded-lg bg-surface-bright text-on-surface-variant hover:text-accent-red hover:bg-surface-variant border border-outline-variant transition-colors relative" title="View Trash (Soft-deleted files)">
-                    <span class="material-symbols-outlined text-base">delete</span>
-                    <span id="trash-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-accent-red text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+                <button id="trash-modal-btn" class="side-icon-btn relative overflow-visible" title="View Trash (Soft-deleted files)">
+                    <span class="material-symbols-outlined mi-sm">delete</span>
+                    <span id="trash-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-accent-red text-white text-[9px] font-bold rounded-full ring-2 ring-surface-container flex items-center justify-center">0</span>
                 </button>
             </div>
         </div>
@@ -308,7 +419,11 @@
 
         <!-- Library File List -->
         <div id="library-files-list" class="flex flex-col gap-2 overflow-y-auto max-h-[220px] pr-1">
-            <div class="px-3 py-2 text-on-surface-variant text-caption">Loading library...</div>
+            <div class="flex flex-col gap-2 p-1">
+    <div class="skeleton h-[52px] w-full"></div>
+    <div class="skeleton h-[52px] w-full opacity-70"></div>
+    <div class="skeleton h-[52px] w-full opacity-40"></div>
+</div>
         </div>
 
         <div class="h-px bg-outline-variant w-full"></div>
@@ -330,8 +445,8 @@
 </aside>
 
 <!-- Knowledge Base Breakdown Modal -->
-<div id="kb-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+<div id="kb-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-shell w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
         <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary text-xl">dataset</span>
@@ -348,8 +463,8 @@
 </div>
 
 <!-- Trash Bin Modal -->
-<div id="trash-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+<div id="trash-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-shell w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
         <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-accent-red text-xl">delete</span>
@@ -375,8 +490,8 @@
 </div>
 
 <!-- Adaptive Memory Manager Modal -->
-<div id="memory-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+<div id="memory-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-shell w-full max-w-xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
         <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-accent-purple text-xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
@@ -422,8 +537,8 @@
 </div>
 
 <!-- Global Feedback Modal -->
-<div id="feedback-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+<div id="feedback-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-shell w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
         <div class="flex items-center justify-between p-4 border-b border-outline-variant bg-surface-raised">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-accent-orange text-xl" style="font-variation-settings: 'FILL' 1;">rate_review</span>
@@ -469,8 +584,8 @@
 </div>
 
 <!-- Command Palette Search Modal (Ctrl+K) -->
-<div id="search-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-16 sm:pt-24 p-4">
-    <div class="bg-surface-container border-4 border-outline-variant rounded-2xl w-full max-w-2xl max-h-[75vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
+<div id="search-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-start justify-center pt-16 sm:pt-24 p-4">
+    <div class="modal-shell w-full max-w-2xl max-h-[75vh] flex flex-col shadow-2xl overflow-hidden animate-bounce-in">
         <div class="p-3 border-b border-outline-variant bg-surface-raised flex items-center gap-3">
             <span class="material-symbols-outlined text-primary text-xl pl-2">search</span>
             <input id="cmd-search-input" type="text" placeholder="Search documents, chat history, or knowledge chunks... (Esc to close)" class="flex-1 bg-transparent font-body text-body text-on-surface placeholder:text-on-surface-variant focus:outline-none py-1"/>
@@ -490,56 +605,57 @@
 </div>
 
 <div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
-    <header class="fixed top-0 left-0 right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-4 sm:px-6 z-50 chunky-shadow">
-        <div class="flex items-center gap-2.5">
-            <button id="menu-toggle" class="lg:hidden w-9 h-9 rounded-xl bg-surface-bright flex items-center justify-center border-2 border-outline-variant squish" aria-label="Open knowledge base panel">
-                <span class="material-symbols-outlined text-sm">menu</span>
+        <header class="fixed top-0 left-0 right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-4 sm:px-6 z-50 chunky-shadow">
+        <div class="flex min-w-0 items-center gap-2.5">
+            <button id="menu-toggle" class="hdr-btn hdr-icon-btn lg:hidden squish" aria-label="Open knowledge base panel">
+                <span class="material-symbols-outlined mi-md">menu</span>
             </button>
             <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe flex-shrink-0"/>
-            <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight m-0">Lumina RAG</h1>
+            <h1 class="font-headline text-headline-lg font-black text-primary tracking-tight m-0 truncate">Lumina RAG</h1>
         </div>
-        <div class="flex items-center gap-2 sm:gap-3">
-            <button id="cmd-search-btn" class="hidden sm:flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption text-on-surface-variant hover:text-on-surface cursor-pointer" title="Search Everything (Ctrl+K)">
-                <span class="material-symbols-outlined text-sm">search</span>
-                <span class="font-bold">Search</span>
-                <kbd class="font-mono text-[10px] bg-surface-variant px-1.5 py-0.5 rounded border border-outline-variant text-on-surface-variant">⌘K</kbd>
+        <div class="flex flex-shrink-0 items-center gap-2">
+            <button id="cmd-search-btn" class="hdr-btn hidden md:inline-flex" title="Search Everything (Ctrl+K)">
+                <span class="material-symbols-outlined mi-sm">search</span>
+                <span>Search</span>
+                <kbd class="font-mono text-[10px] px-1.5 py-px bg-surface-variant rounded border border-outline-variant text-on-surface-variant">⌘K</kbd>
             </button>
-            <div class="hidden sm:flex items-center gap-2 bg-surface-raised/60 p-1 rounded-full border border-outline-variant">
-                <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-secondary font-bold text-caption" title="Questions asked this session">
-                    <span class="material-symbols-outlined text-sm">chat</span>
+            <div class="hdr-stats hidden xl:inline-flex">
+                <div class="hdr-stat text-secondary" title="Questions asked this session">
+                    <span class="material-symbols-outlined mi-sm">chat</span>
                     <span id="questions-badge">0</span>
                 </div>
-                <button id="open-kb-chunks-btn" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-accent-purple font-bold text-caption hover:bg-surface-bright transition-colors cursor-pointer" title="Click for Knowledge Breakdown">
-                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                <button id="open-kb-chunks-btn" class="hdr-stat text-accent-purple" title="Click for Knowledge Breakdown">
+                    <span class="material-symbols-outlined mi-sm" style="font-variation-settings:'FILL' 1,'wght' 500;">bolt</span>
                     <span id="chunks-badge">0 chunks</span>
                 </button>
-                <button id="open-kb-files-btn" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-primary font-bold text-caption hover:bg-surface-bright transition-colors cursor-pointer" title="Click for Knowledge Breakdown">
-                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">folder</span>
+                <button id="open-kb-files-btn" class="hdr-stat text-primary" title="Click for Knowledge Breakdown">
+                    <span class="material-symbols-outlined mi-sm" style="font-variation-settings:'FILL' 1,'wght' 500;">folder</span>
                     <span id="files-badge">0 docs</span>
                 </button>
             </div>
-            <button id="open-memory-btn" class="flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption font-bold text-on-surface cursor-pointer squish" title="Adaptive Memory System — Saved facts & corrections">
-                <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">psychology</span>
-                <span class="hidden md:inline">Memory</span>
-                <span id="memory-count-badge" class="bg-accent-purple/20 text-accent-purple px-1.5 py-0.5 text-[10px] font-mono rounded-full font-bold">0</span>
+            <div class="hidden xl:block w-px h-6 bg-outline-variant" aria-hidden="true"></div>
+            <button id="open-memory-btn" class="hdr-btn squish" title="Adaptive Memory System — Saved facts & corrections">
+                <span class="material-symbols-outlined mi-sm text-accent-purple" style="font-variation-settings:'FILL' 1,'wght' 500;">psychology</span>
+                <span class="hidden lg:inline">Memory</span>
+                <span id="memory-count-badge" class="hdr-badge bg-accent-purple/20 text-accent-purple">0</span>
             </button>
-            <button id="open-feedback-btn" class="flex items-center gap-1.5 bg-surface-raised h-9 px-3 rounded-full border-2 border-outline-variant hover:border-primary transition-colors text-caption font-bold text-on-surface cursor-pointer squish" title="Send Feedback">
-                <span class="material-symbols-outlined text-sm text-accent-orange" style="font-variation-settings: 'FILL' 1;">rate_review</span>
-                <span class="hidden md:inline">Feedback</span>
+            <button id="open-feedback-btn" class="hdr-btn squish" title="Send Feedback">
+                <span class="material-symbols-outlined mi-sm text-accent-orange" style="font-variation-settings:'FILL' 1,'wght' 500;">rate_review</span>
+                <span class="hidden lg:inline">Feedback</span>
             </button>
             <div class="model-selector-wrap">
-                <button id="model-selector-btn" class="model-selector-btn flex items-center gap-1.5 bg-surface-raised h-9 px-3 pr-2 rounded-full border-2 border-outline-variant" aria-label="Select AI model" aria-haspopup="listbox">
-                    <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">memory</span>
-                    <span class="font-body text-caption text-on-surface font-bold" id="model-display-name">Loading...</span>
-                    <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
+                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox">
+                    <span class="material-symbols-outlined mi-sm text-primary" style="font-variation-settings:'FILL' 1,'wght' 500;">memory</span>
+                    <span class="font-body text-caption text-on-surface font-bold max-w-[110px] truncate" id="model-display-name">Loading...</span>
+                    <span class="material-symbols-outlined mi-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
                 </button>
                 <div class="model-dropdown" id="model-dropdown" role="listbox" aria-label="Available AI models">
                     <div class="model-dropdown-header">Select Model</div>
                     <div id="model-list"></div>
                 </div>
             </div>
-            <button id="theme-toggle" class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center text-on-surface hover:bg-surface-variant transition-colors border-2 border-outline-variant squish magnetic-btn" aria-label="Toggle theme">
-                <span class="material-symbols-outlined" id="theme-icon" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+            <button id="theme-toggle" class="hdr-btn hdr-icon-btn squish magnetic-btn" aria-label="Toggle theme">
+                <span class="material-symbols-outlined mi-md" id="theme-icon" style="font-variation-settings:'FILL' 1,'wght' 500;">light_mode</span>
             </button>
         </div>
     </header>
@@ -557,16 +673,16 @@
                         </p>
                     </div>
                     <div id="quick-prompts" class="flex flex-wrap gap-2 pt-1">
-                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="Summarize the main topics across my documents">
-                            <span class="material-symbols-outlined text-sm text-primary group-hover:scale-110 transition-transform">auto_awesome</span>
+                        <button class="prompt-chip group inline-flex items-center gap-2 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border border-outline-variant hover:border-primary rounded-full px-3.5 h-9 transition-all cursor-pointer" data-prompt="Summarize the main topics across my documents">
+                            <span class="material-symbols-outlined mi-sm text-primary group-hover:scale-110 transition-transform">auto_awesome</span>
                             <span>Summarize my docs</span>
                         </button>
-                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="What documents do I have indexed and what are they about?">
-                            <span class="material-symbols-outlined text-sm text-secondary group-hover:scale-110 transition-transform">folder_open</span>
+                        <button class="prompt-chip group inline-flex items-center gap-2 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border border-outline-variant hover:border-primary rounded-full px-3.5 h-9 transition-all cursor-pointer" data-prompt="What documents do I have indexed and what are they about?">
+                            <span class="material-symbols-outlined mi-sm text-secondary group-hover:scale-110 transition-transform">folder_open</span>
                             <span>What's in my library?</span>
                         </button>
-                        <button class="prompt-chip group flex items-center gap-1.5 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border-2 border-outline-variant hover:border-primary rounded-xl px-3.5 py-2 transition-all shadow-sm cursor-pointer" data-prompt="Find key dates, deadlines, or action items mentioned in my files">
-                            <span class="material-symbols-outlined text-sm text-accent-orange group-hover:scale-110 transition-transform">event</span>
+                        <button class="prompt-chip group inline-flex items-center gap-2 font-body text-caption font-bold text-on-surface bg-surface-raised hover:bg-primary/20 border border-outline-variant hover:border-primary rounded-full px-3.5 h-9 transition-all cursor-pointer" data-prompt="Find key dates, deadlines, or action items mentioned in my files">
+                            <span class="material-symbols-outlined mi-sm text-accent-orange group-hover:scale-110 transition-transform">event</span>
                             <span>Find deadlines</span>
                         </button>
                     </div>
@@ -584,13 +700,13 @@
                     <span class="text-caption text-primary font-bold ml-2" id="loading-message">Searching your knowledge base...</span>
                 </div>
             </div>
-            <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-end p-2 chunky-shadow transition-all duration-300 focus-within:border-primary-container gap-1" id="input-wrapper">
-                <button id="attach-file-btn" class="w-10 h-10 rounded-full hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors flex-shrink-0 mb-0.5" title="Upload document to inbox" onclick="document.getElementById('dropzone').click()">
-                    <span class="material-symbols-outlined text-xl">attach_file</span>
+            <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-center p-2 chunky-shadow transition-all duration-300 gap-1" id="input-wrapper">
+                <button id="attach-file-btn" class="w-11 h-11 rounded-full hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors flex-shrink-0" title="Upload document to inbox" onclick="document.getElementById('dropzone').click()">
+                    <span class="material-symbols-outlined mi-md">attach_file</span>
                 </button>
-                <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-2 py-2.5 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
-                <button id="send-btn" class="w-12 h-12 rounded-full bg-primary text-on-primary hover:brightness-110 transition-all border-2 border-primary-dark squish-btn flex-shrink-0 ml-1 chunky-shadow-btn magnetic-btn" aria-label="Send message">
-                    <span class="material-symbols-outlined text-2xl font-bold" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+                <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-2 py-2 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
+                <button id="send-btn" class="w-11 h-11 rounded-full bg-primary text-on-primary border-2 border-primary-dark squish-btn flex-shrink-0 flex items-center justify-center chunky-shadow-btn magnetic-btn" aria-label="Send message">
+                    <span class="material-symbols-outlined mi-md" style="font-variation-settings: 'FILL' 1, 'wght' 700;">arrow_upward</span>
                 </button>
             </div>
         </div>
@@ -1133,21 +1249,22 @@
                 ? 'bg-primary/15 border-2 border-primary border-l-4 border-l-primary shadow-md' 
                 : 'bg-surface-raised border-2 border-outline-variant hover:bg-surface-container-highest hover:border-primary/40';
 
-            return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl ${cardClasses} text-left transition-all relative">
+            const catType = f.category || 'other';
+            return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl ${cardClasses} text-left transition-all relative" data-type="${catType}">
                 ${isSelectMode ? `<input type="checkbox" class="file-select-cb rounded border-outline-variant text-primary focus:ring-0 cursor-pointer" data-path="${escapeHtml(f.path)}" ${isSelected ? 'checked' : ''}/>` : ''}
                 <div class="w-8 h-8 rounded-lg ${catStyle.bg} border flex items-center justify-center ${catStyle.color} flex-shrink-0 cursor-pointer" onclick="openFile('${encodeURIComponent(f.path)}')" title="View ${escapeHtml(f.filename)}">
-                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">${catStyle.icon}</span>
+                    <span class="material-symbols-outlined mi-sm" style="font-variation-settings:'FILL' 1,'wght' 500;">${catStyle.icon}</span>
                 </div>
                 <div class="flex flex-col flex-1 overflow-hidden cursor-pointer min-w-0" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(f.path)}')` : `openFile('${encodeURIComponent(f.path)}')`}">
                     <span class="font-body text-caption font-bold truncate text-on-surface" title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</span>
                     <span class="text-[10px] ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'} truncate">${ext} · ${f.size_human || 'File'}${f.upload_date ? ' · ' + f.upload_date.split(' ')[0] : ''}</span>
                 </div>
-                <div class="flex items-center gap-1 opacity-90 lg:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <div class="file-actions flex items-center gap-1 flex-shrink-0">
                     <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open document (${ext})">
-                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                        <span class="material-symbols-outlined mi-sm">open_in_new</span>
                     </button>
                     <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="confirmDeleteSingle('${escapeHtml(f.path)}', '${escapeHtml(f.filename)}')" title="Move to Trash">
-                        <span class="material-symbols-outlined text-sm">delete</span>
+                        <span class="material-symbols-outlined mi-sm">delete</span>
                     </button>
                 </div>
             </div>`;
@@ -1296,7 +1413,7 @@
 
     function appendUserMessage(text) {
         const div = document.createElement('div');
-        div.className = 'flex justify-end animate-bounce-in';
+        div.className = 'flex justify-end msg-in-right';
         div.innerHTML = `<div class="bg-secondary-container text-on-secondary-container px-5 py-4 rounded-2xl rounded-br-sm max-w-[85%] border-2 border-secondary-dark chunky-shadow-user message-tail-right"><p class="font-body text-body whitespace-pre-wrap">${escapeHtml(text)}</p></div>`;
         const anchor = document.getElementById('scroll-anchor');
         if (anchor) messagesContainer.insertBefore(div, anchor);
@@ -1328,7 +1445,7 @@
         const citId = `citation-drawer-${citationCounter}`;
         const teachId = `teach-panel-${messageCounter}`;
         const div = document.createElement('div');
-        div.className = 'flex justify-start gap-3 animate-bounce-in';
+        div.className = 'flex justify-start gap-3 msg-in-left';
         let toggleBtn = '', sourcesHTML = '', actionBarHTML = '';
 
         if (sources?.length) {
@@ -1394,7 +1511,7 @@
 
         const bubbleClass = isError ? 'bg-error-container text-error border-error/30' : 'bg-primary-container text-on-primary-container border-primary-dark chunky-shadow-primary message-tail-left';
         div.innerHTML = `<div class="w-10 h-10 rounded-full bg-surface-bright flex items-center justify-center border-2 border-outline-variant flex-shrink-0 mt-2 overflow-hidden"><img src="/static/logo-icon.png" alt="" class="w-8 h-8"/></div>
-            <div class="flex flex-col gap-2 max-w-[85%]"><div class="${bubbleClass} px-5 py-4 rounded-2xl rounded-bl-sm border-2"><div class="font-body text-body whitespace-pre-wrap leading-relaxed">${isError ? escapeHtml(answer) : renderAnswer(answer, sources)}</div></div>${toggleBtn}${sourcesHTML}${actionBarHTML}</div>`;
+            <div class="flex flex-col gap-2 max-w-[85%]"><div class="${bubbleClass} px-5 py-4 rounded-2xl rounded-bl-sm border-2"><div class="font-body text-body answer-body whitespace-pre-wrap leading-relaxed">${isError ? escapeHtml(answer) : renderAnswer(answer, sources)}</div></div>${toggleBtn}${sourcesHTML}${actionBarHTML}</div>`;
         const anchor = document.getElementById('scroll-anchor');
         if (anchor) messagesContainer.insertBefore(div, anchor);
         else messagesContainer.appendChild(div);
@@ -1456,7 +1573,11 @@
 
     sendBtn.addEventListener('click', () => sendMessage());
     questionInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-    questionInput.addEventListener('input', function() { this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 128) + 'px'; });
+        questionInput?.addEventListener('input', function() {
+        this.style.height = '';
+        this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+        sendBtn?.classList.toggle('is-ready', this.value.trim().length > 0);
+    });
     document.querySelectorAll('.prompt-chip').forEach(chip => chip.addEventListener('click', () => sendMessage(chip.dataset.prompt)));
 
     // ── Model Selector ──
