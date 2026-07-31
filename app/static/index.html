@@ -1665,6 +1665,7 @@
 
     openMemoryBtn?.addEventListener('click', () => { memoryModal?.classList.remove('hidden'); loadMemories(); });
     closeMemoryBtn?.addEventListener('click', () => memoryModal?.classList.add('hidden'));
+    memoryModal?.addEventListener('click', (e) => { if (e.target === memoryModal) memoryModal.classList.add('hidden'); });
 
     // Manual memory type selector pills
     ['mem-type-fact', 'mem-type-corr', 'mem-type-pref'].forEach(id => {
@@ -1793,6 +1794,7 @@
     openFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.remove('hidden'));
     closeFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.add('hidden'));
     cancelFeedbackBtn?.addEventListener('click', () => feedbackModal?.classList.add('hidden'));
+    feedbackModal?.addEventListener('click', (e) => { if (e.target === feedbackModal) feedbackModal.classList.add('hidden'); });
 
     document.querySelectorAll('.fb-type-chip').forEach(chip => {
         chip.addEventListener('click', function() {
@@ -1932,6 +1934,7 @@
 
     cmdSearchBtn?.addEventListener('click', openSearchModal);
     closeSearchBtn?.addEventListener('click', closeSearchModal);
+    searchModal?.addEventListener('click', (e) => { if (e.target === searchModal) closeSearchModal(); });
 
     window.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
@@ -1939,8 +1942,12 @@
             if (searchModal?.classList.contains('hidden')) openSearchModal();
             else closeSearchModal();
         }
-        if (e.key === 'Escape' && !searchModal?.classList.contains('hidden')) {
-            closeSearchModal();
+        if (e.key === 'Escape') {
+            if (!searchModal?.classList.contains('hidden')) closeSearchModal();
+            if (!kbModal?.classList.contains('hidden')) kbModal?.classList.add('hidden');
+            if (!trashModal?.classList.contains('hidden')) trashModal?.classList.add('hidden');
+            if (!memoryModal?.classList.contains('hidden')) memoryModal?.classList.add('hidden');
+            if (!feedbackModal?.classList.contains('hidden')) feedbackModal?.classList.add('hidden');
         }
     });
 
