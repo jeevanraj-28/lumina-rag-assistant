@@ -1,0 +1,3 @@
+## 2024-05-15 - Consistent Modal Dismissal
+**Learning:** In vanilla JS applications, modals often have inconsistent dismissal behaviors. Some have ESC key support, some have backdrop clicks to dismiss, and others don't. Keyboard and mouse users expect to dismiss any active modal by pressing ESC or clicking outside of it.
+**Action:** Implement generic ESC key listeners and backdrop click handlers for all active modals to provide a consistent, accessible experience.
