@@ -1,0 +1,4 @@
+## 2025-02-15 - [CORS Misconfiguration in FastAPI/Starlette]
+**Vulnerability:** The CORS middleware in `app/main.py` used `allow_origins=["*"]` alongside `allow_credentials=True`. Starlette/FastAPI's `CORSMiddleware` resolves this by reflecting any incoming `Origin` header dynamically into the `Access-Control-Allow-Origin` response header.
+**Learning:** For a local RAG app storing private document data, this is a CRITICAL security vulnerability. If a user runs this backend locally and visits a malicious website, that website can make cross-origin requests to `http://localhost:8000`, steal their documents, and bypass CORS because the backend blindly trusts the origin.
+**Prevention:** Avoid combining wildcard origins with credentials. For sensitive local applications, enforce a strict `allow_origin_regex` such as `r"^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$"` or explicitly list trusted origins instead of using wildcards.
