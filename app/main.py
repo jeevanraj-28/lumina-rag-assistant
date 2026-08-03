@@ -1153,6 +1153,10 @@ def restore_trash(payload: FileActionRequest) -> dict[str, Any]:
         try:
             target_rel = info.get("original_path", trash_file.name)
             target = (LIBRARY / target_rel).resolve()
+            # 🛡️ Sentinel: Prevent path traversal by ensuring target resolves inside LIBRARY
+            if not target.is_relative_to(LIBRARY):
+                failed.append(f"{trash_key}: Invalid restore path (path traversal detected)")
+                continue
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(trash_file), str(target))
             del manifest[trash_key]

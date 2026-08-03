@@ -1,0 +1,4 @@
+## 2024-08-03 - Path Traversal in File Restore
+**Vulnerability:** The `/files/trash/restore` endpoint used the `original_path` stored in the trash manifest to move files back to the library. If a malicious user crafted a path like `../../etc/passwd` inside the manifest, the `shutil.move` would overwrite files outside the intended library boundary.
+**Learning:** Even though `delete_files` correctly verified paths were within the `LIBRARY` boundary before deleting, the restore function blindly trusted the `original_path` string from the manifest. Manifest data is user-controlled state in this context (as it can be modified on disk or constructed maliciously).
+**Prevention:** Always validate that resolved paths remain within allowed boundaries (using `is_relative_to(BASE_DIR)`) right before any file operation (read, write, move, delete), regardless of where the path string originated.
