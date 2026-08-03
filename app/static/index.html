@@ -366,10 +366,10 @@
                 <span id="library-count" class="text-[11px] font-mono text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded-full flex-shrink-0">—</span>
             </div>
             <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button id="select-mode-btn" class="side-icon-btn" title="Select multiple files">
+                <button id="select-mode-btn" class="side-icon-btn" title="Select multiple files" aria-label="Select multiple files">
                     <span class="material-symbols-outlined mi-sm">checklist</span>
                 </button>
-                <button id="trash-modal-btn" class="side-icon-btn relative overflow-visible" title="View Trash (Soft-deleted files)">
+                <button id="trash-modal-btn" class="side-icon-btn relative overflow-visible" title="View Trash (Soft-deleted files)" aria-label="View Trash">
                     <span class="material-symbols-outlined mi-sm">delete</span>
                     <span id="trash-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-accent-red text-white text-[9px] font-bold rounded-full ring-2 ring-surface-container flex items-center justify-center">0</span>
                 </button>
@@ -380,7 +380,7 @@
         <div class="relative w-full">
             <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">search</span>
             <input id="library-search-input" type="text" placeholder="Search 40+ docs..." class="w-full bg-surface-raised border border-outline-variant rounded-lg pl-8 pr-7 py-1.5 font-body text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"/>
-            <button id="library-search-clear" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface text-xs">
+            <button id="library-search-clear" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface text-xs" aria-label="Clear search">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -452,7 +452,7 @@
                 <span class="material-symbols-outlined text-primary text-xl">dataset</span>
                 <h3 class="font-headline text-headline-md text-on-surface">Knowledge Base Breakdown</h3>
             </div>
-            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close knowledge base modal">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -473,7 +473,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Items are stored for 30 days before permanent deletion</p>
                 </div>
             </div>
-            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close trash modal">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -500,7 +500,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Saved facts & corrections injected into Lumina's system prompt</p>
                 </div>
             </div>
-            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close memory modal">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -547,7 +547,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Help us improve Lumina RAG — bugs, suggestions & feature requests</p>
                 </div>
             </div>
-            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close feedback modal">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -590,7 +590,7 @@
             <span class="material-symbols-outlined text-primary text-xl pl-2">search</span>
             <input id="cmd-search-input" type="text" placeholder="Search documents, chat history, or knowledge chunks... (Esc to close)" class="flex-1 bg-transparent font-body text-body text-on-surface placeholder:text-on-surface-variant focus:outline-none py-1"/>
             <kbd class="font-mono text-[10px] bg-surface-variant px-2 py-1 rounded border border-outline-variant text-on-surface-variant">ESC</kbd>
-            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close search modal">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -701,7 +701,7 @@
                 </div>
             </div>
             <div class="bg-surface-raised border-4 border-outline-variant rounded-[28px] flex items-center p-2 chunky-shadow transition-all duration-300 gap-1" id="input-wrapper">
-                <button id="attach-file-btn" class="w-11 h-11 rounded-full hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors flex-shrink-0" title="Upload document to inbox" onclick="document.getElementById('dropzone').click()">
+                <button id="attach-file-btn" class="w-11 h-11 rounded-full hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors flex-shrink-0" title="Upload document to inbox" aria-label="Upload document to inbox" onclick="document.getElementById('dropzone').click()">
                     <span class="material-symbols-outlined mi-md">attach_file</span>
                 </button>
                 <textarea id="question-input" class="flex-1 bg-transparent border-none focus:ring-0 font-body text-body text-on-surface px-2 py-2 placeholder:text-on-surface-variant resize-none max-h-32 min-h-[44px] focus:outline-none" placeholder="Ask Lumina anything about your documents..." rows="1" aria-label="Your question"></textarea>
@@ -1483,7 +1483,7 @@
                             <span class="material-symbols-outlined text-sm text-accent-purple" style="font-variation-settings: 'FILL' 1;">psychology</span>
                             Teach Lumina (Adaptive Memory)
                         </span>
-                        <button class="close-teach-btn text-on-surface-variant hover:text-on-surface text-xs" data-teach-id="${teachId}">
+                        <button class="close-teach-btn text-on-surface-variant hover:text-on-surface text-xs" data-teach-id="${teachId}" aria-label="Close teach panel">
                             <span class="material-symbols-outlined text-sm">close</span>
                         </button>
                     </div>
