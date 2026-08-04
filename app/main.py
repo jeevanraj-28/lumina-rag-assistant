@@ -1178,6 +1178,8 @@ def empty_trash() -> dict[str, Any]:
 
 @app.get("/files/{path:path}")
 def download(path: str) -> FileResponse:
+    if "../" in path or "/.." in path or path.startswith("/"):
+        raise HTTPException(400, "Invalid file path")
     file = (LIBRARY / path).resolve()
     if not file.is_relative_to(LIBRARY) or not file.is_file():
         raise HTTPException(404, "File not found")
