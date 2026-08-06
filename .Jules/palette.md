@@ -1,0 +1,3 @@
+## 2024-10-27 - Consistent Escape Key and Focus Restoration
+**Learning:** Users expect consistent keyboard navigation across the entire application. When one modal closes with the Escape key but others do not, it creates a frustrating and disjointed experience. Additionally, when a user clears an input field (like a search bar), they almost always intend to type a new query immediately. Forcing them to manually refocus the input field is a significant friction point.
+**Action:** Always ensure that all custom modal components have a global event listener that correctly handles the `Escape` key for closing. Furthermore, anytime a "clear" button is associated with an input field, explicitly restore focus to that input field (`input.focus()`) upon clearing its contents.
