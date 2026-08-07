@@ -452,7 +452,7 @@
                 <span class="material-symbols-outlined text-primary text-xl">dataset</span>
                 <h3 class="font-headline text-headline-md text-on-surface">Knowledge Base Breakdown</h3>
             </div>
-            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -473,7 +473,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Items are stored for 30 days before permanent deletion</p>
                 </div>
             </div>
-            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -500,7 +500,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Saved facts & corrections injected into Lumina's system prompt</p>
                 </div>
             </div>
-            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -547,7 +547,7 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Help us improve Lumina RAG — bugs, suggestions & feature requests</p>
                 </div>
             </div>
-            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -590,7 +590,7 @@
             <span class="material-symbols-outlined text-primary text-xl pl-2">search</span>
             <input id="cmd-search-input" type="text" placeholder="Search documents, chat history, or knowledge chunks... (Esc to close)" class="flex-1 bg-transparent font-body text-body text-on-surface placeholder:text-on-surface-variant focus:outline-none py-1"/>
             <kbd class="font-mono text-[10px] bg-surface-variant px-2 py-1 rounded border border-outline-variant text-on-surface-variant">ESC</kbd>
-            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface" aria-label="Close">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
         </div>
@@ -1591,6 +1591,7 @@
     function toggleModelDropdown(open) {
         const isOpen = open ?? !modelDropdown.classList.contains('open');
         modelDropdown.classList.toggle('open', isOpen);
+        modelBtn.setAttribute('aria-expanded', isOpen.toString());
         modelChevron.style.transform = isOpen ? 'rotate(180deg)' : '';
         if (isOpen) loadModels();
     }
