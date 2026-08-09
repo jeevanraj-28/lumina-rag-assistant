@@ -1,0 +1,3 @@
+## 2024-05-24 - Accessibility states for custom dropdown and expand toggles
+**Learning:** Custom JS dropdowns and expanding drawers (like the Model Selector and the Citation Drawer) were lacking semantic HTML elements (using `div` instead of `button` for the Citation Drawer) and crucial accessibility attributes (`aria-expanded` and `aria-controls`). This breaks updates for screen readers when the toggle state changes.
+**Action:** When implementing custom toggle elements that reveal content, always use a semantic `<button>`, add an `aria-controls` attribute pointing to the ID of the controlled content, and dynamically update the `aria-expanded` attribute (`true`/`false`) in the JavaScript click handler.
