@@ -1,0 +1,4 @@
+## 2024-05-18 - Prevent XSS in inline JavaScript event handlers
+**Vulnerability:** HTML entity decoding occurs before inline Javascript parsing, meaning `escapeHtml` is insufficient to protect inline handlers (`onclick`) from Cross-Site Scripting (XSS). Single quotes can break out of the string literal inside the JS context.
+**Learning:** Even if data is escaped for HTML, an attacker could supply a payload like `' - alert(1) - '`. When placed in an HTML attribute like `onclick="foo('VAR')"`, the browser decodes HTML entities into a string, giving `onclick="foo('' - alert(1) - '')"`. This breaks out of the intended string argument and executes arbitrary JavaScript.
+**Prevention:** Always use a dedicated `escapeJs` function to sanitize user input prior to HTML escaping when embedding values within inline JavaScript event handlers.

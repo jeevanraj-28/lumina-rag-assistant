@@ -73,3 +73,5 @@ logs/
 htmlcov/
 .tox/
 
+node_modules
+pnpm-lock.yaml
