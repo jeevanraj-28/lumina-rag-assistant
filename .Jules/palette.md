@@ -1,0 +1,3 @@
+## 2024-05-18 - ARIA State Management for Interactive Components
+**Learning:** Custom interactive UI elements in this app's design system (like drawers, mobile menus, and dropdowns) lacked explicit dynamic ARIA state management. Without updating `aria-expanded` dynamically when their states change, screen readers cannot properly announce whether a component is open or closed.
+**Action:** Always add explicit ARIA attributes like `aria-expanded` and `aria-controls` to interactive elements. Furthermore, ensure that the JavaScript logic that toggles their visibility also dynamically updates `aria-expanded` to reflect the current state.

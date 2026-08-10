@@ -607,7 +607,7 @@
 <div class="flex-1 flex flex-col h-full lg:ml-[300px] relative z-10">
         <header class="fixed top-0 left-0 right-0 h-[64px] bg-surface-container border-b-4 border-outline-variant flex justify-between items-center px-4 sm:px-6 z-50 chunky-shadow">
         <div class="flex min-w-0 items-center gap-2.5">
-            <button id="menu-toggle" class="hdr-btn hdr-icon-btn lg:hidden squish" aria-label="Open knowledge base panel">
+            <button id="menu-toggle" class="hdr-btn hdr-icon-btn lg:hidden squish" aria-label="Open knowledge base panel" aria-expanded="false" aria-controls="sidebar">
                 <span class="material-symbols-outlined mi-md">menu</span>
             </button>
             <img src="/static/logo-icon.png" alt="Lumina" class="w-9 h-9 rounded-lg logo-breathe flex-shrink-0"/>
@@ -644,7 +644,7 @@
                 <span class="hidden lg:inline">Feedback</span>
             </button>
             <div class="model-selector-wrap">
-                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox">
+                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox" aria-expanded="false" aria-controls="model-dropdown">
                     <span class="material-symbols-outlined mi-sm text-primary" style="font-variation-settings:'FILL' 1,'wght' 500;">memory</span>
                     <span class="font-body text-caption text-on-surface font-bold max-w-[110px] truncate" id="model-display-name">Loading...</span>
                     <span class="material-symbols-outlined mi-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
@@ -757,9 +757,10 @@
     // ── Mobile sidebar ──
     const sidebar = document.getElementById('sidebar');
     const backdrop = document.getElementById('sidebar-backdrop');
-    function openSidebar() { sidebar.classList.remove('-translate-x-full'); backdrop.classList.add('open'); }
-    function closeSidebar() { sidebar.classList.add('-translate-x-full'); backdrop.classList.remove('open'); }
-    document.getElementById('menu-toggle').addEventListener('click', openSidebar);
+    const menuToggle = document.getElementById('menu-toggle');
+    function openSidebar() { sidebar.classList.remove('-translate-x-full'); backdrop.classList.add('open'); menuToggle?.setAttribute('aria-expanded', 'true'); }
+    function closeSidebar() { sidebar.classList.add('-translate-x-full'); backdrop.classList.remove('open'); menuToggle?.setAttribute('aria-expanded', 'false'); }
+    menuToggle.addEventListener('click', openSidebar);
     backdrop.addEventListener('click', closeSidebar);
     window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeSidebar(); });
 
@@ -1394,7 +1395,9 @@
         const drawer = document.getElementById(id);
         const icon = btn.querySelector('.expand-icon');
         drawer?.classList.toggle('expanded');
-        if (icon) icon.style.transform = drawer?.classList.contains('expanded') ? 'rotate(180deg)' : '';
+        const isExpanded = drawer?.classList.contains('expanded');
+        btn.setAttribute('aria-expanded', isExpanded.toString());
+        if (icon) icon.style.transform = isExpanded ? 'rotate(180deg)' : '';
         setTimeout(scrollToBottom, 150);
     };
     window.openCitation = async function(citationId) {
@@ -1449,7 +1452,7 @@
         let toggleBtn = '', sourcesHTML = '', actionBarHTML = '';
 
         if (sources?.length) {
-            toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
+            toggleBtn = `<button type="button" aria-expanded="false" aria-controls="${citId}" class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></button>`;
             sourcesHTML = `<div class="citation-drawer mt-1" id="${citId}"><div class="flex flex-col gap-2 mt-2">${sources.map(s => {
                 const fname = s.file?.split('/').pop() || 'Document';
                 return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${s.citation_id}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
@@ -1591,6 +1594,7 @@
     function toggleModelDropdown(open) {
         const isOpen = open ?? !modelDropdown.classList.contains('open');
         modelDropdown.classList.toggle('open', isOpen);
+        modelBtn?.setAttribute('aria-expanded', isOpen.toString());
         modelChevron.style.transform = isOpen ? 'rotate(180deg)' : '';
         if (isOpen) loadModels();
     }
