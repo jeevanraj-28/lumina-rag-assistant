@@ -644,7 +644,7 @@
                 <span class="hidden lg:inline">Feedback</span>
             </button>
             <div class="model-selector-wrap">
-                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox">
+                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox" aria-expanded="false">
                     <span class="material-symbols-outlined mi-sm text-primary" style="font-variation-settings:'FILL' 1,'wght' 500;">memory</span>
                     <span class="font-body text-caption text-on-surface font-bold max-w-[110px] truncate" id="model-display-name">Loading...</span>
                     <span class="material-symbols-outlined mi-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
@@ -1592,6 +1592,7 @@
         const isOpen = open ?? !modelDropdown.classList.contains('open');
         modelDropdown.classList.toggle('open', isOpen);
         modelChevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+        modelBtn.setAttribute('aria-expanded', isOpen);
         if (isOpen) loadModels();
     }
 
