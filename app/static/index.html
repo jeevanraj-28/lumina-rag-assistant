@@ -380,8 +380,8 @@
         <div class="relative w-full">
             <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-on-surface-variant pointer-events-none">search</span>
             <input id="library-search-input" type="text" placeholder="Search 40+ docs..." class="w-full bg-surface-raised border border-outline-variant rounded-lg pl-8 pr-7 py-1.5 font-body text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-colors"/>
-            <button id="library-search-clear" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface text-xs">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="library-search-clear" aria-label="Clear search" title="Clear search" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface text-xs">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
 
@@ -452,8 +452,8 @@
                 <span class="material-symbols-outlined text-primary text-xl">dataset</span>
                 <h3 class="font-headline text-headline-md text-on-surface">Knowledge Base Breakdown</h3>
             </div>
-            <button id="close-kb-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="close-kb-modal" aria-label="Close modal" title="Close (Esc)" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
         <div id="kb-breakdown-body" class="p-4 flex flex-col gap-3 overflow-y-auto">
@@ -473,8 +473,8 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Items are stored for 30 days before permanent deletion</p>
                 </div>
             </div>
-            <button id="close-trash-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="close-trash-modal" aria-label="Close modal" title="Close (Esc)" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
         <div id="trash-file-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[200px]">
@@ -500,8 +500,8 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Saved facts & corrections injected into Lumina's system prompt</p>
                 </div>
             </div>
-            <button id="close-memory-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="close-memory-modal" aria-label="Close modal" title="Close (Esc)" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
         
@@ -547,8 +547,8 @@
                     <p class="text-caption text-on-surface-variant text-[11px]">Help us improve Lumina RAG — bugs, suggestions & feature requests</p>
                 </div>
             </div>
-            <button id="close-feedback-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="close-feedback-modal" aria-label="Close modal" title="Close (Esc)" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
         
@@ -590,8 +590,8 @@
             <span class="material-symbols-outlined text-primary text-xl pl-2">search</span>
             <input id="cmd-search-input" type="text" placeholder="Search documents, chat history, or knowledge chunks... (Esc to close)" class="flex-1 bg-transparent font-body text-body text-on-surface placeholder:text-on-surface-variant focus:outline-none py-1"/>
             <kbd class="font-mono text-[10px] bg-surface-variant px-2 py-1 rounded border border-outline-variant text-on-surface-variant">ESC</kbd>
-            <button id="close-search-modal" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
-                <span class="material-symbols-outlined text-sm">close</span>
+            <button id="close-search-modal" aria-label="Close modal" title="Close (Esc)" class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-sm" aria-hidden="true">close</span>
             </button>
         </div>
         
@@ -1939,8 +1939,10 @@
             if (searchModal?.classList.contains('hidden')) openSearchModal();
             else closeSearchModal();
         }
-        if (e.key === 'Escape' && !searchModal?.classList.contains('hidden')) {
-            closeSearchModal();
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(modal => {
+                modal.classList.add('hidden');
+            });
         }
     });
 
