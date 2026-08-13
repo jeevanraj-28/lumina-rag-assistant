@@ -644,7 +644,7 @@
                 <span class="hidden lg:inline">Feedback</span>
             </button>
             <div class="model-selector-wrap">
-                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox">
+                <button id="model-selector-btn" class="model-selector-btn hdr-btn pr-2" aria-label="Select AI model" aria-haspopup="listbox" aria-expanded="false">
                     <span class="material-symbols-outlined mi-sm text-primary" style="font-variation-settings:'FILL' 1,'wght' 500;">memory</span>
                     <span class="font-body text-caption text-on-surface font-bold max-w-[110px] truncate" id="model-display-name">Loading...</span>
                     <span class="material-symbols-outlined mi-sm text-on-surface-variant transition-transform" id="model-chevron">expand_more</span>
@@ -1395,6 +1395,7 @@
         const icon = btn.querySelector('.expand-icon');
         drawer?.classList.toggle('expanded');
         if (icon) icon.style.transform = drawer?.classList.contains('expanded') ? 'rotate(180deg)' : '';
+        btn.setAttribute('aria-expanded', (drawer?.classList.contains('expanded') || false).toString());
         setTimeout(scrollToBottom, 150);
     };
     window.openCitation = async function(citationId) {
@@ -1449,7 +1450,7 @@
         let toggleBtn = '', sourcesHTML = '', actionBarHTML = '';
 
         if (sources?.length) {
-            toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
+            toggleBtn = `<button aria-expanded="false" class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></button>`;
             sourcesHTML = `<div class="citation-drawer mt-1" id="${citId}"><div class="flex flex-col gap-2 mt-2">${sources.map(s => {
                 const fname = s.file?.split('/').pop() || 'Document';
                 return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${s.citation_id}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
@@ -1592,6 +1593,7 @@
         const isOpen = open ?? !modelDropdown.classList.contains('open');
         modelDropdown.classList.toggle('open', isOpen);
         modelChevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+        modelBtn.setAttribute('aria-expanded', isOpen.toString());
         if (isOpen) loadModels();
     }
 

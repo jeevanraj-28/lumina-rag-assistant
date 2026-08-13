@@ -1,0 +1,3 @@
+## 2024-05-18 - Interactive Element Missing ARIA Expanded
+**Learning:** Found a recurring pattern in the app's components where custom interactive UI elements, like dropdowns and drawers, were built using `<div>` without semantic `<button>` tags, and lacked dynamic `aria-expanded` attributes. This breaks accessibility for screen readers which rely on these states to announce changes.
+**Action:** When implementing custom interactive UI elements, always use semantic HTML elements (e.g. `<button>`) and dynamically update ARIA attributes like `aria-expanded` via JavaScript to support screen readers.
