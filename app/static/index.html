@@ -1252,18 +1252,18 @@
             const catType = f.category || 'other';
             return `<div class="file-item group w-full flex items-center gap-2.5 p-2.5 rounded-xl ${cardClasses} text-left transition-all relative" data-type="${catType}">
                 ${isSelectMode ? `<input type="checkbox" class="file-select-cb rounded border-outline-variant text-primary focus:ring-0 cursor-pointer" data-path="${escapeHtml(f.path)}" ${isSelected ? 'checked' : ''}/>` : ''}
-                <div class="w-8 h-8 rounded-lg ${catStyle.bg} border flex items-center justify-center ${catStyle.color} flex-shrink-0 cursor-pointer" onclick="openFile('${encodeURIComponent(f.path)}')" title="View ${escapeHtml(f.filename)}">
+                <div class="w-8 h-8 rounded-lg ${catStyle.bg} border flex items-center justify-center ${catStyle.color} flex-shrink-0 cursor-pointer" onclick="openFile('${escapeHtml(escapeJs(encodeURIComponent(f.path)))}')" title="View ${escapeHtml(f.filename)}">
                     <span class="material-symbols-outlined mi-sm" style="font-variation-settings:'FILL' 1,'wght' 500;">${catStyle.icon}</span>
                 </div>
-                <div class="flex flex-col flex-1 overflow-hidden cursor-pointer min-w-0" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(f.path)}')` : `openFile('${encodeURIComponent(f.path)}')`}">
+                <div class="flex flex-col flex-1 overflow-hidden cursor-pointer min-w-0" onclick="${isSelectMode ? `togglePathSelection('${escapeHtml(escapeJs(f.path))}')` : `openFile('${escapeHtml(escapeJs(encodeURIComponent(f.path)))}')`}">
                     <span class="font-body text-caption font-bold truncate text-on-surface" title="${escapeHtml(f.filename)}">${escapeHtml(f.filename)}</span>
                     <span class="text-[10px] ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'} truncate">${ext} · ${f.size_human || 'File'}${f.upload_date ? ' · ' + f.upload_date.split(' ')[0] : ''}</span>
                 </div>
                 <div class="file-actions flex items-center gap-1 flex-shrink-0">
-                    <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${encodeURIComponent(f.path)}')" title="Open document (${ext})">
+                    <button class="w-7 h-7 rounded-lg hover:bg-surface-bright flex items-center justify-center text-on-surface-variant hover:text-primary" onclick="openFile('${escapeHtml(escapeJs(encodeURIComponent(f.path)))}')" title="Open document (${ext})">
                         <span class="material-symbols-outlined mi-sm">open_in_new</span>
                     </button>
-                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="confirmDeleteSingle('${escapeHtml(f.path)}', '${escapeHtml(f.filename)}')" title="Move to Trash">
+                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="confirmDeleteSingle('${escapeHtml(escapeJs(f.path))}', '${escapeHtml(escapeJs(f.filename))}')" title="Move to Trash">
                         <span class="material-symbols-outlined mi-sm">delete</span>
                     </button>
                 </div>
@@ -1360,7 +1360,7 @@
                 <span class="font-body text-caption font-bold text-on-surface truncate" title="${escapeHtml(t.filename)}">${escapeHtml(t.filename)}</span>
                 <span class="text-[10px] text-on-surface-variant">Deleted: ${escapeHtml(t.deleted_date)} · ${t.days_remaining} days left</span>
             </div>
-            <button class="px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary hover:text-on-primary font-bold text-caption border border-primary/40 transition-colors flex items-center gap-1 flex-shrink-0" onclick="restoreFile('${escapeHtml(t.trash_key)}')">
+            <button class="px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary hover:text-on-primary font-bold text-caption border border-primary/40 transition-colors flex items-center gap-1 flex-shrink-0" onclick="restoreFile('${escapeHtml(escapeJs(t.trash_key))}')">
                 <span class="material-symbols-outlined text-sm">restore_from_trash</span> Restore
             </button>
         </div>`).join('');
@@ -1411,6 +1411,10 @@
         return String(text).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m]));
     }
 
+    function escapeJs(text) {
+        return String(text).replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+    }
+
     function appendUserMessage(text) {
         const div = document.createElement('div');
         div.className = 'flex justify-end msg-in-right';
@@ -1433,7 +1437,7 @@
         formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-black/30 text-primary-fixed px-1.5 py-0.5 rounded font-mono text-xs">$1</code>');
 
         return formatted.replace(/\[Evidence\s+([a-f0-9]{20})\]/gi, (match, id) =>
-            ids.has(id.toLowerCase()) ? `<button class="inline-flex items-center rounded-lg border border-primary/40 bg-primary/20 px-1.5 py-0.5 font-mono text-xs text-primary-fixed hover:bg-primary/40 transition-colors" onclick="openCitation('${id.toLowerCase()}')">${match}</button>` : match
+            ids.has(id.toLowerCase()) ? `<button class="inline-flex items-center rounded-lg border border-primary/40 bg-primary/20 px-1.5 py-0.5 font-mono text-xs text-primary-fixed hover:bg-primary/40 transition-colors" onclick="openCitation('${escapeHtml(escapeJs(id.toLowerCase()))}')">${match}</button>` : match
         );
     }
 
@@ -1449,10 +1453,10 @@
         let toggleBtn = '', sourcesHTML = '', actionBarHTML = '';
 
         if (sources?.length) {
-            toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${citId}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
+            toggleBtn = `<div class="bg-surface-raised border-2 border-outline-variant rounded-full px-3 py-1 flex items-center gap-1 w-max cursor-pointer hover:bg-surface-container-highest squish" onclick="toggleCitation('${escapeHtml(escapeJs(citId))}', this)"><span class="material-symbols-outlined text-sm text-on-surface-variant" style="font-variation-settings:'FILL' 1">library_books</span><span class="font-body text-caption font-bold text-on-surface-variant">${sources.length} Source${sources.length > 1 ? 's' : ''}</span><span class="material-symbols-outlined text-sm expand-icon transition-transform">expand_more</span></div>`;
             sourcesHTML = `<div class="citation-drawer mt-1" id="${citId}"><div class="flex flex-col gap-2 mt-2">${sources.map(s => {
                 const fname = s.file?.split('/').pop() || 'Document';
-                return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${s.citation_id}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
+                return `<button class="w-full text-left bg-surface-container-lowest rounded-xl p-3 border-2 border-outline-variant hover:border-primary squish" onclick="openCitation('${escapeHtml(escapeJs(s.citation_id))}')"><div class="flex justify-between mb-2"><span class="font-mono text-mono font-medium">${escapeHtml(fname)}</span><span class="text-caption font-bold text-primary">${s.page ? 'Page '+s.page : 'Segment'} · ${Number(s.score||0).toFixed(3)}</span></div><p class="font-mono text-mono text-on-surface-variant opacity-80 line-clamp-3">"${escapeHtml(s.excerpt||'')}"</p></button>`;
             }).join('')}</div></div>`;
         }
 
@@ -1723,10 +1727,10 @@
                     ${m.original_feedback ? `<p class="text-[11px] text-on-surface-variant opacity-70 mt-1 italic">From: "${escapeHtml(m.original_feedback)}"</p>` : ''}
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <button class="toggle-mem-btn text-caption font-bold px-2.5 py-1 rounded-lg ${m.active ? 'bg-primary/20 text-primary border border-primary/40' : 'bg-surface-variant text-on-surface-variant border border-outline-variant'}" onclick="toggleMemoryActive('${m.id}', ${!m.active})">
+                    <button class="toggle-mem-btn text-caption font-bold px-2.5 py-1 rounded-lg ${m.active ? 'bg-primary/20 text-primary border border-primary/40' : 'bg-surface-variant text-on-surface-variant border border-outline-variant'}" onclick="toggleMemoryActive('${escapeHtml(escapeJs(m.id))}', ${!m.active})">
                         ${m.active ? 'Active' : 'Off'}
                     </button>
-                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="deleteMemorySingle('${m.id}')" title="Delete memory">
+                    <button class="w-7 h-7 rounded-lg hover:bg-accent-red/20 flex items-center justify-center text-on-surface-variant hover:text-accent-red" onclick="deleteMemorySingle('${escapeHtml(escapeJs(m.id))}')" title="Delete memory">
                         <span class="material-symbols-outlined text-sm">delete</span>
                     </button>
                 </div>
@@ -1984,7 +1988,7 @@
         if (documents.length) {
             html += `<div class="flex flex-col gap-1">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">📁 Documents (${documents.length})</span>
-                ${documents.map(d => `<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-primary cursor-pointer transition-colors" onclick="openFile('${encodeURIComponent(d.path)}'); closeSearchModal();">
+                ${documents.map(d => `<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-primary cursor-pointer transition-colors" onclick="openFile('${escapeHtml(escapeJs(encodeURIComponent(d.path)))}'); closeSearchModal();">
                     <div class="flex items-center gap-2 flex-1 min-w-0">
                         <span class="material-symbols-outlined text-sm text-primary">description</span>
                         <span class="font-body text-xs font-bold text-on-surface truncate">${escapeHtml(d.filename)}</span>
@@ -1997,7 +2001,7 @@
         if (sessions.length) {
             html += `<div class="flex flex-col gap-1 mt-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">💬 Q&A Sessions (${sessions.length})</span>
-                ${sessions.map(s => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-accent-purple cursor-pointer transition-colors" onclick="replaySession('${escapeHtml(s.question)}', '${escapeHtml(s.answer)}'); closeSearchModal();">
+                ${sessions.map(s => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-accent-purple cursor-pointer transition-colors" onclick="replaySession('${escapeHtml(escapeJs(s.question))}', '${escapeHtml(escapeJs(s.answer))}'); closeSearchModal();">
                     <span class="font-body text-xs font-bold text-on-surface line-clamp-1">Q: ${escapeHtml(s.question)}</span>
                     <span class="text-[11px] text-on-surface-variant opacity-80 line-clamp-2">${escapeHtml(s.answer)}</span>
                 </div>`).join('')}
@@ -2007,7 +2011,7 @@
         if (chunks.length) {
             html += `<div class="flex flex-col gap-1 mt-2">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-1">⚡ Knowledge Chunks (${chunks.length})</span>
-                ${chunks.map(c => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-secondary cursor-pointer transition-colors" onclick="openCitation('${c.citation_id}'); closeSearchModal();">
+                ${chunks.map(c => `<div class="flex flex-col gap-1 p-2.5 rounded-xl bg-surface-raised border border-outline-variant hover:border-secondary cursor-pointer transition-colors" onclick="openCitation('${escapeHtml(escapeJs(c.citation_id))}'); closeSearchModal();">
                     <span class="text-[10px] font-mono font-bold text-secondary">${escapeHtml(c.file)}${c.page ? ' (p. '+c.page+')' : ''}</span>
                     <p class="text-[11px] text-on-surface-variant line-clamp-2">"${escapeHtml(c.excerpt)}"</p>
                 </div>`).join('')}
@@ -2043,8 +2047,8 @@
 
         sidebarSessionsList.innerHTML = sessions.map(s => {
             const timeAgo = formatTimeAgo(s.created_at);
-            const qAttr = escapeHtml(s.question).replace(/"/g, '&quot;');
-            const aAttr = escapeHtml(s.answer).replace(/"/g, '&quot;');
+            const qAttr = escapeHtml(escapeJs(s.question));
+            const aAttr = escapeHtml(escapeJs(s.answer));
             return `<div class="flex flex-col gap-0.5 p-2 rounded-lg bg-surface-raised hover:bg-surface-bright border border-outline-variant hover:border-primary/40 cursor-pointer transition-colors" onclick="replaySession('${qAttr}', '${aAttr}')" title="${escapeHtml(s.question)}">
                 <span class="font-body text-xs font-bold text-on-surface truncate">${escapeHtml(s.question)}</span>
                 <span class="text-[10px] text-on-surface-variant font-mono opacity-75">${timeAgo} · ${escapeHtml(s.model_display || 'Lumina')}</span>
