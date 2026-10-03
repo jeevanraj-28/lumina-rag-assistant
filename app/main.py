@@ -427,22 +427,31 @@ def extract_text(path: Path) -> str:
 
 
 def split_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
+    """Split text into chunks of at most `chunk_size` characters.
+
+    Each chunk after the first starts with the last `chunk_overlap` characters of
+    the previous chunk. To make room for that prefix without truncating new text,
+    the body of every chunk is limited to `chunk_size - chunk_overlap` characters.
+    (An earlier version prepended the overlap and then cut the chunk back to
+    `chunk_size`, which silently dropped the end of most chunks.)
+    """
     separators = ("\n\n", "\n", ". ", " ", "")
+    chunk_overlap = max(0, min(chunk_overlap, chunk_size // 2))
+    body_size = chunk_size - chunk_overlap - (1 if chunk_overlap else 0)  # 1 char for the joining space
 
     def split(value: str, separator_index: int) -> list[str]:
-        if len(value) <= chunk_size:
+        if len(value) <= body_size:
             return [value]
         if separator_index >= len(separators):
-            step = max(1, chunk_size - chunk_overlap)
-            return [value[index:index + chunk_size] for index in range(0, len(value), step)]
+            return [value[index:index + body_size] for index in range(0, len(value), body_size)]
         separator = separators[separator_index]
-        parts = ([value[index:index + chunk_size] for index in range(0, len(value), chunk_size)]
+        parts = ([value[index:index + body_size] for index in range(0, len(value), body_size)]
                  if not separator else value.split(separator))
         merged: list[str] = []
         current = ""
         for part in parts:
             candidate = f"{current}{separator}{part}" if current else part
-            if len(candidate) <= chunk_size:
+            if len(candidate) <= body_size:
                 current = candidate
             else:
                 if current:
@@ -453,10 +462,11 @@ def split_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
         return merged
 
     chunks: list[str] = []
-    for chunk in split(text, 0):
-        if chunks and chunk_overlap:
-            chunk = f"{chunks[-1][-chunk_overlap:]}{chunk}"
-        chunks.append(chunk[:chunk_size])
+    for body in split(text, 0):
+        if not body:
+            continue
+        prefix = chunks[-1][-chunk_overlap:] if chunks and chunk_overlap else ""
+        chunks.append(f"{prefix} {body}" if prefix else body)
     return chunks
 
 
