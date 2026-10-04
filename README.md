@@ -8,6 +8,7 @@ A private, local-first document assistant. Upload PDFs, Word files or text, ask 
 ![Ollama](https://img.shields.io/badge/Ollama-local_LLMs-FF6B35)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-22c55e)
+[![tests](https://github.com/jeevanraj-28/lumina-rag-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/jeevanraj-28/lumina-rag-assistant/actions/workflows/tests.yml)
 
 ---
 
@@ -34,7 +35,7 @@ A private, local-first document assistant. Upload PDFs, Word files or text, ask 
 | --- | --- |
 | Document Q&A with citations | Answers cite the exact chunks they came from; click a citation to see the source text |
 | Fully local | LLM and embeddings run in Ollama on your machine; documents never leave it |
-| Switch models at runtime | Pick any installed Ollama chat model (qwen2.5, phi4-mini, deepseek-r1, ...) from the UI without restarting |
+| Switch models at runtime | Pick any installed Ollama chat model (Qwen 2.5, Phi-4 Mini, DeepSeek R1, Llama, ...) from the UI without restarting |
 | Many file types | PDF, DOCX, TXT, MD, CSV, JSON, HTML |
 | OCR for scanned PDFs | Native text extraction first; optional GPU OCR (Unlimited-OCR) when a PDF has no text layer |
 | Metadata questions | "Which file did I upload last?" works because file metadata is added to the prompt |
@@ -67,7 +68,7 @@ flowchart LR
 3. **Embed.** Each chunk becomes a 384-dimensional vector using the `all-minilm` model in Ollama. Vectors are L2-normalised.
 4. **Index.** Vectors go into a FAISS `IndexFlatIP` (exact inner-product search). On normalised vectors inner product equals cosine similarity.
 5. **Retrieve.** The question is embedded the same way and the top 3 chunks are returned. Chunks scoring below 0.35 are dropped so weak matches do not reach the LLM.
-6. **Generate.** The prompt contains the question, the retrieved chunks with their IDs, and a summary of the library's files. The LLM (temperature 0.2) is told to cite chunk IDs.
+6. **Generate.** The prompt contains the question, the retrieved chunks with their IDs, and a summary of the library's files. The LLM (temperature 0.2) is told to cite chunk IDs and to say when the documents do not contain the answer, rather than guess.
 
 ---
 
@@ -170,6 +171,8 @@ All settings are environment variables, read from `.env`.
 | `RAG_MIN_RELEVANCE_SCORE` | `0.35` | Cosine score below which a chunk is ignored |
 | `RAG_MAX_FILE_MB` | `25` | Maximum upload size per file |
 | `RAG_OCR_MODE` | `native` | `native`, `auto` (OCR only when a PDF has little text) or `unlimited` (always OCR) |
+| `RAG_CORS_ORIGINS` | empty | Exact origins allowed to call the API from another web page, e.g. a separate chat UI. Empty = same-origin only |
+| `APP_HOST` | `127.0.0.1` | Address the start scripts bind to. Use `0.0.0.0` only if you want other devices on your network to reach it |
 
 ---
 
@@ -289,6 +292,7 @@ lumina-rag-assistant/
 | Characters, not tokens, for chunk size | No tokenizer dependency | Chunk length in tokens varies with language |
 | Score threshold 0.35 | Keeps weak matches out of the prompt, which reduces made-up answers | Too high a threshold returns "not found" for valid questions |
 | No framework (LangChain etc.) | Every step is visible and debuggable in one file | More code to maintain |
+| No cross-origin access, local bind by default | The API has no login. With open CORS, any website open in the browser could call `localhost:8000` and read the user's documents | Another local UI must be listed in `RAG_CORS_ORIGINS` to connect |
 
 ---
 
@@ -299,6 +303,11 @@ lumina-rag-assistant/
 Nothing looked broken: answers were fluent and most questions still worked. It only showed up when I wrote a test that checks every word of a document lands in some chunk. The fix reserves room for the overlap before splitting. [`tests/test_chunking.py`](tests/test_chunking.py) fails on the old code and passes on the new one.
 
 The lesson: in a RAG system, retrieval can fail without any visible error. Test the pipeline step by step with measurable checks, rather than judging it by how good the answers look.
+
+**Two more fixes from a code review:**
+
+- **Open CORS on an unauthenticated local API.** The server allowed requests from any origin (`allow_origins=["*"]`). Because there is no login, a web page open in another tab could call `http://localhost:8000/files/...` and read private documents, which defeats the point of a local-first app. Cross-origin access is now off by default, and the start scripts bind to `127.0.0.1` instead of `0.0.0.0`.
+- **Answers were being rewritten after generation.** An early version replaced the words "Qwen" and "Alibaba" in every answer to keep a custom assistant name. That also changed legitimate answers: a document about Alibaba's results would come back mentioning "Lumina RAG System". The rewriting is removed. The app now shows the real model name (for example "Qwen 2.5 3B") and says plainly that answers come from a local open-source model.
 
 ---
 

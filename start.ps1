@@ -77,7 +77,7 @@ Write-Host "`n[Lumina] Starting Lumina RAG on http://localhost:$AppPort ..." -Fo
 $UvicornJob = Start-Job -ScriptBlock {
     param($Python, $Port)
     Set-Location $using:ScriptDir
-    & $Python -m uvicorn app.main:app --host 0.0.0.0 --port $Port --reload 2>&1
+    & $Python -m uvicorn app.main:app --host 127.0.0.1 --port $Port --reload 2>&1
 } -ArgumentList (Resolve-Path $VenvPython), $AppPort
 
 # Wait for health check
