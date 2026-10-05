@@ -1,0 +1,374 @@
+{
+  "300/0": [
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": null,
+      "top_chunk": "The foreclosure charge is 4 percent of the outstanding principal if the loan is closed between month 13 and month 24, and 2 percent after month 24. There is no foreclosure charge for loans closed usin"
+    },
+    {
+      "id": "q04",
+      "question": "What share of my income can go towards EMIs?",
+      "rank": null,
+      "top_chunk": "The bank informs the customer within 5 working days of presentation. The customer can correct and re-present the documents before the credit expires, or ask the applicant to accept the discrepancy. A "
+    },
+    {
+      "id": "q05",
+      "question": "What interest rate applies if my score is 760?",
+      "rank": 3,
+      "top_chunk": "## 3. Interest rates\n\nInterest rates are fixed for the full tenure. The rate depends on the credit score band:"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": "## What is the maximum tenure for invoice discounting?\n\nThe maximum tenure is 180 days from the invoice date. Invoices older than 30 days on the date of the request are not eligible.\n\n## What is a ban"
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": 3,
+      "top_chunk": "The foreclosure charge is 4 percent of the outstanding principal if the loan is closed between month 13 and month 24, and 2 percent after month 24. There is no foreclosure charge for loans closed usin"
+    },
+    {
+      "id": "q09",
+      "question": "Do I have to put down cash collateral if I have no trade limit?",
+      "rank": 2,
+      "top_chunk": "## What happens if the documents have a discrepancy?"
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 2,
+      "top_chunk": "A letter of credit is a written promise by the buyer's bank to pay the seller, provided the seller presents documents that match the terms of the credit exactly"
+    },
+    {
+      "id": "q14",
+      "question": "Can a company open its account through a video call?",
+      "rank": 2,
+      "top_chunk": "## Dormant accounts\n\nAn account with no customer-initiated transaction for 24 months is classified as dormant. A dormant account can be reactivated by completing a fresh KYC update at any branch or th"
+    },
+    {
+      "id": "q16",
+      "question": "What compensation do I get if a failed debit is not refunded on time?",
+      "rank": 5,
+      "top_chunk": "## What happens if the documents have a discrepancy?"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 2,
+      "top_chunk": "## How long does it take to issue a letter of credit?\n\nOnce a complete application and the required margin are received, an import letter of credit is issued within 1 working day. Amendments to an exi"
+    },
+    {
+      "id": "q19",
+      "question": "Why should employees not inform customers about flagged payments?",
+      "rank": 4,
+      "top_chunk": "Transactions that do not match a customer's known profile are flagged for review. Examples include sudden large cash deposits, many small transfers to unrelated accounts in a short time, and payments "
+    },
+    {
+      "id": "q20",
+      "question": "Which papers are typically needed under an export letter of credit?",
+      "rank": null,
+      "top_chunk": "## What margin is required?\n\nCustomers with a sanctioned trade limit are not required to deposit margin. Customers without a sanctioned limit must deposit a cash margin of 100 percent of the credit va"
+    }
+  ],
+  "300/150": [
+    {
+      "id": "q01",
+      "question": "What is the youngest age at which someone can apply for a personal loan?",
+      "rank": 4,
+      "top_chunk": "ible for an unsecured personal loan Applicants with a score between 650 and 700 may be approved only with a co-applicant. ## 2. Loan amount and tenure The minimum loan amount is 50,000 rupees and the "
+    },
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": null,
+      "top_chunk": "een month 13 and month 24, and 2 percent after month 24 There is no foreclosure charge for loans closed using the borrower's own funds after month 36. ## 6. Documents required"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": "e buyer to pay at the end of the credit period The remaining amount, less interest and fees, is paid to the seller when the buyer settles the invoice. ## What is the maximum tenure for invoice discoun"
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": 5,
+      "top_chunk": "the seller against the risk that the buyer will not pay, and it protects the buyer because payment is made only against the agreed shipping documents. ## How long does it take to issue a letter of cre"
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 3,
+      "top_chunk": "dit? A letter of credit is a written promise by the buyer's bank to pay the seller, provided the seller presents documents that match the terms of the credit exactly"
+    },
+    {
+      "id": "q14",
+      "question": "Can a company open its account through a video call?",
+      "rank": 4,
+      "top_chunk": "ormant A dormant account can be reactivated by completing a fresh KYC update at any branch or through video KYC. No charge is levied for reactivation. ## Customer complaints"
+    },
+    {
+      "id": "q16",
+      "question": "What compensation do I get if a failed debit is not refunded on time?",
+      "rank": 2,
+      "top_chunk": "aximum tenure is 180 days from the invoice date. Invoices older than 30 days on the date of the request are not eligible. ## What is a bank guarantee? A bank guarantee is an undertaking by the bank to"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 3,
+      "top_chunk": "y, and it protects the buyer because payment is made only against the agreed shipping documents. ## How long does it take to issue a letter of credit? Once a complete application and the required marg"
+    },
+    {
+      "id": "q19",
+      "question": "Why should employees not inform customers about flagged payments?",
+      "rank": 2,
+      "top_chunk": " used for payments Low-risk customers must update their KYC every 10 years, medium-risk customers every 8 years, and high-risk customers every 2 years A customer whose KYC has expired can receive mone"
+    },
+    {
+      "id": "q20",
+      "question": "Which papers are typically needed under an export letter of credit?",
+      "rank": 2,
+      "top_chunk": "are not required to deposit margin Customers without a sanctioned limit must deposit a cash margin of 100 percent of the credit value before issuance. ## What documents are usually presented under an "
+    }
+  ],
+  "600/0": [
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": 3,
+      "top_chunk": "Part-prepayment is allowed after 6 instalments have been paid, up to a maximum of 25 percent of the outstanding principal in a financial year. Full foreclosure is allowed after 12 instalments. The for"
+    },
+    {
+      "id": "q04",
+      "question": "What share of my income can go towards EMIs?",
+      "rank": 5,
+      "top_chunk": "The bank informs the customer within 5 working days of presentation. The customer can correct and re-present the documents before the credit expires, or ask the applicant to accept the discrepancy. A "
+    },
+    {
+      "id": "q05",
+      "question": "What interest rate applies if my score is 760?",
+      "rank": 3,
+      "top_chunk": "The minimum loan amount is 50,000 rupees and the maximum is 25,00,000 rupees. The loan tenure ranges from 12 months to 60 months. The total of all monthly instalments, including the new loan, must not"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": "The minimum loan amount is 50,000 rupees and the maximum is 25,00,000 rupees. The loan tenure ranges from 12 months to 60 months. The total of all monthly instalments, including the new loan, must not"
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": null,
+      "top_chunk": "Part-prepayment is allowed after 6 instalments have been paid, up to a maximum of 25 percent of the outstanding principal in a financial year. Full foreclosure is allowed after 12 instalments. The for"
+    },
+    {
+      "id": "q08",
+      "question": "How quickly can an import LC be opened?",
+      "rank": 2,
+      "top_chunk": "An account with no customer-initiated transaction for 24 months is classified as dormant. A dormant account can be reactivated by completing a fresh KYC update at any branch or through video KYC. No c"
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Trade Finance FAQ (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank.\n\n## What is a letter of cred"
+    },
+    {
+      "id": "q16",
+      "question": "What compensation do I get if a failed debit is not refunded on time?",
+      "rank": 3,
+      "top_chunk": "## What is the maximum tenure for invoice discounting?\n\nThe maximum tenure is 180 days from the invoice date. Invoices older than 30 days on the date of the request are not eligible.\n\n## What is a ban"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 2,
+      "top_chunk": "Part-prepayment is allowed after 6 instalments have been paid, up to a maximum of 25 percent of the outstanding principal in a financial year. Full foreclosure is allowed after 12 instalments. The for"
+    },
+    {
+      "id": "q20",
+      "question": "Which papers are typically needed under an export letter of credit?",
+      "rank": null,
+      "top_chunk": "Once a complete application and the required margin are received, an import letter of credit is issued within 1 working day. Amendments to an existing credit are processed within the same working day "
+    }
+  ],
+  "600/150": [
+    {
+      "id": "q01",
+      "question": "What is the youngest age at which someone can apply for a personal loan?",
+      "rank": null,
+      "top_chunk": "le for an unsecured personal loan. Applicants with a score between 650 and 700 may be approved only with a co-applicant.\n\n## 2. Loan amount and tenure The minimum loan amount is 50,000 rupees and the "
+    },
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": null,
+      "top_chunk": "lied to the overdue instalment amount. A cheque or mandate bounce attracts a flat charge of 500 rupees per instance.\n\n## 5. Prepayment and foreclosure Part-prepayment is allowed after 6 instalments ha"
+    },
+    {
+      "id": "q03",
+      "question": "Can I get an unsecured loan with a credit score of 620?",
+      "rank": 2,
+      "top_chunk": "le for an unsecured personal loan. Applicants with a score between 650 and 700 may be approved only with a co-applicant.\n\n## 2. Loan amount and tenure The minimum loan amount is 50,000 rupees and the "
+    },
+    {
+      "id": "q04",
+      "question": "What share of my income can go towards EMIs?",
+      "rank": null,
+      "top_chunk": "y, such as a spelling difference in the consignee name, can lead to the documents being refused.\n\n## What happens if the documents have a discrepancy? The bank informs the customer within 5 working da"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": "le for an unsecured personal loan. Applicants with a score between 650 and 700 may be approved only with a co-applicant.\n\n## 2. Loan amount and tenure The minimum loan amount is 50,000 rupees and the "
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": 5,
+      "top_chunk": "lied to the overdue instalment amount. A cheque or mandate bounce attracts a flat charge of 500 rupees per instance.\n\n## 5. Prepayment and foreclosure Part-prepayment is allowed after 6 instalments ha"
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 2,
+      "top_chunk": "al sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank.\n\n## What is a letter of credit? A letter of credit is a written promise by the bu"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 2,
+      "top_chunk": ", and it protects the buyer because payment is made only against the agreed shipping documents.\n\n## How long does it take to issue a letter of credit? Once a complete application and the required marg"
+    },
+    {
+      "id": "q18",
+      "question": "Who handles my complaint if I am unhappy with the first resolution?",
+      "rank": 2,
+      "top_chunk": "of 24 hours. A newly added beneficiary can receive at most 50,000 rupees in the first 24 hours after being added.\n\n## Failed and reversed transactions If an account is debited but the payment fails, t"
+    }
+  ],
+  "900/0": [
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": 2,
+      "top_chunk": "A processing fee of 1.5 percent of the loan amount is charged, subject to a minimum of 2,000 rupees, plus applicable taxes. A late payment charge of 2 percent per month is applied to the overdue insta"
+    },
+    {
+      "id": "q04",
+      "question": "What share of my income can go towards EMIs?",
+      "rank": null,
+      "top_chunk": "Customers with a sanctioned trade limit are not required to deposit margin. Customers without a sanctioned limit must deposit a cash margin of 100 percent of the credit value before issuance.\n\n## What"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": "## What is invoice discounting?\n\nInvoice discounting lets a seller receive up to 80 percent of the value of an accepted invoice immediately, instead of waiting for the buyer to pay at the end of the c"
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": null,
+      "top_chunk": "The default daily limit for transfers through the mobile app is 2,00,000 rupees. Customers can raise it up to 10,00,000 rupees after a cooling period of 24 hours. A newly added beneficiary can receive"
+    },
+    {
+      "id": "q08",
+      "question": "How quickly can an import LC be opened?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Payments and KYC Guidelines (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank or regulation.\n\n## "
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Trade Finance FAQ (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank.\n\n## What is a letter of cred"
+    },
+    {
+      "id": "q14",
+      "question": "Can a company open its account through a video call?",
+      "rank": 2,
+      "top_chunk": "Transactions that do not match a customer's known profile are flagged for review. Examples include sudden large cash deposits, many small transfers to unrelated accounts in a short time, and payments "
+    },
+    {
+      "id": "q16",
+      "question": "What compensation do I get if a failed debit is not refunded on time?",
+      "rank": 3,
+      "top_chunk": "## What is invoice discounting?\n\nInvoice discounting lets a seller receive up to 80 percent of the value of an accepted invoice immediately, instead of waiting for the buyer to pay at the end of the c"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 4,
+      "top_chunk": "The default daily limit for transfers through the mobile app is 2,00,000 rupees. Customers can raise it up to 10,00,000 rupees after a cooling period of 24 hours. A newly added beneficiary can receive"
+    },
+    {
+      "id": "q19",
+      "question": "Why should employees not inform customers about flagged payments?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Payments and KYC Guidelines (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank or regulation.\n\n## "
+    },
+    {
+      "id": "q20",
+      "question": "Which papers are typically needed under an export letter of credit?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Trade Finance FAQ (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank.\n\n## What is a letter of cred"
+    }
+  ],
+  "900/150": [
+    {
+      "id": "q02",
+      "question": "How much do I need to earn each month if I live outside a metro city?",
+      "rank": null,
+      "top_chunk": "lied to the overdue instalment amount. A cheque or mandate bounce attracts a flat charge of 500 rupees per instance.\n\n## 5. Prepayment and foreclosure Part-prepayment is allowed after 6 instalments ha"
+    },
+    {
+      "id": "q04",
+      "question": "What share of my income can go towards EMIs?",
+      "rank": 3,
+      "top_chunk": "t deposit a cash margin of 100 percent of the credit value before issuance.\n\n## What documents are usually presented under an export letter of credit? The commonly required documents are the commercia"
+    },
+    {
+      "id": "q06",
+      "question": "What is the penalty for closing the loan early in the second year?",
+      "rank": null,
+      "top_chunk": ", or ask the applicant to accept the discrepancy. A discrepancy fee of 75 US dollars is charged per set of documents.\n\n## What is invoice discounting? Invoice discounting lets a seller receive up to 8"
+    },
+    {
+      "id": "q07",
+      "question": "How fast is the money credited after I sign the agreement?",
+      "rank": null,
+      "top_chunk": "lied to the overdue instalment amount. A cheque or mandate bounce attracts a flat charge of 500 rupees per instance.\n\n## 5. Prepayment and foreclosure Part-prepayment is allowed after 6 instalments ha"
+    },
+    {
+      "id": "q10",
+      "question": "What fee is charged when shipping documents do not match the credit terms?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Trade Finance FAQ (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank.\n\n## What is a letter of cred"
+    },
+    {
+      "id": "q17",
+      "question": "After how long without activity is an account treated as inactive?",
+      "rank": 2,
+      "top_chunk": ", and it protects the buyer because payment is made only against the agreed shipping documents.\n\n## How long does it take to issue a letter of credit? Once a complete application and the required marg"
+    },
+    {
+      "id": "q19",
+      "question": "Why should employees not inform customers about flagged payments?",
+      "rank": 2,
+      "top_chunk": "# Northwind Example Bank \u2014 Payments and KYC Guidelines (fictional sample document)\n\nThis document is invented for testing the retrieval pipeline. It does not describe any real bank or regulation.\n\n## "
+    },
+    {
+      "id": "q20",
+      "question": "Which papers are typically needed under an export letter of credit?",
+      "rank": 2,
+      "top_chunk": ", and it protects the buyer because payment is made only against the agreed shipping documents.\n\n## How long does it take to issue a letter of credit? Once a complete application and the required marg"
+    }
+  ]
+}

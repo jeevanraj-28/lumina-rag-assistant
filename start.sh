@@ -61,7 +61,7 @@ OLLAMA_MODEL="${OLLAMA_MODEL:-qwen2.5:3b}"
 OLLAMA_EMBEDDING_MODEL="${OLLAMA_EMBEDDING_MODEL:-all-minilm}"
 OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://127.0.0.1:11434}"
 RAG_DATA_DIR="${RAG_DATA_DIR:-data}"
-APP_HOST="${APP_HOST:-0.0.0.0}"
+APP_HOST="${APP_HOST:-127.0.0.1}"  # 0.0.0.0 would expose the app to your whole network
 APP_PORT="${APP_PORT:-8000}"
 VENV_DIR="$SCRIPT_DIR/.venv"
 

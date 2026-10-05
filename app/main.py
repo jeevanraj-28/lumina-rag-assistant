@@ -16,16 +16,6 @@ from urllib.parse import quote
 from uuid import uuid4
 
 
-def sanitize_response_text(text: str) -> str:
-    """Filter out raw underlying LLM provider names (Qwen, Alibaba) into Lumina RAG / Jeevan Raj M custom branding."""
-    text = re.sub(r"I am Qwen,?\s*created by Alibaba Cloud\.?", "I am Lumina RAG, created and developed by Jeevan Raj M.", text, flags=re.IGNORECASE)
-    text = re.sub(r"I was not made by anyone as I am an AI assistant.*", "I am Lumina RAG, a private local document AI assistant created and developed by Jeevan Raj M.", text, flags=re.IGNORECASE)
-    text = re.sub(r"\b(?:created|developed|built|made)\s+by\s+Alibaba(?:\s+Cloud)?\b", "developed by Jeevan Raj M", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bAlibaba(?:\s+Cloud)?\b", "Lumina RAG System", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bQwen2?\.?5?(?::\d+b)?\b", "Lumina AI", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bQwen\b", "Lumina AI", text, flags=re.IGNORECASE)
-    return text
-
 import faiss
 import numpy as np
 import requests
@@ -189,12 +179,13 @@ def add_session(question: str, answer_text: str, sources: list[dict[str, Any]],
 
 
 def brand_model_name(raw: str) -> str:
-    """Convert raw Ollama model names into user-friendly branded display names."""
+    """Turn raw Ollama tags into readable names, e.g. "qwen2.5:3b" -> "Qwen 2.5 3B"."""
     clean = raw.lower().strip()
     if clean.startswith("qwen"):
-        parts = clean.replace("qwen", "").replace(":", " ").replace("-", " ").split()
-        size = next((p for p in parts if p.endswith("b")), "")
-        return f"Lumina {size.upper()}" if size else "Lumina AI"
+        family, _, tag = clean.partition(":")
+        version = family.replace("qwen", "").strip("-_ ")
+        size = next((p for p in tag.replace("-", " ").split() if p.endswith("b")), "")
+        return " ".join(part for part in ("Qwen", version, size.upper()) if part)
     if "deepseek" in clean:
         parts = clean.replace(":", " ").replace("-", " ").split()
         size = next((p for p in parts if p.endswith("b")), "")
@@ -260,13 +251,20 @@ async def lifespan(application: FastAPI):
 
 
 app = FastAPI(title="Local Document RAG", version="1.0.0", lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# The built-in UI is served from this same server, so it needs no CORS at all.
+# Cross-origin access is off by default: with allow_origins=["*"] and no
+# authentication, any website open in the browser could call this local API and
+# read the user's documents. To let another local UI (for example a chat front end
+# using /v1/chat/completions) connect, list its exact origin in RAG_CORS_ORIGINS.
+CORS_ORIGINS = [o.strip() for o in os.getenv("RAG_CORS_ORIGINS", "").split(",") if o.strip()]
+if CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_headers=["Content-Type", "Authorization"],
+    )
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 index: faiss.Index | None = None
 metadata: list[dict[str, Any]] = []
@@ -427,22 +425,31 @@ def extract_text(path: Path) -> str:
 
 
 def split_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
+    """Split text into chunks of at most `chunk_size` characters.
+
+    Each chunk after the first starts with the last `chunk_overlap` characters of
+    the previous chunk. To make room for that prefix without truncating new text,
+    the body of every chunk is limited to `chunk_size - chunk_overlap` characters.
+    (An earlier version prepended the overlap and then cut the chunk back to
+    `chunk_size`, which silently dropped the end of most chunks.)
+    """
     separators = ("\n\n", "\n", ". ", " ", "")
+    chunk_overlap = max(0, min(chunk_overlap, chunk_size // 2))
+    body_size = chunk_size - chunk_overlap - (1 if chunk_overlap else 0)  # 1 char for the joining space
 
     def split(value: str, separator_index: int) -> list[str]:
-        if len(value) <= chunk_size:
+        if len(value) <= body_size:
             return [value]
         if separator_index >= len(separators):
-            step = max(1, chunk_size - chunk_overlap)
-            return [value[index:index + chunk_size] for index in range(0, len(value), step)]
+            return [value[index:index + body_size] for index in range(0, len(value), body_size)]
         separator = separators[separator_index]
-        parts = ([value[index:index + chunk_size] for index in range(0, len(value), chunk_size)]
+        parts = ([value[index:index + body_size] for index in range(0, len(value), body_size)]
                  if not separator else value.split(separator))
         merged: list[str] = []
         current = ""
         for part in parts:
             candidate = f"{current}{separator}{part}" if current else part
-            if len(candidate) <= chunk_size:
+            if len(candidate) <= body_size:
                 current = candidate
             else:
                 if current:
@@ -453,10 +460,11 @@ def split_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
         return merged
 
     chunks: list[str] = []
-    for chunk in split(text, 0):
-        if chunks and chunk_overlap:
-            chunk = f"{chunks[-1][-chunk_overlap:]}{chunk}"
-        chunks.append(chunk[:chunk_size])
+    for body in split(text, 0):
+        if not body:
+            continue
+        prefix = chunks[-1][-chunk_overlap:] if chunks and chunk_overlap else ""
+        chunks.append(f"{prefix} {body}" if prefix else body)
     return chunks
 
 
@@ -610,9 +618,12 @@ CAPABILITY_PATTERNS = [
 def check_system_question(question: str) -> str | None:
     q = question.strip().lower()
     if any(re.search(pat, q) for pat in IDENTITY_PATTERNS):
-        return "I am Lumina RAG, a private local document AI assistant created and developed by Jeevan Raj M. I allow you to upload, index, and query your documents and file metadata with 100% privacy on your own machine."
+        return ("I am Lumina RAG, a private, local document assistant built by Jeevan Raj M. "
+                "Your documents are searched with FAISS on this machine, and answers are written by an open-source "
+                f"model running locally in Ollama (currently {brand_model_name(get_active_model())}). "
+                "Nothing is sent to a cloud service.")
     if any(re.search(pat, q) for pat in CAPABILITY_PATTERNS):
-        return "I am Lumina RAG, a private document assistant developed by Jeevan Raj M. You can upload documents (PDF, DOCX, TXT, MD, CSV, etc.) into your local knowledge base, build a vector index, and ask questions about your documents or their metadata (such as upload dates, file sizes, and categories)."
+        return "I am Lumina RAG, a private, local document assistant built by Jeevan Raj M. You can upload documents (PDF, DOCX, TXT, MD, CSV, etc.) into your local knowledge base, build a vector index, and ask questions about your documents or their metadata (such as upload dates, file sizes, and categories)."
     return None
 
 
@@ -676,14 +687,15 @@ def answer(question: str, top_k: int) -> tuple[str, list[dict[str, Any]]]:
 
     full_context = f"{library_metadata_header}\n\nRELEVANT EVIDENCE CHUNKS:\n" + "\n\n".join(context_chunks)
 
-    prompt = """You are Lumina RAG, a private local document AI assistant created and developed by Jeevan Raj M.
-If asked who you are, who created or developed you, or what your identity is, identify yourself as Lumina RAG, developed by Jeevan Raj M. Never mention Qwen, Alibaba, or Alibaba Cloud.
+    prompt = """You are the answering model inside Lumina RAG, a private, local document assistant built by Jeevan Raj M.
 
 %s
 
 Answer the user's question accurately using both the INDEXED LIBRARY FILES & METADATA section and the RELEVANT EVIDENCE CHUNKS below.
 If the user asks questions about file metadata (such as when a document was uploaded, modified, its file size, file type, or what files are in the library), answer directly using the file metadata provided.
-If answering from evidence chunks, cite supporting evidence IDs in square brackets like [Evidence abc123]. Be concise, accurate, and direct.
+If answering from evidence chunks, cite supporting evidence IDs in square brackets like [Evidence abc123].
+If the context does not contain the answer, say that you could not find it in the indexed documents instead of guessing.
+Be concise, accurate, and direct.
 
 CONTEXT:
 %s
@@ -695,9 +707,7 @@ ANSWER:""" % (build_memory_prompt_section(load_active_memories()), full_context,
         model_to_use = get_active_model()
         response = requests.post(f"{OLLAMA_URL}/api/generate", json={"model": model_to_use, "prompt": prompt, "stream": False, "options": {"temperature": 0.2}}, timeout=180)
         response.raise_for_status()
-        raw_answer = response.json()["response"].strip()
-        clean_answer = sanitize_response_text(raw_answer)
-        return clean_answer, sources
+        return response.json()["response"].strip(), sources
     except requests.RequestException as exc:
         raise HTTPException(503, f"Ollama is unavailable at {OLLAMA_URL}. Start it and pull {model_to_use}. ({exc})") from exc
 

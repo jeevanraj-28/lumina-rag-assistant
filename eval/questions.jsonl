@@ -1,0 +1,20 @@
+{"id": "q01", "question": "What is the youngest age at which someone can apply for a personal loan?", "file": "personal_loan_policy.md", "answer_phrase": "between 21 and 60 years"}
+{"id": "q02", "question": "How much do I need to earn each month if I live outside a metro city?", "file": "personal_loan_policy.md", "answer_phrase": "18,000 rupees"}
+{"id": "q03", "question": "Can I get an unsecured loan with a credit score of 620?", "file": "personal_loan_policy.md", "answer_phrase": "below 650 are not eligible"}
+{"id": "q04", "question": "What share of my income can go towards EMIs?", "file": "personal_loan_policy.md", "answer_phrase": "55 percent"}
+{"id": "q05", "question": "What interest rate applies if my score is 760?", "file": "personal_loan_policy.md", "answer_phrase": "11.75 percent"}
+{"id": "q06", "question": "What is the penalty for closing the loan early in the second year?", "file": "personal_loan_policy.md", "answer_phrase": "4 percent of the outstanding principal"}
+{"id": "q07", "question": "How fast is the money credited after I sign the agreement?", "file": "personal_loan_policy.md", "answer_phrase": "within 2 working days"}
+{"id": "q08", "question": "How quickly can an import LC be opened?", "file": "trade_finance_faq.md", "answer_phrase": "issued within 1 working day"}
+{"id": "q09", "question": "Do I have to put down cash collateral if I have no trade limit?", "file": "trade_finance_faq.md", "answer_phrase": "100 percent of the credit value"}
+{"id": "q10", "question": "What fee is charged when shipping documents do not match the credit terms?", "file": "trade_finance_faq.md", "answer_phrase": "75 US dollars"}
+{"id": "q11", "question": "How much of an invoice can be paid upfront under discounting?", "file": "trade_finance_faq.md", "answer_phrase": "up to 80 percent"}
+{"id": "q12", "question": "How often is the guarantee commission billed?", "file": "trade_finance_faq.md", "answer_phrase": "charged quarterly"}
+{"id": "q13", "question": "How often must a high-risk customer refresh their KYC?", "file": "payments_kyc_guidelines.md", "answer_phrase": "high-risk customers every 2 years"}
+{"id": "q14", "question": "Can a company open its account through a video call?", "file": "payments_kyc_guidelines.md", "answer_phrase": "not available for business accounts"}
+{"id": "q15", "question": "How much can I send to a payee I added a few minutes ago?", "file": "payments_kyc_guidelines.md", "answer_phrase": "50,000 rupees in the first 24 hours"}
+{"id": "q16", "question": "What compensation do I get if a failed debit is not refunded on time?", "file": "payments_kyc_guidelines.md", "answer_phrase": "100 rupees per day"}
+{"id": "q17", "question": "After how long without activity is an account treated as inactive?", "file": "payments_kyc_guidelines.md", "answer_phrase": "24 months"}
+{"id": "q18", "question": "Who handles my complaint if I am unhappy with the first resolution?", "file": "payments_kyc_guidelines.md", "answer_phrase": "Principal Nodal Officer"}
+{"id": "q19", "question": "Why should employees not inform customers about flagged payments?", "file": "payments_kyc_guidelines.md", "answer_phrase": "alert someone attempting money laundering"}
+{"id": "q20", "question": "Which papers are typically needed under an export letter of credit?", "file": "trade_finance_faq.md", "answer_phrase": "certificate of origin"}
